@@ -1,0 +1,111 @@
+.mainHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #0A9646;
+    padding: 0 16px;
+}
+
+/* LEFT */
+.left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Button */
+.menuBtn {
+    display: none;
+    color: white;
+    border: none;
+    background-color: #0A9646;
+}
+
+/* Desktop menu */
+.desktopMenu {
+    margin-right: 50px;
+    font-size: large;
+    flex: 1;
+    justify-content: end;
+    background: transparent;
+    border-bottom: none;
+    text-decoration-line: none;
+}
+
+.desktopMenu .ant-menu-item {
+    color: white !important;
+    padding: 11px;
+}
+
+.desktopMenu .ant-menu-item::after {
+  display: none !important;
+}
+
+.desktopMenu .ant-menu-item:hover {
+  background: #0ec45d !important;
+}
+
+/* RIGHT USER */
+.right {
+    display: flex;
+    align-items: center;
+}
+
+.userBox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: white;
+}
+
+.userBox:hover {
+    opacity: 0.8;
+}
+
+.username {
+    font-weight: 500;
+}
+
+/* Mobile menu */
+.mobileMenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+    
+}
+
+.mobileMenu .ant-menu {
+  background: #0A9646 !important;
+}
+
+.mobileMenu .ant-menu-item {
+  color: white !important;
+  font-size: large;
+}
+
+.mobileMenu .ant-menu-item:hover {
+  background: rgba(255,255,255,0.2) !important;
+  
+}
+
+.mobileMenu .ant-menu-item-selected {
+  background: rgba(255,255,255,0.3) !important;
+}
+
+.mobileMenu.show {
+    max-height: 500px;
+    /* đủ chứa menu */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .desktopMenu {
+        display: none;
+    }
+
+    .menuBtn {
+        display: inline-flex;
+    }
+}
