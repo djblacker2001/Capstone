@@ -1,0 +1,85 @@
+footer {
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-image: url(footerimg.png);
+    color: #fff;
+    position: relative;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.footer {
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 60px 20px 20px;
+}
+
+.footer-top {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ========== CÁC CỘT ========== */
+.footer-top h3 {
+    color: #fff;
+    font-size: 18px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.footer-top p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.footer-top ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-top ul li {
+    margin-bottom: 8px;
+}
+
+.footer-top ul li a {
+    color: #d1d5db;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.footer-top ul li a:hover {
+    color: #60a5fa;
+    padding-left: 5px;
+}
+
+/* ========== MẠNG XÃ HỘI ========== */
+.social-icons {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.social-icons a {
+    color: #d1d5db;
+    font-size: 18px;
+    width: 35px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #1f2937;
+    transition: all 0.3s ease;
+}
+
+.footer-bottom {
+    border-top: 1px solid #ccc;
+    text-align: center;
+    padding-top: 15px;
+    font-size: 13px;
+    color: #fff;
+    margin-top: 40px;
+}
