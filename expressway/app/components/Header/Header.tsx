@@ -15,7 +15,7 @@ export default function MainHeader() {
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const items = [
-    { key: "home", label: <Link href="/">Trang chủ</Link> },
+    { key: "home", label: <Link href="/home">Trang chủ</Link> },
     { key: "gioithieu", label: <Link href="/gioi-thieu">Giới thiệu</Link> },
     { key: "tuyenduong", label: <Link href="/tuyen-duong">Tuyến đường</Link> },
     { key: "bienbao", label: <Link href="/bien-bao">Biển báo</Link> },
