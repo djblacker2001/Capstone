@@ -4,7 +4,7 @@
     justify-content: space-between;
 
     background: #0A9646;
-    padding: 0 16px;
+    padding: 1px 16px;
 }
 
 /* LEFT */
@@ -35,7 +35,7 @@
 
 .desktopMenu .ant-menu-item {
     color: white !important;
-    padding: 11px;
+    padding: 15px;
 }
 
 .desktopMenu .ant-menu-item::after {

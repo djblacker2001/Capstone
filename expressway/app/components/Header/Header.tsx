@@ -66,7 +66,7 @@ export default function MainHeader() {
   }, []);
 
   return (
-    <>
+    <header>
       <Header className="mainHeader">
         <div className="left">
           <Button
@@ -103,7 +103,7 @@ export default function MainHeader() {
       <div ref={menuRef} className={`mobileMenu ${open ? "show" : ""}`}>
         <Menu mode="vertical" items={items} />
       </div>
-    </>
+    </header>
   );
 }
 
