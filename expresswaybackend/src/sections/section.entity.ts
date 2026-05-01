@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Expressway } from "../expressways/expressways.entity";
 
 @Entity('Sections')
 export class Section {
@@ -10,4 +11,7 @@ export class Section {
 
   @Column({ type: 'nvarchar', length: 'max', nullable: true })
   mapData!: string;
+
+  @ManyToOne(() => Expressway)
+  expressway!: Expressway;
 }

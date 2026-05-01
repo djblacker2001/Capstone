@@ -1,10 +1,10 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('Expressways')
-export class Expressway {
+@Entity('Bridges')
+export class Bridge {
   @PrimaryGeneratedColumn()
-  expresswayId!: number;
+  SignId!: number;
 
   @Column()
-  nameExpressway!: string;
+  NameSign!: string;
 }

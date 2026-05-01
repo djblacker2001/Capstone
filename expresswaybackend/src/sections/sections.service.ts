@@ -6,21 +6,26 @@ import { Section } from "./section.entity";
 
 @Injectable()
 export class SectionsService {
-  constructor(
-    @InjectRepository(Section)
-    private repo: Repository<Section>,
-  ) {}
+    constructor(
+        @InjectRepository(Section)
+        private repo: Repository<Section>,
+    ) { }
 
-  create(dto: CreateSectionDto) {
-    const section = this.repo.create({
-      ...dto,
-      mapData: JSON.stringify(dto.mapData),
-    });
+    create(dto) {
+        return this.repo.save(
+            this.repo.create({
+                ...dto,
+                mapData: JSON.stringify(dto.mapData),
+            }),
+        );
+    }
 
-    return this.repo.save(section);
-  }
-
-  findAll() {
-    return this.repo.find();
-  }
+    findAll() {
+        return this.repo.find().then(data =>
+            data.map(item => ({
+                ...item,
+                mapData: JSON.parse(item.mapData || '[]'),
+            })),
+        );
+    }
 }
