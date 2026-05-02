@@ -8,7 +8,7 @@ export class ExpresswaysService {
   constructor(
     @InjectRepository(Expressway)
     private repo: Repository<Expressway>,
-  ) {}
+  ) { }
 
   create(data) {
     return this.repo.save(this.repo.create(data));

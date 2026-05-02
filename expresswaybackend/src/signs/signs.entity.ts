@@ -1,10 +1,16 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('Bridges')
-export class Bridge {
-  @PrimaryGeneratedColumn()
+@Entity({ name: 'Signs', schema: 'dbo' })
+export class Sign {
+  @PrimaryGeneratedColumn({ name: 'SignId' })
   SignId!: number;
 
-  @Column()
+  @Column({ name: 'NameSign', type: 'nvarchar', length: 100 })
   NameSign!: string;
+
+  @Column({ name: 'Image', type: 'nvarchar', length: 'MAX', nullable: true })
+  Image?: string;
+
+  @Column({ name: 'Description', type: 'nvarchar', length: 'MAX', nullable: true })
+  Description?: string;
 }

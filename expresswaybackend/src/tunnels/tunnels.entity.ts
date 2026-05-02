@@ -1,10 +1,28 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Section } from '../sections/sections.entity';
 
-@Entity('Bridges')
-export class Bridge {
-  @PrimaryGeneratedColumn()
+@Entity({ name: 'Tunnels', schema: 'dbo' })
+export class Tunnel {
+  @PrimaryGeneratedColumn({ name: 'TunnelId' })
   TunnelId!: number;
 
-  @Column()
+  @Column({ name: 'SectionId', type: 'int' })
+  SectionId!: number;
+
+  @Column({ name: 'NameTunnel', type: 'nvarchar', length: 100 })
   NameTunnel!: string;
+
+  @Column({ name: 'Length', type: 'float' })
+  Length!: number;
+
+  @Column({ name: 'Height', type: 'float' })
+  Height!: number;
+
+  @Column({ name: 'HasLighting', type: 'bit' })
+  HasLighting!: boolean;
+
+  // Quan hệ: Nhiều hầm có thể thuộc một đoạn đường
+  @ManyToOne(() => Section, (section) => section.tunnels)
+  @JoinColumn({ name: 'SectionId' })
+  section!: Section;
 }

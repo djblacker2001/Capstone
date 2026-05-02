@@ -1,12 +1,16 @@
-import { TypeOrmModule } from "@nestjs/typeorm";
 import { Module } from '@nestjs/common';
-import { Section } from "./section.entity";
-import { SectionsController } from "./sections.controller";
-import { SectionsService } from "./sections.service";
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { SectionsService } from './sections.service';
+import { SectionsController } from './sections.controller';
+import { Section } from './sections.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Section])],
+  imports: [
+    // Đăng ký Entity Section để sử dụng Repository trong Service
+    TypeOrmModule.forFeature([Section]),
+  ],
   controllers: [SectionsController],
   providers: [SectionsService],
+  exports: [SectionsService], // Export nếu module khác cần sử dụng logic của Section
 })
-export class SectionsModule {}
+export class SectionsModule { }

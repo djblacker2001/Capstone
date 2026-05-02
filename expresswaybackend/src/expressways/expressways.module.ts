@@ -5,17 +5,9 @@ import { ExpresswaysService } from './expressways.service';
 import { ExpresswaysController } from './expressways.controller';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Expressway]),
-  ],
-  controllers: [
-    ExpresswaysController,
-  ],
-  providers: [
-    ExpresswaysService,
-  ],
-  exports: [
-    ExpresswaysService,
-  ],
+  imports: [TypeOrmModule.forFeature([Expressway])],
+  controllers: [ExpresswaysController],
+  providers: [ExpresswaysService],
+  exports: [ExpresswaysService],
 })
 export class ExpresswaysModule {}
