@@ -12,13 +12,22 @@ export class Interchange {
   @Column({ name: 'NameInterchange', type: 'nvarchar', length: 100 })
   NameInterchange!: string;
 
+  @Column({ name: 'Type', type: 'nvarchar', length: 100, nullable: true })
+  Type?: string;
+
   @Column({ name: 'Location', type: 'nvarchar', length: 100, nullable: true })
   Location?: string;
+
+  @Column({ name: 'BOT', type: 'nvarchar', length: 50, nullable: true })
+  BOT?: string;
+
+  @Column({ name: 'Connection', type: 'nvarchar', length: 100, nullable: true })
+  Connection?: string;
 
   @Column({ name: 'Status', type: 'nvarchar', length: 50, nullable: true })
   Status?: string;
 
-  @ManyToOne(() => Section, (section) => section.interchanges)
+  @ManyToOne(() => Section, (section) => section.interchange)
   @JoinColumn({ name: 'SectionId' })
   section!: Section;
 }

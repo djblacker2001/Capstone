@@ -28,7 +28,7 @@ export class RestStopsService {
         return restStop;
     }
 
-    create(data: Partial<RestStop>): Promise<RestStop> {
+    async create(data: Partial<RestStop>): Promise<RestStop> {
         const newRestStop = this.restStopRepository.create(data);
         return this.restStopRepository.save(newRestStop);
     }

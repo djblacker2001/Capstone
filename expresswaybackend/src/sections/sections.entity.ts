@@ -43,12 +43,12 @@ export class Section {
 
   @OneToMany(() => Bridge, (bridge) => bridge.section)
   bridge!: Bridge[]
-  @OneToOne(() => RestStop, (restStop) => restStop.sections)
+  @OneToOne(() => RestStop, (restStop) => restStop.section)
   restStop!: RestStop[]
   @OneToMany(() => Interchange, (interchange) => interchange.section)
-  interchanges!: Interchange[];
+  interchange!: Interchange[];
   @OneToMany(() => Tunnel, (tunnel) => tunnel.section)
-  tunnels!: Interchange[];
+  tunnel!: Interchange[];
 
   
 }

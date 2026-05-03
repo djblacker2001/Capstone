@@ -15,10 +15,19 @@ export class RestStop {
   @Column({ name: 'Location', type: 'nvarchar', length: 100, nullable: true })
   Location?: string;
 
+  @Column({ name: 'HasPetrol', type: 'bit' })
+  HasPetrol!: boolean;
+
+  @Column({ name: 'HasFood', type: 'bit' })
+  HasFood!: boolean;
+
+  @Column({ name: 'HasToilet', type: 'bit' })
+  HasToilet!: boolean;
+
   @Column({ name: 'Status', type: 'nvarchar', length: 50, nullable: true })
   Status?: string;
 
   @OneToOne(() => Section, (section) => section.restStop)
   @JoinColumn({ name: 'SectionId' })
-  sections!: Section;
+  section!: Section;
 }

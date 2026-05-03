@@ -21,7 +21,7 @@ export class Tunnel {
   @Column({ name: 'HasLighting', type: 'bit' })
   HasLighting!: boolean;
 
-  @ManyToOne(() => Section, (section) => section.tunnels)
+  @ManyToOne(() => Section, (section) => section.tunnel)
   @JoinColumn({ name: 'SectionId' })
   section!: Section;
 }
