@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { RestStopsService } from './rest-stops.service';
-import { RestStop } from './rest-stop.entity';
+import { RestStop } from './rest-stops.entity';
 
 @Controller('rest-stops')
 export class RestStopsController {

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RestStop } from './rest-stop.entity';
+import { RestStop } from './rest-stops.entity';
 import { RestStopsService } from './rest-stops.service';
 import { RestStopsController } from './rest-stops.controller';
 

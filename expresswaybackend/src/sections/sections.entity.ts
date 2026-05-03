@@ -1,11 +1,11 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { Expressway } from '../expressways/expressways.entity';
 import { Bridge } from '../bridges/bridges.entity';
-import { RestStop } from '../rest-stops/rest-stop.entity'
+import { RestStop } from '../rest-stops/rest-stops.entity'
 import { Interchange } from '../interchanges/interchanges.entity';
 import { Tunnel } from '../tunnels/tunnels.entity';
 
-@Entity({ name: 'Sections', schema: 'dbo' })
+@Entity({ name: 'Section', schema: 'dbo' })
 export class Section {
   @PrimaryGeneratedColumn({ name: 'SectionId' })
   SectionId!: number;
@@ -37,9 +37,12 @@ export class Section {
   @Column({ name: 'MapData', type: 'nvarchar', length: 'MAX', nullable: true })
   MapData?: string;
 
-  @ManyToOne(() => Expressway, (expressway) => expressway.sections)
-  @OneToMany(() => Bridge, (bridge) => bridge.sections)
-  bridges!: Bridge[]
+  @ManyToOne(() => Expressway, (expressway) => expressway.section)
+  @JoinColumn({ name: 'ExpresswayId' })
+  expressway!: Expressway[];
+
+  @OneToMany(() => Bridge, (bridge) => bridge.section)
+  bridge!: Bridge[]
   @OneToOne(() => RestStop, (restStop) => restStop.sections)
   restStop!: RestStop[]
   @OneToMany(() => Interchange, (interchange) => interchange.section)
@@ -47,6 +50,5 @@ export class Section {
   @OneToMany(() => Tunnel, (tunnel) => tunnel.section)
   tunnels!: Interchange[];
 
-  @JoinColumn({ name: 'ExpresswayId' })
-  expressways!: Expressway;
+  
 }

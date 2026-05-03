@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 import { Section } from '../sections/sections.entity';
 
 
-@Entity({ name: 'Bridges', schema: 'dbo' })
+@Entity({ name: 'Bridge', schema: 'dbo' })
 export class Bridge {
   @PrimaryGeneratedColumn({ name: 'BridgeId' })
   BridgeId!: number;
@@ -22,7 +22,7 @@ export class Bridge {
   @Column({ name: 'Type', type: 'nvarchar', length: 50, nullable: true })
   Type?: string;
 
-  @ManyToOne(() => Section, (section) => section.bridges)
+  @ManyToOne(() => Section, (section) => section.bridge)
   @JoinColumn({ name: 'SectionId' })
-  sections!: Section;
+  section!: Section;
 }

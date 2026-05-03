@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { User } from '../user/user.entity';
-
+import { User } from '../users/users.entity';
 
 @Entity({ name: 'Role', schema: 'dbo' })
 export class Role {
@@ -13,7 +12,6 @@ export class Role {
   @Column({ name: 'Description', type: 'nvarchar', length: 'MAX', nullable: true })
   Description?: string;
 
-  // Quan hệ: Một Role có thể được gán cho nhiều User
   @OneToMany(() => User, (user) => user.roleObject)
   users!: User[];
 }

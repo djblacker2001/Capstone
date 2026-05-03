@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Section } from "../sections/sections.entity";
 
-@Entity('Expressways')
+@Entity('Expressway')
 export class Expressway {
   @PrimaryGeneratedColumn()
   ExpresswayId!: number;
@@ -21,6 +21,6 @@ export class Expressway {
   @Column('decimal')
   TotalLength!: number;
 
-  @OneToMany(() => Section, (section) => section.expressways)
-  sections!: Section[];
+  @OneToMany(() => Section, (section) => section.expressway)
+  section!: Section[];
 }

@@ -6,11 +6,10 @@ import { Section } from './sections.entity';
 
 @Module({
   imports: [
-    // Đăng ký Entity Section để sử dụng Repository trong Service
     TypeOrmModule.forFeature([Section]),
   ],
   controllers: [SectionsController],
   providers: [SectionsService],
-  exports: [SectionsService], // Export nếu module khác cần sử dụng logic của Section
+  exports: [SectionsService],
 })
 export class SectionsModule { }

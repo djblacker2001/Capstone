@@ -1,8 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 import { Section } from '../sections/sections.entity';
 
-
-@Entity({ name: 'RestStops', schema: 'dbo' })
+@Entity({ name: 'RestStop', schema: 'dbo' })
 export class RestStop {
   @PrimaryGeneratedColumn({ name: 'RestStopId' })
   RestStopId!: number;
@@ -22,5 +21,4 @@ export class RestStop {
   @OneToOne(() => Section, (section) => section.restStop)
   @JoinColumn({ name: 'SectionId' })
   sections!: Section;
-  
 }

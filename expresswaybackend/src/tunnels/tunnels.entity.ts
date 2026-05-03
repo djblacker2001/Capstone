@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Section } from '../sections/sections.entity';
 
-@Entity({ name: 'Tunnels', schema: 'dbo' })
+@Entity({ name: 'Tunnel', schema: 'dbo' })
 export class Tunnel {
   @PrimaryGeneratedColumn({ name: 'TunnelId' })
   TunnelId!: number;
@@ -21,7 +21,6 @@ export class Tunnel {
   @Column({ name: 'HasLighting', type: 'bit' })
   HasLighting!: boolean;
 
-  // Quan hệ: Nhiều hầm có thể thuộc một đoạn đường
   @ManyToOne(() => Section, (section) => section.tunnels)
   @JoinColumn({ name: 'SectionId' })
   section!: Section;

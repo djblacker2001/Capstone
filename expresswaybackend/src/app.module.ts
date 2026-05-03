@@ -8,7 +8,7 @@ import { BridgesModule } from './bridges/bridges.module';
 import { TunnelsModule } from './tunnels/tunnels.module';
 import { SectionsModule } from './sections/sections.module';
 import { InterchangesModule } from './interchanges/interchanges.module';
-import { UsersModule } from './user/users.module';
+import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { RestStopsModule } from './rest-stops/rest-stops.module';
 import { DataSource } from 'typeorm';
@@ -17,19 +17,15 @@ import { DataSource } from 'typeorm';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mssql',
-      host: '(localdb)',
-      port: 1433,        
-      database: 'Capstone',
+      host: '127.0.0.1',
+      port: 1433,
       username: 'sa',
       password: '123456',
+      database: 'Project',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: false,
-      extra: {
+      options: {
+        encrypt: true,
         trustServerCertificate: true,
-        options: {
-          instanceName: 'MSSQLLocalDB',
-          encrypt: false,
-        },
       },
     }),
 
@@ -47,6 +43,6 @@ import { DataSource } from 'typeorm';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { 
-  constructor(private dataSource: DataSource) {}
+export class AppModule {
+  constructor(private dataSource: DataSource) { }
 }

@@ -10,14 +10,12 @@ export class SectionsService {
         private readonly sectionRepository: Repository<Section>,
     ) { }
 
-    // Lấy danh sách đoạn đường kèm thông tin tuyến cao tốc cha
     async findAll(): Promise<Section[]> {
         return await this.sectionRepository.find({
             relations: ['expressway'],
         });
     }
 
-    // Lấy chi tiết một đoạn đường và các hạ tầng đi kèm (Cầu, Hầm, Nút giao)
     async findOne(id: number): Promise<Section> {
         const section = await this.sectionRepository.findOne({
             where: { SectionId: id },
