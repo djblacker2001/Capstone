@@ -10,25 +10,21 @@ export class InterchangesService {
     private readonly interchangeRepository: Repository<Interchange>,
   ) {}
 
-  // Lấy tất cả nút giao kèm thông tin đoạn đường tương ứng
   async findAll(): Promise<Interchange[]> {
     return await this.interchangeRepository.find({ relations: ['section'] });
   }
 
-  // Lấy danh sách các nút giao thuộc về một đoạn đường cụ thể
   async findBySection(sectionId: number): Promise<Interchange[]> {
     return await this.interchangeRepository.find({
       where: { SectionId: sectionId }
     });
   }
 
-  // TẠO MỚI: Cho phép tạo nhiều nút giao cho cùng một SectionId
   async create(data: Partial<Interchange>): Promise<Interchange> {
     const newInterchange = this.interchangeRepository.create(data);
     return await this.interchangeRepository.save(newInterchange);
   }
 
-  // CẬP NHẬT & XÓA (Giữ nguyên logic cơ bản)
   async update(id: number, data: Partial<Interchange>): Promise<Interchange> {
     await this.interchangeRepository.update(id, data);
     return this.findOne(id);

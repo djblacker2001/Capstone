@@ -19,7 +19,7 @@ export class SectionsService {
     async findOne(id: number): Promise<Section> {
         const section = await this.sectionRepository.findOne({
             where: { SectionId: id },
-            relations: ['expressway', 'bridges', 'tunnels', 'interchanges'],
+            relations: ['expressway'],
         });
 
         if (!section) {
@@ -28,9 +28,17 @@ export class SectionsService {
         return section;
     }
 
-    // Tạo mới một đoạn đường
     async create(data: Partial<Section>): Promise<Section> {
         const newSection = this.sectionRepository.create(data);
         return await this.sectionRepository.save(newSection);
+    }
+
+    async update(id: number, data: Partial<Section>): Promise<Section> {
+        await this.sectionRepository.update(id, data);
+        return this.findOne(id);
+    }
+
+    async remove(id: number): Promise<void> {
+        await this.sectionRepository.delete(id); // Xóa theo Primary Key SectionId
     }
 }

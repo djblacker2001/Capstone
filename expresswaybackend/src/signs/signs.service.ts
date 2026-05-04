@@ -10,12 +10,10 @@ export class SignsService {
     private readonly signRepository: Repository<Sign>,
   ) {}
 
-  // Lấy tất cả biển báo
   async findAll(): Promise<Sign[]> {
     return await this.signRepository.find();
   }
 
-  // Tìm một biển báo theo ID
   async findOne(id: number): Promise<Sign> {
     const sign = await this.signRepository.findOne({ where: { SignId: id } });
     if (!sign) {
@@ -24,20 +22,17 @@ export class SignsService {
     return sign;
   }
 
-  // Tạo mới biển báo (Lưu tên, link ảnh và mô tả)
   async create(data: Partial<Sign>): Promise<Sign> {
     const newSign = this.signRepository.create(data);
     return await this.signRepository.save(newSign);
   }
 
-  // Cập nhật thông tin biển báo
   async update(id: number, data: Partial<Sign>): Promise<Sign> {
-    await this.findOne(id); // Kiểm tra tồn tại trước khi update
+    await this.findOne(id);
     await this.signRepository.update(id, data);
     return this.findOne(id);
   }
 
-  // Xóa biển báo
   async remove(id: number): Promise<void> {
     await this.findOne(id);
     await this.signRepository.delete(id);

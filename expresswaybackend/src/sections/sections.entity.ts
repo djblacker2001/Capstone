@@ -48,7 +48,5 @@ export class Section {
   @OneToMany(() => Interchange, (interchange) => interchange.section)
   interchange!: Interchange[];
   @OneToMany(() => Tunnel, (tunnel) => tunnel.section)
-  tunnel!: Interchange[];
-
-  
+  tunnel!: Interchange[]; 
 }
