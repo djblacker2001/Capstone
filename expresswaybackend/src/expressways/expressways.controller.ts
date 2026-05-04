@@ -1,12 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, ParseIntPipe } from "@nestjs/common";
-import { ExpresswaysService } from "./expressways.service";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { ExpresswaysService } from './expressways.service';
 
 @Controller('expressways')
 export class ExpresswaysController {
   constructor(private service: ExpresswaysService) {}
 
   @Post()
-  create(@Body() data: any) { 
+  create(@Body() data: any) {
     return this.service.create(data);
   }
 
@@ -21,10 +30,7 @@ export class ExpresswaysController {
   }
 
   @Put(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number, 
-    @Body() data: any
-  ) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() data: any) {
     return this.service.update(id, data);
   }
 

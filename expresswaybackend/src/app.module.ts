@@ -17,7 +17,7 @@ import { DataSource } from 'typeorm';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mssql',
-      host: '127.0.0.1',
+      host: 'localhost',
       port: 1433,
       username: 'sa',
       password: '123456',
@@ -38,11 +38,10 @@ import { DataSource } from 'typeorm';
     UsersModule,
     RolesModule,
     RestStopsModule,
-
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) { }
+  constructor(private dataSource: DataSource) {}
 }

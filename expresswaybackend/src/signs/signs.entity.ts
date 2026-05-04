@@ -1,6 +1,7 @@
+/* eslint-disable prettier/prettier */
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity({ name: 'Signs', schema: 'dbo' })
+@Entity({ name: 'Sign', schema: 'dbo' })
 export class Sign {
   @PrimaryGeneratedColumn({ name: 'SignId' })
   SignId!: number;

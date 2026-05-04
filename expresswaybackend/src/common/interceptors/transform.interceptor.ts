@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -15,8 +16,10 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
     return next.handle().pipe(
       map((data) => ({
         success: true,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         statusCode: context.switchToHttp().getResponse().statusCode,
         message: 'Request successful',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: data,
       })),
     );

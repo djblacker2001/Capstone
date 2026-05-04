@@ -1,5 +1,5 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Section } from "../sections/sections.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Section } from '../sections/sections.entity';
 
 @Entity('Expressway')
 export class Expressway {
