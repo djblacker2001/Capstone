@@ -10,7 +10,7 @@ const { Header } = Layout;
 
 export default function MainHeader() {
   const [open, setOpen] = useState(false);
-
+  const [user, setUser] = useState<any>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
 
@@ -23,6 +23,12 @@ export default function MainHeader() {
     { key: "nhadautu", label: <Link href="/nha-dau-tu">Nhà đầu tư</Link> },
     { key: "lienhe", label: <Link href="/lien-he">Liên hệ</Link> },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    window.location.href = "/login";
+  };
 
   const userMenu: MenuProps["items"] = [
     {
@@ -42,10 +48,10 @@ export default function MainHeader() {
       key: "logout",
       icon: <LogoutOutlined />,
       label: "Đăng xuất",
+      onClick: handleLogout,
     },
   ];
 
-  // 👇 detect click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -63,6 +69,46 @@ export default function MainHeader() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+  }, []);
+
+  useEffect(() => {
+    const loadUser = () => {
+      const u = localStorage.getItem("user");
+      if (u) setUser(JSON.parse(u));
+      else setUser(null);
+    };
+
+    loadUser();
+
+    window.addEventListener("storage", loadUser);
+    return () => window.removeEventListener("storage", loadUser);
+  }, []);
+
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+
+      try {
+        const res = await fetch("http://localhost:8080/users");
+        const result = await res.json();
+
+        const users = result.data;
+
+        const currentUser = users.find(
+          (u: any) => u.UserId.toString() === userId
+        );
+
+        if (currentUser) {
+          setUser(currentUser);
+        }
+      } catch (err) {
+        console.error("Lỗi load user:", err);
+      }
+    };
+
+    fetchUser();
   }, []);
 
   return (
@@ -90,12 +136,18 @@ export default function MainHeader() {
 
         {/* RIGHT (USER) */}
         <div className="right">
-          <Dropdown menu={{ items: userMenu }} placement="bottomRight">
-            <div className="userBox">
-              <Avatar icon={<UserOutlined />} />
-              <span className="username">Admin</span>
-            </div>
-          </Dropdown>
+          {user ? (
+            <Dropdown menu={{ items: userMenu }} placement="bottomRight">
+              <div className="userBox">
+                <Avatar src={user.Avatar || undefined} icon={<UserOutlined />} />
+                <span className="username">{user.Username}</span>
+              </div>
+            </Dropdown>
+          ) : (
+            <Link href="/login">
+              <Button type="primary">Đăng nhập</Button>
+            </Link>
+          )}
         </div>
       </Header>
 
@@ -106,5 +158,3 @@ export default function MainHeader() {
     </header>
   );
 }
-
-// import "./header.css";
