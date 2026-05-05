@@ -2,7 +2,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Section } from '../sections/sections.entity';
 
-@Entity({ name: 'Interchanges', schema: 'dbo' })
+@Entity({ name: 'Interchange', schema: 'dbo' })
 export class Interchange {
   @PrimaryGeneratedColumn({ name: 'InterchangeId' })
   InterchangeId!: number;

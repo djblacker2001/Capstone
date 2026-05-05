@@ -1,4 +1,10 @@
-import { Controller, Get, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -21,8 +27,7 @@ export class UploadController {
       storage: diskStorage({
         destination: './uploads/images',
         filename: (req, file, cb) => {
-          const uniqueName =
-            Date.now() + '-' + file.originalname;
+          const uniqueName = Date.now() + '-' + file.originalname;
           cb(null, uniqueName);
         },
       }),
