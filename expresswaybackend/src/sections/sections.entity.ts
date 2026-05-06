@@ -31,6 +31,12 @@ export class Section {
   @Column({ name: 'SpeedLimit', type: 'nvarchar', length: 'MAX', nullable: true })
   SpeedLimit?: string;
 
+  @Column({ name: 'TrafficLand', type: 'int' })
+  TrafficLand?: string;
+
+  @Column({name: 'HasEmergencyLand', type: 'bit'})
+  HasEmergencyLand?: boolean;
+
   @Column({ name: 'Status', type: 'nvarchar', length: 50, nullable: true })
   Status?: string;
 

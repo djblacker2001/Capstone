@@ -27,6 +27,9 @@ export class User {
   @Column({ name: 'IsLocked', type: 'bit' })
   IsLocked!: boolean;
 
+  @Column({ name: 'ActiveCode', type: 'nvarchar', length: 100, nullable: true })
+  ActiveCode?: string | null;
+
   @Column({ name: 'Avatar', type: 'nvarchar', length: 'MAX', nullable: true })
   Avatar?: string;
 

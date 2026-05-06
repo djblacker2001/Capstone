@@ -10,11 +10,39 @@ import Link from 'next/link';
 
 const RegisterPage = () => {
     const router = useRouter();
-    const [error, setError] = useState<string>('');
 
-    const onFinish = (values: { username: string; password: string }) => {
+    const onFinish = async (values: any) => {
+        try {
+            if (values.password !== values.confirm) {
+                message.error('Mật khẩu không khớp');
+                return;
+            }
 
+            const res = await fetch('http://localhost:8080/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    Username: values.username,
+                    Email: values.email,
+                    Password: values.password,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                message.error(data.message || 'Đăng ký thất bại');
+                return;
+            }
+
+            message.success('Đăng ký thành công!');
+            router.push('/login');
+
+        } catch (err) {
+            message.error('Lỗi server');
+        }
     };
+    
 
     return (
         <div className='expr'>

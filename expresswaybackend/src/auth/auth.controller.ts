@@ -1,7 +1,9 @@
-import { Controller, Post, Body, Res, Req, UnauthorizedException } from '@nestjs/common';
+//auth.controller.ts
+import { Controller, Post, Body, Res, Req, UnauthorizedException, Get, Query } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -35,5 +37,15 @@ export class AuthController {
         });
 
         return { accessToken: newAccessToken };
+    }
+
+    @Post('register')
+    async register(@Body() body: RegisterDto) {
+        return this.authService.register(body);
+    }
+
+    @Get('verify')
+    async verify(@Query('code') code: string) {
+        return this.authService.verify(code);
     }
 }

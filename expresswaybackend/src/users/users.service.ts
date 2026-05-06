@@ -9,7 +9,15 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
+
+  async findByActiveCode(code: string) {
+    return this.userRepository.findOne({ where: { ActiveCode: code } });
+  }
+
+  async save(user: User) {
+    return this.userRepository.save(user);
+  }
 
   async findAll(): Promise<User[]> {
     return this.userRepository.find();
