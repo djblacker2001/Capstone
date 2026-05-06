@@ -7,8 +7,12 @@ import {
   Post,
   Put,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ExpresswaysService } from './expressways.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('expressways')
 export class ExpresswaysController {
@@ -37,5 +41,12 @@ export class ExpresswaysController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Post()
+  createExpressway() {
+    return 'Create expressway (admin only)';
   }
 }

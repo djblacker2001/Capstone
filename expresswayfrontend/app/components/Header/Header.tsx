@@ -19,9 +19,20 @@ export default function MainHeader() {
     { key: "gioithieu", label: <Link href="/gioi-thieu">Giới thiệu</Link> },
     { key: "tuyenduong", label: <Link href="/tuyen-duong">Tuyến đường</Link> },
     { key: "bienbao", label: <Link href="/bien-bao">Biển báo</Link> },
-    { key: "tintuc", label: <Link href="/tin-tuc">Tin tức</Link> },
-    { key: "nhadautu", label: <Link href="/nha-dau-tu">Nhà đầu tư</Link> },
-    { key: "lienhe", label: <Link href="/lien-he">Liên hệ</Link> },
+
+    // Chỉ admin thấy
+    ...(user?.Role === "admin"
+      ? [
+        {
+          key: "manageExpressway",
+          label: <Link href="/manageExpressway">Quản lý cao tốc</Link>,
+        },
+        {
+          key: "manageUser",
+          label: <Link href="/manageUser">Quản lý người dùng</Link>,
+        },
+      ]
+      : []),
   ];
 
   const handleLogout = () => {

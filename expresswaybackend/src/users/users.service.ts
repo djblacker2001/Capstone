@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
@@ -10,17 +11,25 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  findAll(): Promise<User[]> {
+  async findAll(): Promise<User[]> {
     return this.userRepository.find();
   }
 
+  async findByUsername(username: string) {
+    return this.userRepository.findOne({
+      where: { Username: username },
+    });
+  }
+
   async findOne(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { UserId: id } });
+    const user = await this.userRepository.findOne({
+      where: { UserId: id },
+    });
     if (!user) throw new NotFoundException(`Không tìm thấy người dùng ID ${id}`);
     return user;
   }
 
-  create(data: Partial<User>): Promise<User> {
+  async create(data: Partial<User>): Promise<User> {
     const newUser = this.userRepository.create(data);
     return this.userRepository.save(newUser);
   }

@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import MainLayout from '../layout/Layout';
+import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 
 export default function MapCard() {
 
@@ -21,10 +22,12 @@ export default function MapCard() {
     }, []);
 
     return (
-        <MainLayout>
-            <Card title="Bản đồ" style={{ width: 600, margin: '40px auto' }}>
-                <div id="map" style={{ height: 300, borderRadius: 10 }}></div>
-            </Card>
-        </MainLayout>
+        <ProtectedRoute>
+            <MainLayout>
+                <Card title="Bản đồ" style={{ width: 600, margin: '40px auto' }}>
+                    <div id="map" style={{ height: 300, borderRadius: 10 }}></div>
+                </Card>
+            </MainLayout>
+        </ProtectedRoute>
     );
 }

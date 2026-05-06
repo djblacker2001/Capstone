@@ -58,8 +58,7 @@ const LoginPage = () => {
             message.success('Đăng nhập thành công!');
 
             if (user.Role === 'admin') {
-                router.push('/admin');
-                router.refresh();
+                window.location.href = '/';
             } else {
                 // router.push('/');
                 // router.refresh();
@@ -80,7 +79,7 @@ const LoginPage = () => {
                     <img src="/expresswayicon3.png" alt="logo3" style={{ width: '200px' }} />
                 </div>
 
-                <h1><b>HỆ THỐNG QUẢN LÝ CAO TỐC</b></h1>
+                <h1><b>ĐĂNG NHẬP</b></h1>
 
                 <Form.Item
                     label="Tên đăng nhập"
@@ -116,8 +115,7 @@ const LoginPage = () => {
                 </div>
 
                 <div className="footer-links">
-                    <p><Link href="#">Quên mật khẩu?</Link></p>
-                    <p><Link href="#">Cần giúp đỡ?</Link></p>
+                    <Link href="#">Quên mật khẩu?</Link>
                 </div>
 
             </Form>
