@@ -1,3 +1,4 @@
+//register.tsx
 'use client';
 
 import { Form, Input, Button, message, Col, Row } from 'antd';
@@ -7,13 +8,17 @@ import './register.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
+import { register } from 'next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup';
 
 const RegisterPage = () => {
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
 
     const onFinish = async (values: any) => {
+        setLoading(true);
         try {
-            if (values.password !== values.confirm) {
+            // 🚩 SỬA TẠI ĐÂY: Password phải viết hoa chữ P để khớp với name="Password" ở dưới
+            if (values.Password !== values.confirm) {
                 message.error('Mật khẩu không khớp');
                 return;
             }
@@ -22,9 +27,9 @@ const RegisterPage = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    Username: values.username,
-                    Email: values.email,
-                    Password: values.password,
+                    Username: values.Username, // Chữ U hoa
+                    Email: values.Email,       // Chữ E hoa
+                    Password: values.Password, // Chữ P hoa
                 }),
             });
 
@@ -35,14 +40,16 @@ const RegisterPage = () => {
                 return;
             }
 
-            message.success('Đăng ký thành công!');
+            message.success('Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.', 5);
             router.push('/login');
 
         } catch (err) {
             message.error('Lỗi server');
+        } finally {
+            setLoading(false);
         }
     };
-    
+
 
     return (
         <div className='expr'>
@@ -51,15 +58,15 @@ const RegisterPage = () => {
                     <img src="/expresswayicon3.png" alt="logo3" style={{ width: '200px' }} />
                 </div>
                 <h1><b>ĐĂNG KÝ</b></h1>
-                <Form.Item label="Tên đăng nhập" name="username" rules={[{ required: true }]}>
+                <Form.Item label="Tên đăng nhập" name="Username" rules={[{ required: true }]}>
                     <Input />
                 </Form.Item>
 
-                <Form.Item label="Email" name="email" rules={[{ required: true }]}>
+                <Form.Item label="Email" name="Email" rules={[{ required: true }]}>
                     <Input />
                 </Form.Item>
 
-                <Form.Item label="Mật khẩu" name="password" rules={[{ required: true }]}>
+                <Form.Item label="Mật khẩu" name="Password" rules={[{ required: true }]}>
                     <Input.Password />
                 </Form.Item>
 
@@ -68,7 +75,7 @@ const RegisterPage = () => {
                 </Form.Item>
 
                 <div className='login'>
-                    <Button type="primary" htmlType="submit" block className='button1'>
+                    <Button type="primary" htmlType="submit" block className='button1' loading={loading}>
                         Đăng ký
                     </Button>
                     <Button

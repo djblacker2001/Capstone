@@ -18,13 +18,13 @@ export class User {
   @Column({ name: 'Password', type: 'nvarchar', length: 'MAX' })
   Password!: string;
 
-  @Column({ name: 'Role', type: 'nvarchar', length: 20 })
+  @Column({ name: 'Role', type: 'nvarchar', length: 20, default: 'user' })
   Role!: string;
 
-  @Column({ name: 'IsActive', type: 'bit' })
+  @Column({ name: 'IsActive', type: 'bit', default: false })
   IsActive!: boolean;
 
-  @Column({ name: 'IsLocked', type: 'bit' })
+  @Column({ name: 'IsLocked', type: 'bit', default: false })
   IsLocked!: boolean;
 
   @Column({ name: 'ActiveCode', type: 'nvarchar', length: 100, nullable: true })
@@ -33,7 +33,7 @@ export class User {
   @Column({ name: 'Avatar', type: 'nvarchar', length: 'MAX', nullable: true })
   Avatar?: string;
 
-  @CreateDateColumn({ name: 'CreatedAt', type: 'datetime' })
+  @CreateDateColumn({ name: 'CreatedAt', type: 'datetime', default: () => 'GETDATE()' })
   CreatedAt!: Date;
 
   @ManyToOne(() => Role, (role) => role.users)

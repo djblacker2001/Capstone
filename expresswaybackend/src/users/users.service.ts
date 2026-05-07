@@ -11,8 +11,8 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) { }
 
-  async findByActiveCode(code: string) {
-    return this.userRepository.findOne({ where: { ActiveCode: code } });
+  async findByActiveCode(code: string): Promise<User | null> {
+    return await this.userRepository.findOne({ where: { ActiveCode: code } });
   }
 
   async save(user: User) {
@@ -45,4 +45,14 @@ export class UsersService {
   async remove(id: number): Promise<void> {
     await this.userRepository.delete(id);
   }
+
+  async update(id: number, updateData: any): Promise<any> {
+  if (updateData.Password) {
+    const bcrypt = require('bcrypt');
+    updateData.Password = await bcrypt.hash(updateData.Password, 10);
+  }
+  
+  await this.userRepository.update(id, updateData);
+  return this.userRepository.findOneBy({ UserId: id });
+}
 }
