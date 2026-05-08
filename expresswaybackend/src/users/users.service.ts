@@ -47,12 +47,7 @@ export class UsersService {
   }
 
   async update(id: number, updateData: any): Promise<any> {
-  if (updateData.Password) {
-    const bcrypt = require('bcrypt');
-    updateData.Password = await bcrypt.hash(updateData.Password, 10);
+    await this.userRepository.update(id, updateData);
+    return this.userRepository.findOneBy({ UserId: id });
   }
-  
-  await this.userRepository.update(id, updateData);
-  return this.userRepository.findOneBy({ UserId: id });
-}
 }

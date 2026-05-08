@@ -13,6 +13,7 @@ import { RolesModule } from './roles/roles.module';
 import { RestStopsModule } from './rest-stops/rest-stops.module';
 import { DataSource } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
+import { ProvincesModule } from './provinces/provinces.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { AuthModule } from './auth/auth.module';
     RolesModule,
     RestStopsModule,
     AuthModule,
+    ProvincesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

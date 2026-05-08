@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, OneToOne, JoinTable, ManyToMany } from 'typeorm';
 import { Expressway } from '../expressways/expressways.entity';
 import { Bridge } from '../bridges/bridges.entity';
-import { RestStop } from '../rest-stops/rest-stops.entity'
+import { RestStop } from '../rest-stops/rest-stops.entity';
 import { Interchange } from '../interchanges/interchanges.entity';
 import { Tunnel } from '../tunnels/tunnels.entity';
+import { Province } from '../provinces/provinces.entity';
 
 @Entity({ name: 'Section', schema: 'dbo' })
 export class Section {
@@ -34,7 +35,7 @@ export class Section {
   @Column({ name: 'TrafficLand', type: 'int' })
   TrafficLand?: string;
 
-  @Column({name: 'HasEmergencyLand', type: 'bit'})
+  @Column({ name: 'HasEmergencyLand', type: 'bit' })
   HasEmergencyLand?: boolean;
 
   @Column({ name: 'Status', type: 'nvarchar', length: 50, nullable: true })
@@ -48,11 +49,24 @@ export class Section {
   expressway!: Expressway[];
 
   @OneToMany(() => Bridge, (bridge) => bridge.section)
-  bridge!: Bridge[]
+  bridge!: Bridge[];
   @OneToOne(() => RestStop, (restStop) => restStop.section)
-  restStop!: RestStop[]
+  restStop!: RestStop[];
   @OneToMany(() => Interchange, (interchange) => interchange.section)
   interchange!: Interchange[];
   @OneToMany(() => Tunnel, (tunnel) => tunnel.section)
-  tunnel!: Interchange[]; 
+  tunnel!: Interchange[];
+  @ManyToMany(() => Province, (province) => province.section)
+  @JoinTable({
+    name: 'SectionProvince',
+    joinColumn: {
+      name: 'SectionId',
+      referencedColumnName: 'SectionId',
+    },
+    inverseJoinColumn: {
+      name: 'ProvinceId',
+      referencedColumnName: 'ProvinceId',
+    },
+  })
+  province!: Province[];
 }

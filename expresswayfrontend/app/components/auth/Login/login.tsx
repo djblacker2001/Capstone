@@ -31,9 +31,7 @@ const LoginPage = () => {
             // 2. Tìm user khớp với Username và Password (SO SÁNH TRỰC TIẾP CHỮ THÔ)
             const user = users.find(
                 (u: any) =>
-                    // So sánh Username (không phân biệt hoa thường, xóa khoảng trắng)
                     u.Username.trim().toLowerCase() === values.username.trim().toLowerCase() &&
-                    // So sánh Password trực tiếp (chữ thô)
                     String(u.Password).trim() === String(values.password).trim()
             );
 
@@ -44,7 +42,6 @@ const LoginPage = () => {
                 return;
             }
 
-            // 3. Kiểm tra các điều kiện phụ
             if (user.IsLocked) {
                 setError('Tài khoản này hiện đang bị khóa');
                 return;
@@ -55,16 +52,10 @@ const LoginPage = () => {
                 return;
             }
 
-            // 4. Lưu thông tin và chuyển hướng
-            // Lưu nguyên object user vào localStorage để Header.tsx đọc được user.Username
             localStorage.setItem('user', JSON.stringify(user));
-            
-            // Phát sự kiện để Header cập nhật tên ngay lập tức mà không cần F5
             window.dispatchEvent(new Event("storage"));
 
             message.success('Đăng nhập thành công!');
-
-            // Dùng window.location để đảm bảo toàn bộ trang được refresh lại sạch sẽ
             window.location.href = '/';
 
         } catch (err) {
