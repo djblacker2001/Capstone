@@ -10,9 +10,11 @@
     border-radius: 12px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     width: 500px;
-    margin: 50px auto;
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
     padding: 40px;
-    height: 85%;
+    height: 750px;
 }
 
 /* Toàn màn hình + nền */
@@ -142,6 +144,7 @@ button {
 @media (max-width: 768px) {
     .ant-form {
         width: 350px;
+        height: 800px;
     }
     
     .login {

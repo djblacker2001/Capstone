@@ -1,4 +1,3 @@
-//login.tsx
 'use client';
 
 import { Form, Input, Button, message } from 'antd';
@@ -10,72 +9,75 @@ import Link from 'next/link';
 const LoginPage = () => {
     const router = useRouter();
     const [error, setError] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
 
     const onFinish = async (values: { username: string; password: string }) => {
+        setLoading(true);
         try {
             setError('');
-
             console.log("INPUT:", values);
 
+            // 1. Lấy danh sách users từ API
             const res = await fetch('http://localhost:8080/users');
             const result = await res.json();
 
-            console.log("API RESULT:", result);
-
-            if (!result.success) {
-                setError('Lỗi API');
+            if (!res.ok || !result.success) {
+                setError('Không thể lấy dữ liệu từ server');
                 return;
             }
 
             const users = result.data;
 
+            // 2. Tìm user khớp với Username và Password (SO SÁNH TRỰC TIẾP CHỮ THÔ)
             const user = users.find(
                 (u: any) =>
+                    // So sánh Username (không phân biệt hoa thường, xóa khoảng trắng)
                     u.Username.trim().toLowerCase() === values.username.trim().toLowerCase() &&
-                    u.Password.trim() === values.password.trim()
+                    // So sánh Password trực tiếp (chữ thô)
+                    String(u.Password).trim() === String(values.password).trim()
             );
 
             console.log("FOUND USER:", user);
 
             if (!user) {
-                setError('Sai username hoặc mật khẩu');
+                setError('Sai tên đăng nhập hoặc mật khẩu');
                 return;
             }
 
+            // 3. Kiểm tra các điều kiện phụ
             if (user.IsLocked) {
-                setError('Tài khoản đã bị khóa');
+                setError('Tài khoản này hiện đang bị khóa');
                 return;
             }
 
             if (!user.IsActive) {
-                setError('Tài khoản chưa kích hoạt');
+                setError('Tài khoản chưa được kích hoạt qua Email');
                 return;
             }
 
-            // 👉 lưu user
+            // 4. Lưu thông tin và chuyển hướng
+            // Lưu nguyên object user vào localStorage để Header.tsx đọc được user.Username
             localStorage.setItem('user', JSON.stringify(user));
+            
+            // Phát sự kiện để Header cập nhật tên ngay lập tức mà không cần F5
             window.dispatchEvent(new Event("storage"));
 
             message.success('Đăng nhập thành công!');
 
-            if (user.Role === 'admin') {
-                window.location.href = '/';
-            } else {
-                // router.push('/');
-                // router.refresh();
-                window.location.href = '/';
-            }
+            // Dùng window.location để đảm bảo toàn bộ trang được refresh lại sạch sẽ
+            window.location.href = '/';
 
         } catch (err) {
             console.error(err);
-            setError('Không thể kết nối server');
+            setError('Lỗi kết nối server');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className='expr'>
             <Form onFinish={onFinish} layout="vertical">
-
                 <div className='logo'>
                     <img src="/expresswayicon3.png" alt="logo3" style={{ width: '200px' }} />
                 </div>
@@ -98,10 +100,10 @@ const LoginPage = () => {
                     <Input.Password placeholder="Nhập mật khẩu" size="large" />
                 </Form.Item>
 
-                {error && <div className="login-error">{error}</div>}
+                {error && <div className="login-error" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
 
                 <div className='login'>
-                    <Button type="primary" htmlType="submit" block className='button1'>
+                    <Button type="primary" htmlType="submit" block className='button1' loading={loading}>
                         Đăng nhập
                     </Button>
 
@@ -115,10 +117,9 @@ const LoginPage = () => {
                     </Button>
                 </div>
 
-                <div className="footer-links">
+                <div className="footer-links" style={{ textAlign: 'center', marginTop: '15px' }}>
                     <Link href="#">Quên mật khẩu?</Link>
                 </div>
-
             </Form>
         </div>
     );

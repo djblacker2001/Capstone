@@ -39,7 +39,7 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     RolesModule,
     RestStopsModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

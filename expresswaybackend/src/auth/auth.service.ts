@@ -1,6 +1,9 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable prettier/prettier */
+// eslint-disable-next-line prettier/prettier
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { UsersService } from '../users/users.service';
@@ -12,36 +15,33 @@ export class AuthService {
         private usersService: UsersService,
     ) { }
 
-    async validateUser(username: string, password: string) {
+    async validateUser(username: string, pass: string): Promise<any> {
         const user = await this.usersService.findByUsername(username);
-        console.log('User tìm thấy:', user);
-        if (!user) return null;
 
-        // 🚩 QUAN TRỌNG: Kiểm tra tài khoản đã kích hoạt chưa
-        if (!user.IsActive) {
-            throw new UnauthorizedException('Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email.');
+        if (user) {
+            // SO SÁNH TRỰC TIẾP (Không dùng Bcrypt)
+            if (user.Password === pass) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { Password, ...result } = user;
+                return result;
+            }
         }
-
-        const isMatch = await bcrypt.compare(password, user.Password);
-        console.log('Mật khẩu khớp không:', isMatch);
-        return isMatch ? user : null;
+        return null;
     }
 
     async register(data: any) {
         const exist = await this.usersService.findByUsername(data.Username);
         if (exist) throw new BadRequestException('Username đã tồn tại');
-
-        const hashed = await bcrypt.hash(data.Password, 10);
         const activeCode = crypto.randomBytes(32).toString('hex');
 
         const user = await this.usersService.create({
             Username: data.Username,
             Email: data.Email,
-            Password: hashed,
+            Password: data.Password,
             RoleId: 2,
-            Role: 'user',      
-            IsActive: false,  
-            IsLocked: false,     
+            Role: 'user',
+            IsActive: false,
+            IsLocked: false,
             ActiveCode: activeCode,
             CreatedAt: new Date(),
 
@@ -70,6 +70,7 @@ export class AuthService {
     }
 
     async sendEmail(to: string, link: string) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -78,6 +79,7 @@ export class AuthService {
             },
         });
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         await transporter.sendMail({
             from: '"Expressway System" <your_email@gmail.com>',
             to,

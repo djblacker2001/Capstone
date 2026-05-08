@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { InterchangesService } from './interchanges.service';
 import { Interchange } from './interchanges.entity';
