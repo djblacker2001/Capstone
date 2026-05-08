@@ -33,6 +33,9 @@ export class User {
   @Column({ name: 'Avatar', type: 'nvarchar', length: 'MAX', nullable: true })
   Avatar?: string;
 
+  @Column({ name: 'ResetToken', type: 'nvarchar', length: 'MAX', nullable: true })
+  ResetToken?: string | null;
+
   @CreateDateColumn({ name: 'CreatedAt', type: 'datetime', default: () => 'GETDATE()' })
   CreatedAt!: Date;
 

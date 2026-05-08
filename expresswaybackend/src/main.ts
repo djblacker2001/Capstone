@@ -12,6 +12,7 @@ async function bootstrap() {
   app.use('/signs', express.static(join(__dirname, '..', 'uploads/signs')));
   app.enableCors({
     origin: 'http://localhost:3000', // frontend của bạn
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
   await app.listen(8080);

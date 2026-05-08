@@ -1,7 +1,7 @@
 //register.tsx
 'use client';
 
-import { Form, Input, Button, message, Col, Row } from 'antd';
+import { Form, Input, Button, message, Col, Row, Select } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import './register.css';
@@ -73,6 +73,16 @@ const RegisterPage = () => {
 
                 <Form.Item label="Xác nhận mật khẩu" name="confirm" rules={[{ required: true }]}>
                     <Input.Password />
+                </Form.Item>
+                <Form.Item
+                    label="Vai trò"
+                    name="Role"
+                    initialValue="user"
+                >
+                    <Select size="large">
+                        <Select.Option value="user">Người dùng thông thường</Select.Option>
+                        <Select.Option value="admin">Quản trị viên (Admin)</Select.Option>
+                    </Select>
                 </Form.Item>
 
                 <div className='login'>
