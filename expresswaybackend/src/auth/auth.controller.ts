@@ -1,19 +1,11 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  Query,
-  UnauthorizedException,
-  BadRequestException,
-} from '@nestjs/common';
+import {Controller, Post, Body, Get, Query, UnauthorizedException, BadRequestException,} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Post('register')
   async register(@Body() body: RegisterDto) {
@@ -38,5 +30,15 @@ export class AuthController {
       );
     }
     return this.authService.login(user);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: { email: string }) {
+    return await this.authService.forgotPassword(body.email);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() body: { token: string; newPassword: string }) {
+    return await this.authService.resetPassword(body.token, body.newPassword);
   }
 }

@@ -30,11 +30,9 @@ export default function MainHeader() {
 
   // 2. useEffect quản lý dữ liệu user
   useEffect(() => {
-    loadUser(); // Chạy khi load trang
-
+    loadUser();
     // Lắng nghe sự kiện "storage" từ các tab khác hoặc từ login.tsx
     window.addEventListener("storage", loadUser);
-    
     return () => window.removeEventListener("storage", loadUser);
   }, []);
 
@@ -50,11 +48,11 @@ export default function MainHeader() {
     { key: "tuyenduong", label: <Link href="/tuyen-duong">Tuyến đường</Link> },
     { key: "bienbao", label: <Link href="/bien-bao">Biển báo</Link> },
 
-    // Kiểm tra Role (Lưu ý chữ R viết hoa theo DB của bạn)
     ...(user?.Role === "admin"
       ? [
           { key: "manageExpressway", label: <Link href="/manageExpressway">Quản lý cao tốc</Link> },
           { key: "manageUser", label: <Link href="/manageUser">Quản lý người dùng</Link> },
+          { key: "manageSign", label: <Link href="/manageSign">Quản lý biển báo</Link> },
         ]
       : []),
   ];
@@ -88,7 +86,6 @@ export default function MainHeader() {
             <Dropdown menu={{ items: userMenu }} placement="bottomRight">
               <div className="userBox" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Avatar src={user.Avatar || undefined} icon={<UserOutlined />} />
-                {/* Đảm bảo dùng Username (U hoa) khớp với DB */}
                 <span className="username">{user.Username}</span>
               </div>
             </Dropdown>

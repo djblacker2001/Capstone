@@ -21,10 +21,9 @@ export class AuthService implements OnModuleInit {
       secure: true, // dùng SSL
       auth: {
         user: 'hoangvu222001@gmail.com',
-        pass: 'nfusjpuhfkhurlsf', // Mật khẩu ứng dụng viết liền
+        pass: 'nfusjpuhfkhurlsf',
       },
       tls: {
-        // Không cho phép lỗi chứng chỉ ngăn cản việc gửi mail
         rejectUnauthorized: false
       }
     });
@@ -52,7 +51,6 @@ export class AuthService implements OnModuleInit {
 
   // 2. Đăng ký (Hỗ trợ chọn Role và Gửi mail xác thực)
   async register(data: any) {
-    // Kiểm tra trùng username
     const exist = await this.usersService.findByUsername(data.Username);
     if (exist) throw new BadRequestException('Username đã tồn tại');
 
@@ -166,9 +164,8 @@ export class AuthService implements OnModuleInit {
     if (!user) {
       throw new BadRequestException('Mã xác thực không hợp lệ hoặc đã hết hạn');
     }
-
-    user.Password = newPassword; // Cập nhật mật khẩu mới (chữ thô)
-    user.ResetToken = null;      // Xóa token sau khi dùng xong
+    user.Password = newPassword;
+    user.ResetToken = null;
     await this.usersService.save(user);
 
     return { success: true, message: 'Mật khẩu đã được cập nhật thành công' };

@@ -13,12 +13,9 @@ import { register } from 'next/dist/next-devtools/userspace/pages/pages-dev-over
 const RegisterPage = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onFinish = async (values: any) => {
         setLoading(true);
         try {
-            // 🚩 SỬA TẠI ĐÂY: Password phải viết hoa chữ P để khớp với name="Password" ở dưới
             if (values.Password !== values.confirm) {
                 message.error('Mật khẩu không khớp');
                 return;
@@ -28,9 +25,9 @@ const RegisterPage = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    Username: values.Username, // Chữ U hoa
-                    Email: values.Email,       // Chữ E hoa
-                    Password: values.Password, // Chữ P hoa
+                    Username: values.Username,
+                    Email: values.Email,
+                    Password: values.Password,
                 }),
             });
 

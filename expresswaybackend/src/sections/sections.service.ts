@@ -39,6 +39,6 @@ export class SectionsService {
     }
 
     async remove(id: number): Promise<void> {
-        await this.sectionRepository.delete(id); // Xóa theo Primary Key SectionId
+        await this.sectionRepository.delete(id);
     }
 }

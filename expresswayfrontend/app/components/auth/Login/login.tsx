@@ -109,7 +109,9 @@ const LoginPage = () => {
                 </div>
 
                 <div className="footer-links" style={{ textAlign: 'center', marginTop: '15px' }}>
-                    <Link href="#">Quên mật khẩu?</Link>
+                    <Link href="/forgot-password" style={{ color: '#1890ff', fontSize: '14px' }}>
+                        Quên mật khẩu?
+                    </Link>
                 </div>
             </Form>
         </div>
