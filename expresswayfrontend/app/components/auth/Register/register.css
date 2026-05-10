@@ -111,6 +111,7 @@ button {
     border-color: #0A9646;
     font-weight: 600;
     color: #0A9646;
+    width: 200px !important;
 }
 
 .button2:hover {

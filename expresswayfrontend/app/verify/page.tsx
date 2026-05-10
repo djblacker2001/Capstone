@@ -1,14 +1,18 @@
 'use client';
 import { useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation'; // Sửa import ở đây
 import { message } from 'antd';
 
 export default function VerifyPage() {
   const searchParams = useSearchParams();
+  const router = useRouter(); // Khởi tạo router chuẩn của App Router
+
+  // Lấy code từ searchParams đã định nghĩa ở trên
   const code = searchParams.get('code');
 
   useEffect(() => {
-    const handleVerify = async () => {
+    const verifyAccount = async () => {
+      // KIỂM TRA: Nếu không có code thì không làm gì cả hoặc báo lỗi
       if (!code) return;
 
       try {
@@ -16,23 +20,35 @@ export default function VerifyPage() {
         const data = await res.json();
 
         if (data.success) {
-          alert("Kích hoạt thành công! Đang chuyển sang trang đăng nhập...");
-          window.location.href = '/login';
+          message.success('Xác thực thành công!');
+
+          // 1. Lưu token và thông tin user vào localStorage
+          localStorage.setItem('token', data.accessToken);
+          localStorage.setItem('user', JSON.stringify(data.user));
+
+          // 2. Chuyển hướng đến trang upload avatar
+          // Sử dụng backtick để truyền id vào đúng link
+          router.push(`/uploadAvatar?userId=${data.user.id}`);
         } else {
-          alert("Lỗi: " + data.message);
+          message.error(data.message || 'Xác thực thất bại');
+          router.push('/login');
         }
       } catch (error) {
-        alert("Lỗi kết nối Server!");
+        console.error('Lỗi kết nối:', error);
+        message.error('Không thể kết nối đến server');
       }
     };
 
-    handleVerify();
-  }, [code]); // Chạy khi có code từ URL
+    if (code) {
+      verifyAccount();
+    }
+  }, [code, router]); // Thêm dependencies để tránh lỗi cảnh báo của React
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+    <div style={{ textAlign: 'center', marginTop: '100px', fontFamily: 'Arial' }}>
+      <div className="loader"></div>
       <h2>Đang xác nhận tài khoản...</h2>
-      <p>Vui lòng đợi trong giây lát.</p>
+      <p>Hệ thống đang kiểm tra mã kích hoạt của bạn.</p>
     </div>
   );
 }

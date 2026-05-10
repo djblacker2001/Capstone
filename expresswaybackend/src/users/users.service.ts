@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
-import { AuthService } from '../auth/auth.service';
+// XÓA: import { AuthService } from '../auth/auth.service'; <- Xóa dòng này để tránh lỗi vòng lặp
 
 @Injectable()
 export class UsersService {
@@ -43,11 +43,15 @@ export class UsersService {
   }
 
   async remove(id: number): Promise<void> {
-    await this.userRepository.delete(id);
+    // SỬA: Đảm bảo xóa đúng theo UserId
+    const result = await this.userRepository.delete({ UserId: id });
+    if (result.affected === 0) {
+      throw new NotFoundException(`Không tìm thấy người dùng ID ${id} để xóa`);
+    }
   }
 
   async update(id: number, updateData: any): Promise<any> {
-    await this.userRepository.update(id, updateData);
+    await this.userRepository.update({ UserId: id }, updateData);
     return this.userRepository.findOneBy({ UserId: id });
   }
 
@@ -57,5 +61,21 @@ export class UsersService {
 
   async findByResetToken(token: string) {
     return await this.userRepository.findOneBy({ ResetToken: token });
+  }
+
+  async updateAvatar(userId: number, avatarPath: string) {
+    const user = await this.findOne(userId);
+    user.Avatar = avatarPath;
+    return this.userRepository.save(user);
+  }
+
+  async updatePassword(userId: number, newHashedPassword: string): Promise<void> {
+    const result = await this.userRepository.update({ UserId: userId }, {
+      Password: newHashedPassword
+    });
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`Không tìm thấy người dùng có ID ${userId}`);
+    }
   }
 }

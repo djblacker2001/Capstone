@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, OnModuleInit } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
+import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
@@ -18,7 +19,7 @@ export class AuthService implements OnModuleInit {
     this.transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
-      secure: true, // dùng SSL
+      secure: true,
       auth: {
         user: 'hoangvu222001@gmail.com',
         pass: 'nfusjpuhfkhurlsf',
@@ -28,7 +29,6 @@ export class AuthService implements OnModuleInit {
       }
     });
 
-    // Kiểm tra kết nối transporter ngay khi chạy server
     this.transporter.verify((error) => {
       if (error) {
         console.error('Lỗi Transporter (Mail):', error.message);
@@ -38,11 +38,34 @@ export class AuthService implements OnModuleInit {
     });
   }
 
-  // 1. Kiểm tra đăng nhập (So sánh mật khẩu chữ thô)
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findByUsername(username);
+    if (!user) return null;
+    console.log('Mật khẩu người dùng nhập:', pass);
+    console.log('Mật khẩu trong DB:', user.Password);
+    let isMatch = false;
+    // Kiểm tra xem mật khẩu hiện tại trong DB có phải là Bcrypt không
+    const isHashed = user.Password.startsWith('$2b$') || user.Password.startsWith('$2a$');
+    if (isHashed) {
+      // So sánh kiểu Bcrypt
+      isMatch = await bcrypt.compare(pass, user.Password);
+      console.log('Kết quả so sánh Bcrypt:', isMatch);
+    } else {
+      // So sánh kiểu chữ thô (Plain text)
+      isMatch = (user.Password === pass);
+      console.log('Kết quả so sánh chữ thô:', isMatch);
+      // NẾU KHỚP KIỂU THÔ -> TỰ ĐỘNG BĂM LẠI VÀ CẬP NHẬT DB
+      if (isMatch) {
+        const salt = await bcrypt.genSalt(10);
+        const newHashedPassword = await bcrypt.hash(pass, salt);
 
-    if (user && user.Password === pass) {
+        // Gọi hàm vừa viết ở bước 1 để lưu mật khẩu mới đã băm
+        await this.usersService.updatePassword(user.UserId, newHashedPassword);
+        console.log(`User ${username} đã được nâng cấp lên Bcrypt thành công!`);
+      }
+    }
+
+    if (isMatch) {
       const { Password, ...result } = user;
       return result;
     }
@@ -53,20 +76,17 @@ export class AuthService implements OnModuleInit {
   async register(data: any) {
     const exist = await this.usersService.findByUsername(data.Username);
     if (exist) throw new BadRequestException('Username đã tồn tại');
-
-    // Tạo mã kích hoạt ngẫu nhiên
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(data.Password, salt);
     const activeCode = crypto.randomBytes(32).toString('hex');
-
-    // Xác định RoleId dựa trên Role gửi lên
-    const role = data.Role || 'user';
-    const roleId = role === 'admin' ? 1 : 2; // Giả sử 1 là Admin, 2 là User
+    const roleId = data.Role === 'admin' ? 1 : 2;
 
     const user = await this.usersService.create({
       Username: data.Username,
       Email: data.Email,
-      Password: data.Password,
-      RoleId: roleId,      // Thêm dòng này để không bị NULL
-      Role: role,
+      Password: hashedPassword,
+      RoleId: roleId,
+      Role: data.Role || 'user',
       IsActive: false,
       IsLocked: false,
       ActiveCode: activeCode,
@@ -90,17 +110,21 @@ export class AuthService implements OnModuleInit {
   // 3. API Kích hoạt tài khoản
   async verify(code: string) {
     const user = await this.usersService.findByActiveCode(code);
-    if (!user) {
-      throw new BadRequestException('Mã kích hoạt không hợp lệ hoặc đã hết hạn');
-    }
+    if (!user) throw new BadRequestException('Mã không hợp lệ');
 
     user.IsActive = true;
-    user.ActiveCode = null; // Xóa code sau khi dùng
+    user.ActiveCode = null;
     await this.usersService.save(user);
+
+    // Tạo Token ngay sau khi kích hoạt thành công
+    const payload = { sub: user.UserId, username: user.Username, role: user.Role };
+    const accessToken = this.jwtService.sign(payload);
 
     return {
       success: true,
-      message: 'Kích hoạt tài khoản thành công! Bây giờ bạn có thể đăng nhập.',
+      message: 'Kích hoạt thành công!',
+      accessToken,
+      user: { id: user.UserId, username: user.Username }
     };
   }
 

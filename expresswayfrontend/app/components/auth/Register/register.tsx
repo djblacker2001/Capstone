@@ -1,23 +1,20 @@
-//register.tsx
 'use client';
 
-import { Form, Input, Button, message, Col, Row, Select } from 'antd';
+import { Form, Input, Button, message, Select } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import './register.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
-import Link from 'next/link';
-import { register } from 'next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup';
 
 const RegisterPage = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+
     const onFinish = async (values: any) => {
         setLoading(true);
         try {
             if (values.Password !== values.confirm) {
                 message.error('Mật khẩu không khớp');
+                setLoading(false);
                 return;
             }
 
@@ -28,6 +25,7 @@ const RegisterPage = () => {
                     Username: values.Username,
                     Email: values.Email,
                     Password: values.Password,
+                    Role: values.Role,
                 }),
             });
 
@@ -38,8 +36,13 @@ const RegisterPage = () => {
                 return;
             }
 
-            message.success('Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.', 5);
-            router.push('/login');
+            message.success('Đăng ký thành công! Đang chuyển hướng...', 2);
+
+            // Nếu Backend trả về ID của user vừa tạo trong data.userId hoặc data.user.UserId
+            const userId = data.user?.UserId || data.userId;
+
+            // Chuyển sang trang uploadAvatar và đính kèm userId lên URL
+            router.push(`/uploadAvatar?userId=${userId}`);
 
         } catch (err) {
             message.error('Lỗi server');
@@ -48,29 +51,37 @@ const RegisterPage = () => {
         }
     };
 
-
     return (
         <div className='expr'>
-            <Form onFinish={onFinish} layout="vertical">
+            <Form onFinish={onFinish} layout="vertical" scrollToFirstError>
                 <div className='logo'>
                     <img src="/expresswayicon3.png" alt="logo3" style={{ width: '200px' }} />
                 </div>
                 <h1><b>ĐĂNG KÝ</b></h1>
-                <Form.Item label="Tên đăng nhập" name="Username" rules={[{ required: true }]}>
-                    <Input />
+
+                <Form.Item label="Tên đăng nhập" name="Username" rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}>
+                    <Input placeholder="user123..." />
                 </Form.Item>
 
-                <Form.Item label="Email" name="Email" rules={[{ required: true }]}>
-                    <Input />
+                <Form.Item
+                    label="Email"
+                    name="Email"
+                    rules={[
+                        { required: true, message: 'Vui lòng nhập email!' },
+                        { type: 'email', message: 'Email không đúng định dạng!' }
+                    ]}
+                >
+                    <Input placeholder="example@gmail.com" />
                 </Form.Item>
 
-                <Form.Item label="Mật khẩu" name="Password" rules={[{ required: true }]}>
+                <Form.Item label="Mật khẩu" name="Password" rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}>
                     <Input.Password />
                 </Form.Item>
 
-                <Form.Item label="Xác nhận mật khẩu" name="confirm" rules={[{ required: true }]}>
+                <Form.Item label="Xác nhận mật khẩu" name="confirm" rules={[{ required: true, message: 'Vui lòng xác nhận mật khẩu!' }]}>
                     <Input.Password />
                 </Form.Item>
+
                 <Form.Item
                     label="Vai trò"
                     name="Role"
@@ -91,8 +102,9 @@ const RegisterPage = () => {
                         block
                         className='button2'
                         onClick={() => router.push('/login')}
+                        style={{ marginTop: '10px' }}
                     >
-                        Đăng nhập
+                        Đã có tài khoản? Đăng nhập
                     </Button>
                 </div>
             </Form>
