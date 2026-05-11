@@ -25,7 +25,7 @@ export class AuthService implements OnModuleInit {
         pass: 'nfusjpuhfkhurlsf',
       },
       tls: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
       }
     });
 
