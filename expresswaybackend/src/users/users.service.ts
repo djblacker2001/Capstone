@@ -64,8 +64,10 @@ export class UsersService {
   }
 
   async updateAvatar(userId: number, avatarPath: string) {
-    const user = await this.findOne(userId);
-    user.Avatar = avatarPath;
+    const user = await this.userRepository.findOne({ where: { UserId: userId } });
+    if (!user) throw new NotFoundException('User không tồn tại');
+
+    user.Avatar = avatarPath; // Lưu path vào cột Avatar
     return this.userRepository.save(user);
   }
 

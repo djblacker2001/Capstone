@@ -1,9 +1,10 @@
-'use client'; // BẮT BUỘC phải có dòng này
+// uploadAvatar
+'use client';
 
 import { useEffect, useState } from 'react';
 import { Upload, Button, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import { useRouter, useSearchParams } from 'next/navigation'; // Để lấy userId từ URL
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const AvatarUpload = () => {
   const router = useRouter();
@@ -22,7 +23,7 @@ const AvatarUpload = () => {
 
   const handleUpload = async () => {
     if (!userId || isNaN(userId)) {
-      message.error("Không tìm thấy ID người dùng hợp lệ. Vui lòng quay lại trang đăng ký!");
+      message.error("Không tìm thấy ID người dùng hợp lệ.");
       return;
     }
 
@@ -35,20 +36,39 @@ const AvatarUpload = () => {
     formData.append('file', fileList[0].originFileObj);
 
     setUploading(true);
-    try {
-      const response = await fetch(`http://localhost:8080/users/${userId}/avatar`, {
-        method: 'PATCH',
-        body: formData,
-      });
 
-      if (response.ok) {
-        message.success('Upload ảnh thành công!');
-        router.push('/');
-      } else {
-        message.error('Lỗi khi lưu ảnh vào hệ thống.');
+    try {
+      // upload avatar
+      const response = await fetch(
+        `http://localhost:8080/users/${userId}/avatar`,
+        {
+          method: 'PATCH',
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Upload thất bại");
       }
+
+      // lấy user mới nhất
+      const userResponse = await fetch(
+        `http://localhost:8080/users/${userId}`
+      );
+
+      if (!userResponse.ok) {
+        throw new Error("Không lấy được thông tin user");
+      }
+
+      const updatedUser = await userResponse.json();
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      window.dispatchEvent(new Event("userUpdate"));
+      message.success("Upload ảnh thành công!");
+      router.push("/");
+
     } catch (error) {
-      message.error('Lỗi kết nối Server.');
+      console.error(error);
+      message.error("Có lỗi xảy ra.");
     } finally {
       setUploading(false);
     }
@@ -62,14 +82,13 @@ const AvatarUpload = () => {
         fileList={fileList}
         maxCount={1}
         beforeUpload={(file) => {
-          // Chỉ nhận file ảnh
           const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
           if (!isJpgOrPng) {
             message.error('Bạn chỉ có thể tải lên định dạng JPG/PNG!');
             return Upload.LIST_IGNORE;
           }
-          setFileList([{ originFileObj: file }]); // Lưu file vào state
-          return false; // Chặn tự động upload của Antd
+          setFileList([{ originFileObj: file }]);
+          return false; 
         }}
         onRemove={() => setFileList([])}
       >

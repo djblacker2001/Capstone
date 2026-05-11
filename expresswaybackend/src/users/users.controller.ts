@@ -47,15 +47,16 @@ export class UsersController {
   @Patch(':id/avatar')
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
-      destination: './uploads/avatars',
+      destination: './uploads/avatars', // Thư mục lưu ảnh
       filename: (req, file, cb) => {
-        const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
-        return cb(null, `${randomName}${extname(file.originalname)}`);
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = extname(file.originalname);
+        cb(null, `${uniqueSuffix}${ext}`); // Đổi tên file để tránh trùng
       },
     }),
   }))
-  async uploadAvatar(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+  async uploadAvatar(@Param('id') id: number, @UploadedFile() file: Express.Multer.File) {
     const avatarPath = `uploads/avatars/${file.filename}`;
-    return this.usersService.updateAvatar(Number(id), avatarPath);
+    return this.usersService.updateAvatar(id, avatarPath);
   }
 }

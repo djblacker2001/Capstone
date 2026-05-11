@@ -1,3 +1,4 @@
+//Header.tsx
 "use client";
 import "./header.css";
 import { Layout, Menu, Button, Avatar, Dropdown, MenuProps } from "antd";
@@ -14,32 +15,60 @@ export default function MainHeader() {
   const menuRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
 
-  // 1. Hàm load user dùng chung
-  const loadUser = () => {
-    const u = localStorage.getItem("user");
-    if (u) {
+  useEffect(() => {
+
+    const loadUser = () => {
       try {
-        setUser(JSON.parse(u));
-      } catch (e) {
+        const savedUser = localStorage.getItem("user");
+
+        console.log("LOAD USER:", savedUser);
+
+        if (savedUser && savedUser !== "undefined") {
+          const parsed = JSON.parse(savedUser);
+
+          console.log("PARSED USER:", parsed);
+
+          setUser(parsed);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Lỗi parse user:", error);
         setUser(null);
       }
-    } else {
-      setUser(null);
-    }
-  };
+    };
 
-  // 2. useEffect quản lý dữ liệu user
-  useEffect(() => {
     loadUser();
-    // Lắng nghe sự kiện "storage" từ các tab khác hoặc từ login.tsx
-    window.addEventListener("storage", loadUser);
-    return () => window.removeEventListener("storage", loadUser);
+
+    window.addEventListener("userUpdate", loadUser);
+
+    return () => {
+      window.removeEventListener("userUpdate", loadUser);
+    };
+
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        open &&
+        menuRef.current && !menuRef.current.contains(event.target as Node) &&
+        btnRef.current && !btnRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
-    window.location.href = "/login"; // Logout xong về login cho sạch session
+    window.location.href = "/login";
   };
 
   const items = [
@@ -50,15 +79,15 @@ export default function MainHeader() {
 
     ...(user?.Role === "admin"
       ? [
-          { key: "manageExpressway", label: <Link href="/manageExpressway">Quản lý cao tốc</Link> },
-          { key: "manageUser", label: <Link href="/manageUser">Quản lý người dùng</Link> },
-          { key: "manageSign", label: <Link href="/manageSign">Quản lý biển báo</Link> },
-        ]
+        { key: "manageExpressway", label: <Link href="/manageExpressway">Quản lý cao tốc</Link> },
+        { key: "manageUser", label: <Link href="/manageUser">Quản lý người dùng</Link> },
+        { key: "manageSign", label: <Link href="/manageSign">Quản lý biển báo</Link> },
+      ]
       : []),
   ];
 
   const userMenu: MenuProps["items"] = [
-    { key: "profile", icon: <UserOutlined />, label: "Thông tin cá nhân" },
+    { key: "profile", icon: <UserOutlined />, label: <Link href="/profile">Thông tin cá nhân</Link> },
     { key: "settings", icon: <SettingOutlined />, label: "Cài đặt" },
     { type: "divider" },
     { key: "logout", icon: <LogoutOutlined />, label: "Đăng xuất", onClick: handleLogout },
@@ -85,8 +114,17 @@ export default function MainHeader() {
           {user ? (
             <Dropdown menu={{ items: userMenu }} placement="bottomRight">
               <div className="userBox" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Avatar src={user.Avatar || undefined} icon={<UserOutlined />} />
-                <span className="username">{user.Username}</span>
+                <Avatar
+                  src={
+                    user?.Avatar || user?.avatar
+                      ? `http://localhost:8080/${user.Avatar || user.avatar}`
+                      : undefined
+                  }
+                  icon={!user?.Avatar && <UserOutlined />}
+                />
+                <span className="username">
+                  {user.Username || user.username}
+                </span>
               </div>
             </Dropdown>
           ) : (

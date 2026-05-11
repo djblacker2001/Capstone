@@ -36,13 +36,8 @@ const RegisterPage = () => {
                 return;
             }
 
-            message.success('Đăng ký thành công! Đang chuyển hướng...', 2);
-
-            // Nếu Backend trả về ID của user vừa tạo trong data.userId hoặc data.user.UserId
-            const userId = data.user?.UserId || data.userId;
-
-            // Chuyển sang trang uploadAvatar và đính kèm userId lên URL
-            router.push(`/uploadAvatar?userId=${userId}`);
+            message.success('Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.', 10);
+            router.push('/login');
 
         } catch (err) {
             message.error('Lỗi server');

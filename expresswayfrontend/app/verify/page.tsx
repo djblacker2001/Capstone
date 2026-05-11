@@ -23,10 +23,7 @@ export default function VerifyPage() {
           // 1. Lưu token và thông tin user vào localStorage
           localStorage.setItem('token', data.accessToken);
           localStorage.setItem('user', JSON.stringify(data.user));
-
-          // 2. Chuyển hướng đến trang upload avatar
-          // Sử dụng backtick để truyền id vào đúng link
-          router.push(`/uploadAvatar?userId=${data.user.id}`);
+          router.push(`/`);
         } else {
           message.error(data.message || 'Xác thực thất bại');
           router.push('/login');
