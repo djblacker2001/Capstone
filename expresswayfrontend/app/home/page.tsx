@@ -6,6 +6,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import MainLayout from '../layout/Layout';
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
+import "./style.css"
 
 export default function MapCard() {
 

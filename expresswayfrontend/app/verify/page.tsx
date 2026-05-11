@@ -5,9 +5,7 @@ import { message } from 'antd';
 
 export default function VerifyPage() {
   const searchParams = useSearchParams();
-  const router = useRouter(); // Khởi tạo router chuẩn của App Router
-
-  // Lấy code từ searchParams đã định nghĩa ở trên
+  const router = useRouter();
   const code = searchParams.get('code');
 
   useEffect(() => {

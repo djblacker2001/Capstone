@@ -1,6 +1,6 @@
 'use client'; // BẮT BUỘC phải có dòng này
 
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Upload, Button, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { useRouter, useSearchParams } from 'next/navigation'; // Để lấy userId từ URL
@@ -8,26 +8,30 @@ import { useRouter, useSearchParams } from 'next/navigation'; // Để lấy use
 const AvatarUpload = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   // Lấy userId từ URL
-  const userId = searchParams.get('userId');
+  const userIdRaw = searchParams.get('userId');
+  const userId = userIdRaw ? parseInt(userIdRaw) : null;
 
   const [fileList, setFileList] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
 
+  useEffect(() => {
+    console.log("UserId hiện tại từ URL:", userId);
+  }, [userId]);
+
   const handleUpload = async () => {
+    if (!userId || isNaN(userId)) {
+      message.error("Không tìm thấy ID người dùng hợp lệ. Vui lòng quay lại trang đăng ký!");
+      return;
+    }
+
     if (fileList.length === 0) {
       message.warning("Vui lòng chọn ảnh trước!");
       return;
     }
 
-    if (!userId) {
-      message.error("Không tìm thấy thông tin người dùng!");
-      return;
-    }
-
     const formData = new FormData();
-    // LƯU Ý: Ant Design lưu file thật trong thuộc tính 'originFileObj'
     formData.append('file', fileList[0].originFileObj);
 
     setUploading(true);
@@ -35,18 +39,16 @@ const AvatarUpload = () => {
       const response = await fetch(`http://localhost:8080/users/${userId}/avatar`, {
         method: 'PATCH',
         body: formData,
-        // Không để Content-Type trong Header
       });
 
       if (response.ok) {
-        message.success('Upload ảnh đại diện thành công!');
-        router.push('/dashboard'); // Chuyển trang mượt mà
+        message.success('Upload ảnh thành công!');
+        router.push('/');
       } else {
-        const errorData = await response.json();
-        message.error(errorData.message || 'Upload thất bại.');
+        message.error('Lỗi khi lưu ảnh vào hệ thống.');
       }
     } catch (error) {
-      message.error('Có lỗi xảy ra khi kết nối server.');
+      message.error('Lỗi kết nối Server.');
     } finally {
       setUploading(false);
     }
@@ -80,15 +82,15 @@ const AvatarUpload = () => {
       </Upload>
 
       <div style={{ marginTop: 24 }}>
-        <Button 
-          type="primary" 
-          onClick={handleUpload} 
-          loading={uploading} 
+        <Button
+          type="primary"
+          onClick={handleUpload}
+          loading={uploading}
           style={{ width: '100%', marginBottom: 10 }}
         >
           Lưu ảnh
         </Button>
-        
+
         <Button type="link" onClick={() => router.push('/')}>
           Bỏ qua bước này
         </Button>
