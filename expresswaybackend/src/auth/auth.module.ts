@@ -7,8 +7,6 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { UsersModule } from '../users/users.module';
 import { PassportModule } from '@nestjs/passport';
-
-// src/auth/auth.module.ts
 @Module({
   imports: [
     UsersModule,

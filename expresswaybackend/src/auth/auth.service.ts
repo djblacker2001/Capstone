@@ -128,7 +128,7 @@ export class AuthService implements OnModuleInit {
     };
   }
 
-  // 4. Hàm gửi mail nội bộ
+  // Hàm gửi mail nội bộ
   async sendEmail(to: string, link: string) {
     await this.transporter.sendMail({
       from: '"Hệ Thống Cao Tốc" <your_email@gmail.com>',
@@ -147,7 +147,7 @@ export class AuthService implements OnModuleInit {
     });
   }
 
-  // 5. Tạo Token khi đăng nhập thành công
+  // Tạo Token khi đăng nhập thành công
   async login(user: any) {
     const payload = {
       sub: user.UserId,
