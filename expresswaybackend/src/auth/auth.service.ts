@@ -156,13 +156,13 @@ export class AuthService implements OnModuleInit {
     };
     return {
       accessToken: this.jwtService.sign(payload),
-      user: user // Trả thêm thông tin user để Frontend lưu vào localStorage
+      user: user
     };
   }
 
   // 1. Gửi yêu cầu quên mật khẩu
   async forgotPassword(email: string) {
-    const user = await this.usersService.findByEmail(email); // Bạn cần viết hàm này trong UsersService
+    const user = await this.usersService.findByEmail(email);
     if (!user) {
       throw new BadRequestException('Email không tồn tại trong hệ thống');
     }
