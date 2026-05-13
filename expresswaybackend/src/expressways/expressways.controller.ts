@@ -16,11 +16,16 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('expressways')
 export class ExpresswaysController {
-  constructor(private service: ExpresswaysService) {}
+  constructor(private service: ExpresswaysService) { }
 
   @Post()
   create(@Body() data: any) {
     return this.service.create(data);
+  }
+
+  @Get('sections')
+  async getAllSections() {
+    return this.service.findAllSections();
   }
 
   @Get()

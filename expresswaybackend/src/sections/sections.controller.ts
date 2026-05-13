@@ -11,6 +11,31 @@ export class SectionsController {
     return await this.sectionsService.findAll();
   }
 
+  @Get('restStop')
+  async getAllRestStop() {
+    return this.sectionsService.findAllRestStop();
+  }
+
+  @Get('bridge')
+  async getAllBridge() {
+    return this.sectionsService.findAllBridge();
+  }
+
+  @Get('tunnel')
+  async getAllTunnel() {
+    return this.sectionsService.findAllTunnel();
+  }
+
+  @Get('interchange')
+  async getAllInterchange() {
+    return this.sectionsService.findAllInterchange();
+  }
+
+  @Get('province')
+  async getAllProvince() {
+    return this.sectionsService.findAllProvince();
+  }
+
   @Get(':id')
   async getSectionDetail(@Param('id', ParseIntPipe) id: number) {
     return await this.sectionsService.findOne(id);
