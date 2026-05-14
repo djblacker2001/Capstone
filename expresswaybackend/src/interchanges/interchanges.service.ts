@@ -12,7 +12,9 @@ export class InterchangesService {
   ) {}
 
   async findAll(): Promise<Interchange[]> {
-    return await this.interchangeRepository.find({ relations: ['section'] });
+    return await this.interchangeRepository.find({
+      
+    });
   }
 
   async findBySection(sectionId: number): Promise<Interchange[]> {

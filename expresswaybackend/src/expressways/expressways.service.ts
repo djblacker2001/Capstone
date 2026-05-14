@@ -4,12 +4,21 @@ import { Repository } from "typeorm";
 import { Expressway } from "./expressways.entity";
 import { Section } from "../sections/sections.entity";
 import { RestStop } from "../rest-stops/rest-stops.entity";
+import { Bridge } from "../bridges/bridges.entity";
+import { Interchange } from "../interchanges/interchanges.entity";
+import { Province } from "../provinces/provinces.entity";
+import { Tunnel } from "../tunnels/tunnels.entity";
 
 @Injectable()
 export class ExpresswaysService {
   constructor(
     @InjectRepository(Expressway) private repo: Repository<Expressway>,
-    @InjectRepository(Section) private sectionRepo: Repository<Section>,
+    @InjectRepository(Section) private sectionRepository: Repository<Section>,
+    @InjectRepository(RestStop) private readonly restStopRepository: Repository<RestStop>,
+    @InjectRepository(Bridge) private readonly bridgeRepository: Repository<Bridge>,
+    @InjectRepository(Tunnel) private readonly tunnelRepository: Repository<Tunnel>,
+    @InjectRepository(Interchange) private readonly interchangeRepository: Repository<Interchange>,
+    @InjectRepository(Province) private provinceRepository: Repository<Province>,
   ) { }
 
   private readonly commonRelations = [
@@ -22,8 +31,34 @@ export class ExpresswaysService {
   ];
 
   async findAllSections() {
-    return await this.sectionRepo.find({
-      relations: ['bridge', 'interchange', 'tunnel', 'province', 'restStop'] 
+    return await this.sectionRepository.find({
+      relations: ['bridge', 'interchange', 'tunnel', 'province', 'restStop']
+    });
+  }
+
+  async findAllRestStop() {
+    return await this.restStopRepository.find({
+    });
+  }
+
+  async findAllBridge() {
+    return await this.bridgeRepository.find({
+    });
+  }
+
+  async findAllTunnel() {
+    return await this.tunnelRepository.find({
+    });
+  }
+
+  async findAllInterchange() {
+    return await this.interchangeRepository.find({
+    });
+  }
+
+  async findAllProvince() {
+    return await this.provinceRepository.find({
+      relations: []
     });
   }
 

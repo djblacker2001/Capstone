@@ -10,7 +10,7 @@ export class RestStopsService {
         private readonly restStopRepository: Repository<RestStop>,
     ) { }
 
-    async findAll(status?: string): Promise<RestStop[]> {
+    async findAllRestStops(status?: string): Promise<RestStop[]> {
         return await this.restStopRepository.find({
             where: status ? { Status: status } : {},
             relations: ['section']

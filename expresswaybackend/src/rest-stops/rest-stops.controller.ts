@@ -8,7 +8,7 @@ export class RestStopsController {
 
   @Get()
   findAll() {
-    return this.restStopsService.findAll();
+    return this.restStopsService.findAllRestStops();
   }
 
   @Get(':id')

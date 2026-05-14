@@ -11,7 +11,8 @@ export class TunnelsService {
   ) {}
 
   findAll(): Promise<Tunnel[]> {
-    return this.tunnelRepository.find({ relations: ['section'] });
+    return this.tunnelRepository.find({
+    });
   }
 
   async findOne(id: number): Promise<Tunnel> {

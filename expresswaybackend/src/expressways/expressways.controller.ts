@@ -28,6 +28,31 @@ export class ExpresswaysController {
     return this.service.findAllSections();
   }
 
+  @Get('sections/rest-stops')
+  async getAllRestStop() {
+    return this.service.findAllRestStop();
+  }
+
+  @Get('sections/interchanges')
+  async getAllInterchange() {
+    return this.service.findAllInterchange();
+  }
+
+  @Get('sections/tunnels')
+  async getAllTunnel() {
+    return this.service.findAllTunnel();
+  }
+
+  @Get('sections/bridges')
+  async getAllBridge() {
+    return this.service.findAllBridge();
+  }
+
+  @Get('sections/provinces')
+  async getAllProvince() {
+    return this.service.findAllProvince();
+  }
+
   @Get()
   findAll() {
     return this.service.findAll();

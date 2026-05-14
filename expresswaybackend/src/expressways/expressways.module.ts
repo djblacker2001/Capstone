@@ -4,9 +4,14 @@ import { Expressway } from './expressways.entity';
 import { ExpresswaysService } from './expressways.service';
 import { ExpresswaysController } from './expressways.controller';
 import { Section } from '../sections/sections.entity';
+import { Bridge } from '../bridges/bridges.entity';
+import { Interchange } from '../interchanges/interchanges.entity';
+import { Province } from '../provinces/provinces.entity';
+import { RestStop } from '../rest-stops/rest-stops.entity';
+import { Tunnel } from '../tunnels/tunnels.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Expressway, Section])],
+  imports: [TypeOrmModule.forFeature([Expressway, Section, RestStop, Bridge, Interchange, Tunnel, Province])],
   controllers: [ExpresswaysController],
   providers: [ExpresswaysService],
   exports: [ExpresswaysService],
