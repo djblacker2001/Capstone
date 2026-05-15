@@ -16,61 +16,76 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('expressways')
 export class ExpresswaysController {
-  constructor(private service: ExpresswaysService) { }
+  constructor(private expresswaysService: ExpresswaysService) { }
 
   @Post()
   create(@Body() data: any) {
-    return this.service.create(data);
+    return this.expresswaysService.create(data);
   }
 
   @Get('sections')
   async getAllSections() {
-    return this.service.findAllSections();
+    return this.expresswaysService.findAllSections();
   }
 
   @Get('sections/rest-stops')
   async getAllRestStop() {
-    return this.service.findAllRestStop();
+    return this.expresswaysService.findAllRestStop();
   }
 
   @Get('sections/interchanges')
   async getAllInterchange() {
-    return this.service.findAllInterchange();
+    return this.expresswaysService.findAllInterchange();
   }
 
   @Get('sections/tunnels')
   async getAllTunnel() {
-    return this.service.findAllTunnel();
+    return this.expresswaysService.findAllTunnel();
   }
 
   @Get('sections/bridges')
   async getAllBridge() {
-    return this.service.findAllBridge();
+    return this.expresswaysService.findAllBridge();
   }
 
   @Get('sections/provinces')
   async getAllProvince() {
-    return this.service.findAllProvince();
+    return this.expresswaysService.findAllProvince();
+  }
+
+  @Get('sections/statistics')
+  async getStats() {
+    return this.expresswaysService.getSectionStatistics();
+  }
+
+  @Get('statistics')
+  async getOverview() {
+    return this.expresswaysService.getGlobalStats();
+  }
+
+  @Get('statistics/expressway')
+  async getByExpressway() {
+    return this.expresswaysService.getExpresswayStats();
   }
 
   @Get()
   findAll() {
-    return this.service.findAll();
+    return this.expresswaysService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne(id);
+    return this.expresswaysService.findOne(id);
   }
 
   @Put(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() data: any) {
-    return this.service.update(id, data);
+    return this.expresswaysService.update(id, data);
   }
 
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id);
+    return this.expresswaysService.remove(id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
