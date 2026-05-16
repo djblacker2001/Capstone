@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
+import { LoginDto } from '../auth/dto/login.dto';
 // XÓA: import { AuthService } from '../auth/auth.service'; <- Xóa dòng này để tránh lỗi vòng lặp
 
 @Injectable()
@@ -43,7 +44,6 @@ export class UsersService {
   }
 
   async remove(id: number): Promise<void> {
-    // SỬA: Đảm bảo xóa đúng theo UserId
     const result = await this.userRepository.delete({ UserId: id });
     if (result.affected === 0) {
       throw new NotFoundException(`Không tìm thấy người dùng ID ${id} để xóa`);
@@ -67,7 +67,7 @@ export class UsersService {
     const user = await this.userRepository.findOne({ where: { UserId: userId } });
     if (!user) throw new NotFoundException('User không tồn tại');
 
-    user.Avatar = avatarPath; // Lưu path vào cột Avatar
+    user.Avatar = avatarPath;
     return this.userRepository.save(user);
   }
 

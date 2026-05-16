@@ -27,6 +27,16 @@ export class UsersController {
     return this.usersService.create(userData);
   }
 
+  @Post('register')
+  async register(@Body() body: any) {
+    return {
+      success: true,
+      statusCode: 201,
+      message: 'Đăng ký thành công, vui lòng kiểm tra email để nhận mã kích hoạt!',
+      data: body
+    };
+  }
+
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);

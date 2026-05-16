@@ -14,7 +14,6 @@ import { RestStopsModule } from './rest-stops/rest-stops.module';
 import { DataSource } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ProvincesModule } from './provinces/provinces.module';
-import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
@@ -43,7 +42,6 @@ import { StatisticsModule } from './statistics/statistics.module';
     RestStopsModule,
     AuthModule,
     ProvincesModule,
-    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

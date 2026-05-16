@@ -107,7 +107,7 @@ export class AuthService implements OnModuleInit {
     };
   }
 
-  // 3. API Kích hoạt tài khoản
+  // API Kích hoạt tài khoản
   async verify(code: string) {
     const user = await this.usersService.findByActiveCode(code);
     if (!user) throw new BadRequestException('Mã không hợp lệ');
@@ -160,7 +160,7 @@ export class AuthService implements OnModuleInit {
     };
   }
 
-  // 1. Gửi yêu cầu quên mật khẩu
+  // Gửi yêu cầu quên mật khẩu
   async forgotPassword(email: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
@@ -178,11 +178,10 @@ export class AuthService implements OnModuleInit {
 
     // Gửi mail
     await this.sendEmailForgotPassword(user.Email, resetLink);
-
     return { success: true, message: 'Link đặt lại mật khẩu đã được gửi vào Email của bạn' };
   }
 
-  // 2. Đặt lại mật khẩu mới
+  // Đặt lại mật khẩu mới
   async resetPassword(token: string, newPassword: string) {
     const user = await this.usersService.findByResetToken(token); // Viết hàm này trong UsersService
     if (!user) {
