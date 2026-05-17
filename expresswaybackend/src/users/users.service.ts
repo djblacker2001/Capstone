@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
@@ -10,7 +10,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async findByActiveCode(code: string): Promise<User | null> {
     return await this.userRepository.findOne({ where: { ActiveCode: code } });
@@ -43,11 +43,23 @@ export class UsersService {
     return this.userRepository.save(newUser);
   }
 
-  async remove(id: number): Promise<void> {
-    const result = await this.userRepository.delete({ UserId: id });
-    if (result.affected === 0) {
-      throw new NotFoundException(`Không tìm thấy người dùng ID ${id} để xóa`);
+  async remove(id: number): Promise<any> {
+    const userToDelete = await this.userRepository.findOne({ where: { UserId: id } });
+
+    if (!userToDelete) {
+      throw new NotFoundException(`Không tìm thấy người dùng có ID bằng ${id}`);
     }
+
+    if (userToDelete.Role === 'admin') {
+      throw new BadRequestException('Hệ thống bảo mật: Bạn không được phép xóa tài khoản thuộc nhóm Quản trị viên (Admin)!');
+    }
+
+    await this.userRepository.delete({UserId: id});
+    return {
+      success: true,
+      statusCode: 200,
+      message: `Đã xóa thành công tài khoản người dùng: ${userToDelete.Username}`,
+    };
   }
 
   async update(id: number, updateData: any): Promise<any> {

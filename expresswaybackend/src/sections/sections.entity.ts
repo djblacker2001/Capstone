@@ -26,8 +26,14 @@ export class Section {
   @Column({ name: 'StartLocation', type: 'nvarchar', length: 100 })
   StartLocation!: string;
 
+  @Column({ type: 'float', nullable: true })
+  StartKm?: number;
+
   @Column({ name: 'EndLocation', type: 'nvarchar', length: 100 })
   EndLocation!: string;
+
+  @Column({ type: 'float', nullable: true })
+  EndKm?: number;
 
   @Column({ name: 'SpeedLimit', type: 'nvarchar', length: 'MAX', nullable: true })
   SpeedLimit?: string;

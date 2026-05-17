@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Sign } from './signs.entity';
 
 @Injectable()
@@ -20,6 +20,25 @@ export class SignsService {
       throw new NotFoundException(`Không tìm thấy biển báo có ID là ${id}`);
     }
     return sign;
+  }
+
+  async searchByDescription(keyword: string) {
+    const signs = await this.signRepository.find({
+      where: {
+        Description: Like(`%${keyword}%`),
+      },
+    });
+
+    if (signs.length === 0) {
+      throw new NotFoundException(`Không tìm thấy biển báo nào có mô tả khớp với từ khóa: "${keyword}"`);
+    }
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: `Tìm thấy ${signs.length} biển báo phù hợp với mô tả!`,
+      data: signs,
+    };
   }
 
   async create(data: Partial<Sign>): Promise<Sign> {

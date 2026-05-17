@@ -37,8 +37,10 @@ export class UsersController {
     };
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  async deleteUser(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
   }
 
@@ -57,11 +59,11 @@ export class UsersController {
   @Patch(':id/avatar')
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
-      destination: './uploads/avatars', // Thư mục lưu ảnh
+      destination: './uploads/avatars',
       filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         const ext = extname(file.originalname);
-        cb(null, `${uniqueSuffix}${ext}`); // Đổi tên file để tránh trùng
+        cb(null, `${uniqueSuffix}${ext}`);
       },
     }),
   }))

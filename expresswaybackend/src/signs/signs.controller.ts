@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { SignsService } from './signs.service';
 import { Sign } from './signs.entity';
 
@@ -6,6 +6,11 @@ import { Sign } from './signs.entity';
 export class SignsController {
   constructor(private readonly signsService: SignsService) {}
 
+  @Get('search')
+  async searchSigns(@Query('description') description: string) {
+    return await this.signsService.searchByDescription(description);
+  }
+  
   @Get()
   findAll() {
     return this.signsService.findAll();

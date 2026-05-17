@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { LessThanOrEqual, Like, MoreThanOrEqual, Repository } from "typeorm";
 import { Expressway } from "./expressways.entity";
 import { Section } from "../sections/sections.entity";
 import { RestStop } from "../rest-stops/rest-stops.entity";
@@ -30,15 +30,60 @@ export class ExpresswaysService {
     'section.province'
   ];
 
-  async findAllSections() {
-    return await this.sectionRepository.find({
+  async findAllSections(name?: string, status?: string, provinceName?: string) {
+    const whereCondition: any = {};
+    if (name) {
+      const sections = await this.sectionRepository.find({
+        where: {
+          NameSection: Like(`%${name}%`),
+        },
+      });
+
+      return {
+        success: true,
+        statusCode: 200,
+        message: `Tìm thấy các đoạn đường có tên chứa từ khóa: "${name}"`,
+        data: sections,
+      };
+    }
+
+    if (status) {
+      whereCondition.Status = status;
+    }
+
+    if (provinceName) {
+      whereCondition.ProvinceName = provinceName;
+    }
+
+    const sections = await this.sectionRepository.find({
+      where: whereCondition,
       relations: ['bridge', 'interchange', 'tunnel', 'province', 'restStop']
     });
+
+    let dynamicMessage = 'Lấy toàn bộ danh sách đoạn đường thành công!';
+    if (name && status) {
+      dynamicMessage = `Tìm thấy các đoạn đường có tên chứa "${name}" và trạng thái là "${status}"`;
+    } else if (name) {
+      dynamicMessage = `Tìm thấy các đoạn đường có tên chứa từ khóa: "${name}"`;
+    } else if (status) {
+      dynamicMessage = `Tìm thấy các đoạn đường có trạng thái là: "${status}"`;
+    }
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: dynamicMessage,
+      data: sections,
+    };
   }
 
-  async findAllRestStop() {
-    return await this.restStopRepository.find({
-    });
+  async findAllRestStop(status?: string) {
+    if (status) {
+      return await this.restStopRepository.find({
+        where: { Status: status }
+      });
+    }
+    return await this.restStopRepository.find();
   }
 
   async findAllBridge() {
@@ -51,9 +96,13 @@ export class ExpresswaysService {
     });
   }
 
-  async findAllInterchange() {
-    return await this.interchangeRepository.find({
-    });
+  async findAllInterchange(status?: string) {
+    if (status) {
+      return await this.interchangeRepository.find({
+        where: { Status: status }
+      });
+    }
+    return await this.interchangeRepository.find();
   }
 
   async findAllProvince() {
@@ -74,7 +123,7 @@ export class ExpresswaysService {
         'section.NameSection AS sectionName',
         'expressway.NameExpressway AS expresswayName',
       ])
-      // Thực hiện đếm số lượng
+
       .addSelect('COUNT(DISTINCT bridge.BridgeId)', 'bridgeCount')
       .addSelect('COUNT(DISTINCT tunnel.TunnelId)', 'tunnelCount')
       .addSelect('COUNT(DISTINCT interchange.InterchangeId)', 'interchangeCount')
@@ -82,7 +131,7 @@ export class ExpresswaysService {
       .groupBy('section.SectionId')
       .addGroupBy('section.NameSection')
       .addGroupBy('expressway.NameExpressway')
-      .getRawMany(); // Dùng getRawMany để lấy kết quả từ các hàm COUNT
+      .getRawMany();
   }
 
   async getExpresswayStats() {
@@ -94,9 +143,7 @@ export class ExpresswaysService {
         'expressway.NameExpressway AS name',
         'expressway.TotalLength AS totalLength',
       ])
-      // Đếm tổng số đoạn
       .addSelect('COUNT(section.SectionId)', 'totalSections')
-      // Đếm số đoạn theo trạng thái (Dùng SUM + CASE WHEN)
       .addSelect("SUM(CASE WHEN section.Status = N'Đã hoàn thành' THEN 1 ELSE 0 END)", 'completedCount')
       .addSelect("SUM(CASE WHEN section.Status = N'Đang thi công' THEN 1 ELSE 0 END)", 'underConstructionCount')
       .addSelect("SUM(CASE WHEN section.Status = N'Đang thi công mở rộng' THEN 1 ELSE 0 END)", 'expandingCount')
@@ -114,7 +161,7 @@ export class ExpresswaysService {
         'COUNT(DISTINCT expressway.ExpresswayId) AS totalExpressways',
         'COUNT(section.SectionId) AS totalSections',
       ])
-      // SỬA Ở ĐÂY: Tính tổng chiều dài dựa trên bảng Section
+      // Tính tổng chiều dài dựa trên bảng Section
       .addSelect('SUM(section.Length)', 'totalSystemLength')
       .addSelect("SUM(CASE WHEN section.Status = N'Hoàn thành' THEN 1 ELSE 0 END)", 'totalCompleted')
       .addSelect("SUM(CASE WHEN section.Status = N'Đang thi công' THEN 1 ELSE 0 END)", 'totalUnderConstruction')
@@ -123,7 +170,6 @@ export class ExpresswaysService {
 
     return {
       ...query,
-      // Đảm bảo các con số trả về là kiểu Number thay vì String
       totalSystemLength: parseFloat(query.totalSystemLength) || 0,
       totalExpressways: parseInt(query.totalExpressways) || 0,
       totalSections: parseInt(query.totalSections) || 0,
@@ -132,8 +178,36 @@ export class ExpresswaysService {
     };
   }
 
+  async findSectionByKm(km: number) {
+    const section = await this.sectionRepository.findOne({
+      where: [
+        {
+          StartKm: LessThanOrEqual(km),
+          EndKm: MoreThanOrEqual(km),
+        }
+      ],
+      relations: ['expressway'],
+    });
+
+    if (!section) {
+      return {
+        success: false,
+        statusCode: 404,
+        message: `Không tìm thấy tuyến đường nào bao phủ vị trí Km ${km}`,
+        data: null
+      };
+    }
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Tìm thấy thông tin đoạn tuyến thành công!',
+      data: section
+    };
+  }
+
   async getExpresswayStatusSummary() {
-    const stats = await this.getExpresswayStats(); // Tận dụng hàm ở bước 1
+    const stats = await this.getExpresswayStats();
 
     const summary = {
       hoanThanh: stats.filter(e => e.completedCount == e.totalSections && e.totalSections > 0).length,
@@ -155,20 +229,32 @@ export class ExpresswaysService {
     });
   }
 
-  async findOne(id: number) {
+  async findOneExpressway(id: number) {
     return await this.expresswayRepository.findOne({
       where: { ExpresswayId: id },
       relations: this.commonRelations,
     });
   }
 
+  async findOneSection(id: number): Promise<Section> {
+    const section = await this.sectionRepository.findOne({
+      where: { SectionId: id },
+      relations: ['bridge', 'interchange', 'tunnel', 'restStop', 'province'],
+    });
+
+    if (!section) {
+      throw new NotFoundException(`Không tìm thấy đoạn đường với ID ${id}`);
+    }
+    return section;
+  }
+
   async update(id: number, data: any) {
     await this.expresswayRepository.update(id, data);
-    return this.findOne(id);
+    return this.findOneExpressway(id);
   }
 
   async remove(id: number) {
-    const expressway = await this.findOne(id);
+    const expressway = await this.findOneExpressway(id);
     if (!expressway) {
       throw new NotFoundException(`Không tìm thấy cao tốc với ID ${id} để xóa`);
     }
