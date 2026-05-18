@@ -12,6 +12,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    return payload; 
+    console.log('=== TOKENS ĐÃ LỌT VÀO STRATEGY ===');
+    console.log('Dữ liệu giải mã được (Payload):', payload);
+    return { userId: payload.sub, username: payload.username, Role: payload.role };
   }
 }

@@ -18,9 +18,6 @@ export class Expressway {
   @Column({ nullable: true })
   EndPoint!: string;
 
-  @Column('decimal')
-  TotalLength!: number;
-
   @OneToMany(() => Section, (section) => section.expressway)
   section!: Section[];
 }
