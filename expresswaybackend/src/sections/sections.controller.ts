@@ -38,11 +38,6 @@ export class SectionsController {
     return await this.sectionsService.findOne(id);
   }
 
-  @Post()
-  create(@Body() signData: Partial<Section>) {
-    return this.sectionsService.create(signData);
-  }
-
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post()

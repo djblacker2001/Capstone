@@ -1,6 +1,9 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
 import { SignsService } from './signs.service';
 import { Sign } from './signs.entity';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('signs')
 export class SignsController {
@@ -21,16 +24,22 @@ export class SignsController {
     return this.signsService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Post()
   create(@Body() signData: Partial<Sign>) {
     return this.signsService.create(signData);
   }
-
+  
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Put(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() signData: Partial<Sign>) {
     return this.signsService.update(id, signData);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.signsService.remove(id);
