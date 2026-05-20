@@ -19,12 +19,7 @@ export class RolesGuard implements CanActivate {
       return false;
     }
     const requiredRoles = roles.map(role => role.toLowerCase());
-
     const userRole = user.Role ? user.Role.toLowerCase() : '';
-
-    console.log('=== KIỂM TRA ROLES GUARD ===');
-    console.log('Quyền API yêu cầu:', requiredRoles);
-    console.log('Quyền của User hiện tại:', userRole);
 
     return requiredRoles.includes(userRole);
   }
