@@ -3,19 +3,25 @@ import { ExpresswaysService } from './expressways.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { CreateExpresswayDto } from './dto/create-expressways.dto';
+import { UpdateExpresswayDto } from './dto/update-expressway.dto';
 
+@ApiTags('Expressway')
+@ApiBearerAuth()
 @Controller('expressways')
 export class ExpresswaysController {
   constructor(private expresswaysService: ExpresswaysService) { }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
-  @Post()
-  create(@Body() data: any) {
-    return this.expresswaysService.create(data);
+  @Get()
+  findAll() {
+    return this.expresswaysService.findAll();
   }
 
   @Get('sections')
+  @ApiQuery({ name: 'name', required: false, type: String, description: 'Filter by section name' })
+  @ApiQuery({ name: 'status', required: false, type: String, description: 'Filter by section status' })
+  @ApiQuery({ name: 'provinceName', required: false, type: String, description: 'Filter by province' })
   async getAllSections(
     @Query('name') name?: string,
     @Query('status') status?: string,
@@ -25,6 +31,7 @@ export class ExpresswaysController {
   }
 
   @Get('sections/rest-stops')
+  @ApiQuery({ name: 'status', required: false, type: String, description: 'Filter by rest-stop status' })
   async getAllRestStop(@Query('status') status?: string) {
     return this.expresswaysService.findAllRestStop(status);
   }
@@ -59,16 +66,6 @@ export class ExpresswaysController {
     return this.expresswaysService.getGlobalStats();
   }
 
-  @Get('statistics/expressway')
-  async getByExpressway() {
-    return this.expresswaysService.getExpresswayStats();
-  }
-
-  @Get()
-  findAll() {
-    return this.expresswaysService.findAll();
-  }
-
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.expresswaysService.findOneExpressway(id);
@@ -97,9 +94,16 @@ export class ExpresswaysController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
+  @Post()
+  create(@Body() createExpresswayDto: CreateExpresswayDto) {
+    return this.expresswaysService.create(createExpresswayDto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Put(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() data: any) {
-    return this.expresswaysService.update(id, data);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateExpresswayDto: UpdateExpresswayDto) {
+    return this.expresswaysService.update(id, updateExpresswayDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

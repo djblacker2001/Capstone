@@ -4,19 +4,13 @@ import { Section } from './sections.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
+import { ApiQuery } from '@nestjs/swagger';
+import { CreateSectionDto } from './dto/create-sections.dto';
+
 
 @Controller('sections')
 export class SectionsController {
   constructor(private readonly sectionsService: SectionsService) { }
-
-  @Get()
-  async getAllSections(
-    @Query('name') name?: string,
-    @Query('status') status?: string,
-  ) {
-    return await this.sectionsService.findAll(name, status);
-  }
-
   @Get('search-by-km')
   async searchByKm(@Query('km') km: string) {
     const kmNumber = parseFloat(km);
@@ -41,8 +35,8 @@ export class SectionsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post()
-  async createSection(@Body() sectionData: Partial<Section>) {
-    return await this.sectionsService.create(sectionData);
+  async createSection(@Body() sectionCreateDto: CreateSectionDto) {
+    return await this.sectionsService.create(sectionCreateDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

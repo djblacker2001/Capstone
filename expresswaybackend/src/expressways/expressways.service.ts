@@ -134,25 +134,6 @@ export class ExpresswaysService {
       .getRawMany();
   }
 
-  async getExpresswayStats() {
-    return await this.expresswayRepository
-      .createQueryBuilder('expressway')
-      .leftJoin('expressway.section', 'section')
-      .select([
-        'expressway.ExpresswayId AS id',
-        'expressway.NameExpressway AS name',
-        'expressway.TotalLength AS totalLength',
-      ])
-      .addSelect('COUNT(section.SectionId)', 'totalSections')
-      .addSelect("SUM(CASE WHEN section.Status = N'Đã hoàn thành' THEN 1 ELSE 0 END)", 'completedCount')
-      .addSelect("SUM(CASE WHEN section.Status = N'Đang thi công' THEN 1 ELSE 0 END)", 'underConstructionCount')
-      .addSelect("SUM(CASE WHEN section.Status = N'Đang thi công mở rộng' THEN 1 ELSE 0 END)", 'expandingCount')
-      .groupBy('expressway.ExpresswayId')
-      .addGroupBy('expressway.NameExpressway')
-      .addGroupBy('expressway.TotalLength')
-      .getRawMany();
-  }
-
   async getGlobalStats() {
     const query = await this.expresswayRepository
       .createQueryBuilder('expressway')
@@ -207,7 +188,7 @@ export class ExpresswaysService {
   }
 
   async getExpresswayStatusSummary() {
-    const stats = await this.getExpresswayStats();
+    const stats = await this.getGlobalStats();
 
     const summary = {
       hoanThanh: stats.filter(e => e.completedCount == e.totalSections && e.totalSections > 0).length,

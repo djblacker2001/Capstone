@@ -10,13 +10,13 @@ export class Expressway {
   NameExpressway!: string;
 
   @Column({ nullable: true })
-  Symbol!: string;
+  Symbol?: string;
 
   @Column({ nullable: true })
-  StartPoint!: string;
+  StartPoint?: string;
 
   @Column({ nullable: true })
-  EndPoint!: string;
+  EndPoint?: string;
 
   @OneToMany(() => Section, (section) => section.expressway)
   section!: Section[];

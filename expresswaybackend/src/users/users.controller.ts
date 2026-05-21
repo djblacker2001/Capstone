@@ -67,6 +67,7 @@ export class UsersController {
       },
     }),
   }))
+  
   async uploadAvatar(@Param('id') id: number, @UploadedFile() file: Express.Multer.File) {
     const avatarPath = `uploads/avatars/${file.filename}`;
     return this.usersService.updateAvatar(id, avatarPath);
