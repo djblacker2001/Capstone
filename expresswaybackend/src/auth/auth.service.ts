@@ -4,6 +4,7 @@ import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -14,7 +15,6 @@ export class AuthService implements OnModuleInit {
     private usersService: UsersService,
   ) { }
 
-  // Khởi tạo transporter khi module bắt đầu
   onModuleInit() {
     this.transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
@@ -40,26 +40,22 @@ export class AuthService implements OnModuleInit {
 
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findByUsername(username);
-    if (!user) return null;
+    if (!user) {
+      return null;
+    }
     console.log('Mật khẩu người dùng nhập:', pass);
     console.log('Mật khẩu trong DB:', user.Password);
     let isMatch = false;
-    // Kiểm tra xem mật khẩu hiện tại trong DB có phải là Bcrypt không
     const isHashed = user.Password.startsWith('$2b$') || user.Password.startsWith('$2a$');
     if (isHashed) {
-      // So sánh kiểu Bcrypt
       isMatch = await bcrypt.compare(pass, user.Password);
       console.log('Kết quả so sánh Bcrypt:', isMatch);
     } else {
-      // So sánh kiểu chữ thô (Plain text)
       isMatch = (user.Password === pass);
       console.log('Kết quả so sánh chữ thô:', isMatch);
-      // NẾU KHỚP KIỂU THÔ -> TỰ ĐỘNG BĂM LẠI VÀ CẬP NHẬT DB
       if (isMatch) {
         const salt = await bcrypt.genSalt(10);
         const newHashedPassword = await bcrypt.hash(pass, salt);
-
-        // Gọi hàm vừa viết ở bước 1 để lưu mật khẩu mới đã băm
         await this.usersService.updatePassword(user.UserId, newHashedPassword);
         console.log(`User ${username} đã được nâng cấp lên Bcrypt thành công!`);
       }
@@ -72,7 +68,6 @@ export class AuthService implements OnModuleInit {
     return null;
   }
 
-  // 2. Đăng ký (Hỗ trợ chọn Role và Gửi mail báo cho Admin phê duyệt)
   async register(data: any) {
     const exist = await this.usersService.findByUsername(data.Username);
     if (exist) throw new BadRequestException('Username đã tồn tại');
@@ -81,8 +76,6 @@ export class AuthService implements OnModuleInit {
     const hashedPassword = await bcrypt.hash(data.Password, salt);
     const activeCode = crypto.randomBytes(32).toString('hex');
     
-    // Mới đầu đăng ký, dù chọn admin hay user thì ép cứng RoleId = 2 (User thường) hoặc 3 tùy DB của bạn.
-    // Ở đây mình cứ giữ nguyên logic chia role ban đầu của bạn nhưng trạng thái kích hoạt phụ thuộc admin:
     const isAdminRequest = data.Role === 'admin';
     const roleId = isAdminRequest ? 1 : 2; 
 
@@ -92,16 +85,14 @@ export class AuthService implements OnModuleInit {
       Password: hashedPassword,
       RoleId: roleId,
       Role: data.Role || 'user',
-      IsActive: isAdminRequest ? false : true, // Nếu đăng ký admin -> Chờ duyệt (false), user thường -> active luôn
+      IsActive: isAdminRequest ? false : true,
       IsLocked: false,
       ActiveCode: activeCode,
       CreatedAt: new Date(),
     });
 
-    // --- XỬ LÝ GỬI MAIL NỘI BỘ TRỰC TIẾP TẠI ĐÂY ---
     if (isAdminRequest) {
-      // Trường hợp 1: Người dùng muốn đăng ký làm Admin -> GỬI MAIL CHO ADMIN TỐI CAO
-      const superAdminEmail = 'hoangvu222001@gmail.com'; // Nhận luôn vào mail hệ thống của bạn
+      const superAdminEmail = 'hoangvu222001@gmail.com';
       
       this.sendEmailToAdminForApproval(superAdminEmail, user).catch((err) =>
         console.error('Lỗi khi gửi Email thông báo Admin:', err),
@@ -112,7 +103,6 @@ export class AuthService implements OnModuleInit {
         message: 'Yêu cầu đăng ký quyền Admin đã được gửi! Vui lòng đợi Admin tối cao phê duyệt hệ thống.',
       };
     } else {
-      // Trường hợp 2: Đăng ký User thường -> Gửi link kích hoạt cho chính họ như cũ
       const verifyLink = `http://localhost:8080/auth/verify?code=${activeCode}`;
       this.sendEmail(user.Email, verifyLink).catch((err) =>
         console.error('Lỗi khi gửi Email kích hoạt cho User:', err),
@@ -125,7 +115,6 @@ export class AuthService implements OnModuleInit {
     }
   }
 
-  // API Kích hoạt tài khoản
   async verify(code: string) {
     const user = await this.usersService.findByActiveCode(code);
     if (!user) throw new BadRequestException('Mã không hợp lệ');
@@ -133,8 +122,6 @@ export class AuthService implements OnModuleInit {
     user.IsActive = true;
     user.ActiveCode = null;
     await this.usersService.save(user);
-
-    // Tạo Token ngay sau khi kích hoạt thành công
     const payload = { sub: user.UserId, username: user.Username, role: user.Role };
     const accessToken = this.jwtService.sign(payload);
 
@@ -267,5 +254,30 @@ export class AuthService implements OnModuleInit {
         </div>
       `,
     });
+  }
+
+  async changePassword(userId: number, dto: ChangePasswordDto) {
+    const user = await this.usersService.findOne(userId);
+    if (!user) {
+      throw new BadRequestException('Không tìm thấy người dùng trong hệ thống');
+    }
+
+    const isMatch = await bcrypt.compare(dto.oldPassword, user.Password);
+    if (!isMatch) {
+      throw new BadRequestException('Mật khẩu cũ không chính xác!');
+    }
+
+    if (dto.oldPassword === dto.newPassword) {
+      throw new BadRequestException('Mật khẩu mới không được trùng với mật khẩu cũ!');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedNewPassword = await bcrypt.hash(dto.newPassword, salt);
+    await this.usersService.updatePassword(userId, hashedNewPassword);
+
+    return {
+      success: true,
+      message: 'Thay đổi mật khẩu thành công! Vui lòng sử dụng mật khẩu mới cho lần đăng nhập tiếp theo.',
+    };
   }
 }

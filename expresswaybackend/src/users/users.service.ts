@@ -120,4 +120,37 @@ export class UsersService {
       data: userWithoutPassword, // Trả về object đã được loại bỏ Password
     };
   }
+
+  async updateProfile(userId: number, updateUserDto: UpdateUserDto) {
+    // 1. Tìm xem tài khoản người dùng có tồn tại trong hệ thống không
+    const user = await this.userRepository.findOne({ where: { UserId: userId } });
+    if (!user) {
+      throw new NotFoundException(`Không tìm thấy tài khoản người dùng!`);
+    }
+
+    // 2. KIỂM TRA TRÙNG LẶP USERNAME (Nếu người dùng muốn đổi Username)
+    if (updateUserDto.Username && updateUserDto.Username !== user.Username) {
+      const isUsernameExist = await this.userRepository.findOne({ 
+        where: { Username: updateUserDto.Username } 
+      });
+      if (isUsernameExist) {
+        throw new BadRequestException('Tên đăng nhập (Username) này đã có người sử dụng!');
+      }
+    }
+
+    // 3. Tiến hành đè các dữ liệu mới từ DTO lên thực thể cũ
+    Object.assign(user, updateUserDto);
+
+    // 4. Lưu dữ liệu thay đổi xuống Database
+    const updatedUser = await this.userRepository.save(user);
+
+    // 5. Bóc tách dữ liệu để ẩn mật khẩu đi trước khi trả về Client
+    const { Password, ResetToken, ActiveCode, ...result } = updatedUser;
+
+    return {
+      success: true,
+      message: 'Cập nhật thông tin cá nhân thành công!',
+      data: result,
+    };
+  }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, ParseIntPipe, UseGuards, Put, Patch, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, ParseIntPipe, UseGuards, Put, Patch, UploadedFile, UseInterceptors, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './users.entity';
 import { Roles } from '../auth/roles.decorator';
@@ -52,6 +52,14 @@ export class UsersController {
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return await this.usersService.changeUserRole(+id, updateUserDto);
+  }
+
+  @ApiOperation({ summary: 'Người dùng tự cập nhật thông tin cá nhân (Username, Avatar, Email)' })
+  @UseGuards(JwtAuthGuard)
+  @Put('profile')
+  async updateProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
+    const userId = req.user.id; 
+    return await this.usersService.updateProfile(+userId, updateUserDto);
   }
 
   @Patch(':id/avatar')

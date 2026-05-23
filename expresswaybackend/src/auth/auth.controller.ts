@@ -1,8 +1,12 @@
-import {Controller, Post, Body, Get, Query, UnauthorizedException, BadRequestException,} from '@nestjs/common';
+import {Controller, Post, Body, Get, Query, UnauthorizedException, BadRequestException, Req, UseGuards,} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) { }
@@ -30,6 +34,14 @@ export class AuthController {
       );
     }
     return this.authService.login(user);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  async changePassword(@Req() req: any, @Body() changePasswordDto: ChangePasswordDto) {
+    const userId = req.user.id; 
+    return await this.authService.changePassword(+userId, changePasswordDto);
   }
 
   @Post('forgot-password')
