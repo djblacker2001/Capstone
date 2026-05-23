@@ -7,24 +7,27 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { UpdateUserDto } from './dto/update-users.dto';
 
+@ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Get()
   findAll() {
     return this.usersService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOne(id);
-  }
-
-  @Post()
-  create(@Body() userData: Partial<User>) {
-    return this.usersService.create(userData);
   }
 
   @Post('register')
@@ -44,16 +47,11 @@ export class UsersController {
     return this.usersService.remove(id);
   }
 
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: any) {
-    return this.usersService.update(+id, updateUserDto);
-  }
-
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  @Get('admin-only')
-  getAdminData() {
-    return 'Chỉ admin mới thấy';
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return await this.usersService.changeUserRole(+id, updateUserDto);
   }
 
   @Patch(':id/avatar')

@@ -5,7 +5,7 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateExpresswayDto } from './dto/create-expressways.dto';
-import { UpdateExpresswayDto } from './dto/update-expressway.dto';
+import { UpdateExpresswayDto } from './dto/update-expressways.dto';
 
 @ApiTags('Expressway')
 @ApiBearerAuth()

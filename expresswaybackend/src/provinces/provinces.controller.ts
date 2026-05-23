@@ -10,11 +10,6 @@ export class ProvincesController {
     return this.provincesService.findAll();
   }
 
-  @Post()
-  create(@Body() data: any) {
-    return this.provincesService.create(data);
-  }
-
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.provincesService.remove(+id);

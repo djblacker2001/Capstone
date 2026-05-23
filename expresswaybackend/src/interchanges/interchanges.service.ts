@@ -13,7 +13,6 @@ export class InterchangesService {
 
   async findAll(): Promise<Interchange[]> {
     return await this.interchangeRepository.find({
-      
     });
   }
 

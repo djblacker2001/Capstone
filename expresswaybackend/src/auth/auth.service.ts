@@ -72,14 +72,19 @@ export class AuthService implements OnModuleInit {
     return null;
   }
 
-  // 2. Đăng ký (Hỗ trợ chọn Role và Gửi mail xác thực)
+  // 2. Đăng ký (Hỗ trợ chọn Role và Gửi mail báo cho Admin phê duyệt)
   async register(data: any) {
     const exist = await this.usersService.findByUsername(data.Username);
     if (exist) throw new BadRequestException('Username đã tồn tại');
+    
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(data.Password, salt);
     const activeCode = crypto.randomBytes(32).toString('hex');
-    const roleId = data.Role === 'admin' ? 1 : 2;
+    
+    // Mới đầu đăng ký, dù chọn admin hay user thì ép cứng RoleId = 2 (User thường) hoặc 3 tùy DB của bạn.
+    // Ở đây mình cứ giữ nguyên logic chia role ban đầu của bạn nhưng trạng thái kích hoạt phụ thuộc admin:
+    const isAdminRequest = data.Role === 'admin';
+    const roleId = isAdminRequest ? 1 : 2; 
 
     const user = await this.usersService.create({
       Username: data.Username,
@@ -87,24 +92,37 @@ export class AuthService implements OnModuleInit {
       Password: hashedPassword,
       RoleId: roleId,
       Role: data.Role || 'user',
-      IsActive: false,
+      IsActive: isAdminRequest ? false : true, // Nếu đăng ký admin -> Chờ duyệt (false), user thường -> active luôn
       IsLocked: false,
       ActiveCode: activeCode,
       CreatedAt: new Date(),
     });
 
-    // Tạo link kích hoạt
-    const verifyLink = `http://localhost:8080/auth/verify?code=${activeCode}`;
+    // --- XỬ LÝ GỬI MAIL NỘI BỘ TRỰC TIẾP TẠI ĐÂY ---
+    if (isAdminRequest) {
+      // Trường hợp 1: Người dùng muốn đăng ký làm Admin -> GỬI MAIL CHO ADMIN TỐI CAO
+      const superAdminEmail = 'hoangvu222001@gmail.com'; // Nhận luôn vào mail hệ thống của bạn
+      
+      this.sendEmailToAdminForApproval(superAdminEmail, user).catch((err) =>
+        console.error('Lỗi khi gửi Email thông báo Admin:', err),
+      );
 
-    // Gửi mail (Chạy bất đồng bộ, không bắt user phải đợi mail gửi xong mới báo thành công)
-    this.sendEmail(user.Email, verifyLink).catch((err) =>
-      console.error('Lỗi khi gửi Email:', err),
-    );
+      return {
+        success: true,
+        message: 'Yêu cầu đăng ký quyền Admin đã được gửi! Vui lòng đợi Admin tối cao phê duyệt hệ thống.',
+      };
+    } else {
+      // Trường hợp 2: Đăng ký User thường -> Gửi link kích hoạt cho chính họ như cũ
+      const verifyLink = `http://localhost:8080/auth/verify?code=${activeCode}`;
+      this.sendEmail(user.Email, verifyLink).catch((err) =>
+        console.error('Lỗi khi gửi Email kích hoạt cho User:', err),
+      );
 
-    return {
-      success: true,
-      message: 'Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.',
-    };
+      return {
+        success: true,
+        message: 'Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.',
+      };
+    }
   }
 
   // API Kích hoạt tài khoản
@@ -183,7 +201,7 @@ export class AuthService implements OnModuleInit {
 
   // Đặt lại mật khẩu mới
   async resetPassword(token: string, newPassword: string) {
-    const user = await this.usersService.findByResetToken(token); // Viết hàm này trong UsersService
+    const user = await this.usersService.findByResetToken(token);
     if (!user) {
       throw new BadRequestException('Mã xác thực không hợp lệ hoặc đã hết hạn');
     }
@@ -194,7 +212,7 @@ export class AuthService implements OnModuleInit {
     return { success: true, message: 'Mật khẩu đã được cập nhật thành công' };
   }
 
-  // 3. Hàm gửi mail riêng cho quên mật khẩu
+  // Hàm gửi mail riêng cho quên mật khẩu
   async sendEmailForgotPassword(to: string, link: string) {
     await this.transporter.sendMail({
       from: '"Hệ Thống Cao Tốc" <hoangvu222001@gmail.com>',
@@ -208,6 +226,46 @@ export class AuthService implements OnModuleInit {
         <p>Nếu bạn không yêu cầu điều này, hãy bỏ qua email này.</p>
       </div>
     `,
+    });
+  }
+
+  // Hàm gửi mail nội bộ thông báo cho Admin tối cao duyệt thành viên
+  async sendEmailToAdminForApproval(adminEmail: string, newUser: any) {
+    await this.transporter.sendMail({
+      from: '"Hệ Thống Cao Tốc" <hoangvu222001@gmail.com>',
+      to: adminEmail,
+      subject: `[Yêu cầu cấp quyền] Tài khoản xin làm Admin: ${newUser.Username}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+          <h2 style="color: #d32f2f; border-bottom: 2px solid #d32f2f; padding-bottom: 10px;">Yêu Cầu Cấp Quyền Hệ Thống</h2>
+          <p>Chào Admin tối cao, hệ thống ghi nhận một người dùng muốn đăng ký tài khoản với quyền <strong>Admin</strong>:</p>
+          
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <tr style="background-color: #f9f9f9;">
+              <td style="padding: 8px; font-weight: bold; width: 40%;">ID Người Dùng:</td>
+              <td style="padding: 8px; color: #d32f2f; font-weight: bold;">${newUser.UserId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; font-weight: bold;">Tên Đăng Nhập:</td>
+              <td style="padding: 8px;">${newUser.Username}</td>
+            </tr>
+            <tr style="background-color: #f9f9f9;">
+              <td style="padding: 8px; font-weight: bold;">Email Liên Hệ:</td>
+              <td style="padding: 8px;">${newUser.Email}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; font-weight: bold;">Thời Gian Đăng Ký:</td>
+              <td style="padding: 8px;">${new Date(newUser.CreatedAt).toLocaleString()}</td>
+            </tr>
+          </table>
+
+          <p><strong>Hướng dẫn duyệt tác vụ:</strong></p>
+          <p>Vui lòng đăng nhập tài khoản Admin của bạn trên Swagger UI, tìm tới API <code>PUT /users/${newUser.UserId}</code> và tiến hành truyền Body để cập nhật quyền chính thức cho thành viên này.</p>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 11px; color: #888; text-align: center;">Đây là email tự động gửi từ hệ thống Capstone Expressway Backend.</p>
+        </div>
+      `,
     });
   }
 }

@@ -13,7 +13,6 @@ export class RestStopsService {
     async findAllRestStops(status?: string): Promise<RestStop[]> {
         return await this.restStopRepository.find({
             where: status ? { Status: status } : {},
-            relations: ['section']
         });
     }
     
@@ -21,7 +20,6 @@ export class RestStopsService {
     async findOne(sectionId: number): Promise<RestStop> {
         const restStop = await this.restStopRepository.findOne({
             where: { SectionId: sectionId },
-            relations: ['section']
         });
 
         if (!restStop) {

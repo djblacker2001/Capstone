@@ -6,6 +6,7 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { ApiQuery } from '@nestjs/swagger';
 import { CreateSectionDto } from './dto/create-sections.dto';
+import { UpdateSectionDto } from './dto/update-sections.dto';
 
 
 @Controller('sections')
@@ -42,7 +43,7 @@ export class SectionsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateSectionDto: Partial<Section>) {
+  async update(@Param('id') id: string, @Body() updateSectionDto: UpdateSectionDto) {
     return await this.sectionsService.update(+id, updateSectionDto);
   }
 

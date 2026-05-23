@@ -18,11 +18,6 @@ export class ProvincesService {
     return this.provinceRepository.findOneBy({ ProvinceId: id });
   }
 
-  create(data: Partial<Province>) {
-    const province = this.provinceRepository.create(data);
-    return this.provinceRepository.save(province);
-  }
-
   async remove(id: number) {
     await this.provinceRepository.delete(id);
     return { message: `Đã xóa tỉnh có ID ${id}` };
