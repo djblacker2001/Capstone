@@ -7,7 +7,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-users.dto';
 
 @ApiTags('Users')
@@ -54,16 +54,27 @@ export class UsersController {
     return await this.usersService.changeUserRole(+id, updateUserDto);
   }
 
-  @ApiOperation({ summary: 'Người dùng tự cập nhật thông tin cá nhân (Username, Avatar, Email)' })
-  @UseGuards(JwtAuthGuard)
   @Put('profile')
-  async updateProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
-    const userId = req.user.id; 
-    return await this.usersService.updateProfile(+userId, updateUserDto);
-  }
 
-  @Patch(':id/avatar')
-  @UseInterceptors(FileInterceptor('file', {
+  @UseGuards(JwtAuthGuard)
+  @ApiConsumes('multipart/form-data') // Khai báo form chứa file
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        // Định nghĩa các trường văn bản từ UpdateUserDto cho Swagger hiện ô nhập
+        username: { type: 'string', description: 'New username' },
+        email: { type: 'string', description: 'New email address' },
+        // Định nghĩa trường file để Swagger hiển thị nút chọn ảnh
+        avatar: { 
+          type: 'string',
+          format: 'binary',
+          description: 'Upload profile image file' 
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('avatar', { // Key nhận file là 'avatar'
     storage: diskStorage({
       destination: './uploads/avatars',
       filename: (req, file, cb) => {
@@ -73,9 +84,18 @@ export class UsersController {
       },
     }),
   }))
-  
-  async uploadAvatar(@Param('id') id: number, @UploadedFile() file: Express.Multer.File) {
-    const avatarPath = `uploads/avatars/${file.filename}`;
-    return this.usersService.updateAvatar(id, avatarPath);
+  async updateProfile(
+    @Req() req: any, 
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    const userId = req.user.id;
+
+    // Nếu người dùng có upload file mới, gắn tên file vào DTO để lưu vào Database
+    if (file) {
+      updateUserDto.Avatar = file.filename; // Gán chuỗi tên file (hoặc đường dẫn)
+    }
+
+    return await this.usersService.updateProfile(+userId, updateUserDto);
   }
 }

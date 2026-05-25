@@ -53,7 +53,7 @@ export class UsersService {
       throw new BadRequestException('Hệ thống bảo mật: Bạn không được phép xóa tài khoản thuộc nhóm Quản trị viên (Admin)!');
     }
 
-    await this.userRepository.delete({UserId: id});
+    await this.userRepository.delete({ UserId: id });
     return {
       success: true,
       statusCode: 200,
@@ -72,14 +72,6 @@ export class UsersService {
 
   async findByResetToken(token: string) {
     return await this.userRepository.findOneBy({ ResetToken: token });
-  }
-
-  async updateAvatar(userId: number, avatarPath: string) {
-    const user = await this.userRepository.findOne({ where: { UserId: userId } });
-    if (!user) throw new NotFoundException('User không tồn tại');
-
-    user.Avatar = avatarPath;
-    return this.userRepository.save(user);
   }
 
   async updatePassword(userId: number, newHashedPassword: string): Promise<void> {
@@ -120,6 +112,8 @@ export class UsersService {
     };
   }
 
+  // src/users/users.service.ts
+
   async updateProfile(userId: number, updateUserDto: UpdateUserDto) {
     // 1. Tìm xem tài khoản người dùng có tồn tại trong hệ thống không
     const user = await this.userRepository.findOne({ where: { UserId: userId } });
@@ -129,21 +123,21 @@ export class UsersService {
 
     // 2. KIỂM TRA TRÙNG LẶP USERNAME (Nếu người dùng muốn đổi Username)
     if (updateUserDto.Username && updateUserDto.Username !== user.Username) {
-      const isUsernameExist = await this.userRepository.findOne({ 
-        where: { Username: updateUserDto.Username } 
+      const isUsernameExist = await this.userRepository.findOne({
+        where: { Username: updateUserDto.Username }
       });
       if (isUsernameExist) {
         throw new BadRequestException('Tên đăng nhập (Username) này đã có người sử dụng!');
       }
     }
 
-    // 3. Tiến hành đè các dữ liệu mới từ DTO lên thực thể cũ
+    // 3. Tiến hành đè các dữ liệu mới (bao gồm cả Avatar nếu có) từ DTO lên thực thể cũ
     Object.assign(user, updateUserDto);
 
     // 4. Lưu dữ liệu thay đổi xuống Database
     const updatedUser = await this.userRepository.save(user);
 
-    // 5. Bóc tách dữ liệu để ẩn mật khẩu đi trước khi trả về Client
+    // 5. Bóc tách dữ liệu để ẩn mật khẩu và các token bảo mật đi trước khi trả về Client
     const { Password, ResetToken, ActiveCode, ...result } = updatedUser;
 
     return {
