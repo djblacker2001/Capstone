@@ -10,7 +10,7 @@ export class SectionsService {
 
     ) { }
 
-    async findAll(name?: string, status?: string) {
+    async findAll(name?: string, status?: string, provinceName?: string) {
         const whereCondition: any = {};
         if (name) {
             const sections = await this.sectionRepository.find({
@@ -29,15 +29,31 @@ export class SectionsService {
 
         if (status) {
             whereCondition.Status = status;
-
         }
 
-        const allSections = await this.sectionRepository.find();
+        if (provinceName) {
+            whereCondition.ProvinceName = provinceName;
+        }
+
+        const sections = await this.sectionRepository.find({
+            where: whereCondition,
+            relations: ['bridge', 'interchange', 'tunnel', 'province', 'restStop']
+        });
+
+        let dynamicMessage = 'Lấy toàn bộ danh sách đoạn đường thành công!';
+        if (name && status) {
+            dynamicMessage = `Tìm thấy các đoạn đường có tên chứa "${name}" và trạng thái là "${status}"`;
+        } else if (name) {
+            dynamicMessage = `Tìm thấy các đoạn đường có tên chứa từ khóa: "${name}"`;
+        } else if (status) {
+            dynamicMessage = `Tìm thấy các đoạn đường có trạng thái là: "${status}"`;
+        }
+
         return {
             success: true,
             statusCode: 200,
-            message: 'Lấy toàn bộ danh sách đoạn đường thành công!',
-            data: allSections,
+            message: dynamicMessage,
+            data: sections,
         };
     }
 

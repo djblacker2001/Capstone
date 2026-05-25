@@ -14,6 +14,8 @@ import { RestStopsModule } from './rest-stops/rest-stops.module';
 import { DataSource } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ProvincesModule } from './provinces/provinces.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -42,6 +44,10 @@ import { ProvincesModule } from './provinces/provinces.module';
     RestStopsModule,
     AuthModule,
     ProvincesModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads', 'images'), // Trỏ thẳng vào thư mục chứa ảnh thực tế
+      serveRoot: '/images', // URL ảo trên trình duyệt (Ví dụ: http://localhost:8080/images/abc.png)
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

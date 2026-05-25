@@ -30,16 +30,6 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  @Post('register')
-  async register(@Body() body: any) {
-    return {
-      success: true,
-      statusCode: 201,
-      message: 'Đăng ký thành công, vui lòng kiểm tra email để nhận mã kích hoạt!',
-      data: body
-    };
-  }
-
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Delete(':id')
@@ -47,15 +37,7 @@ export class UsersController {
     return this.usersService.remove(id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return await this.usersService.changeUserRole(+id, updateUserDto);
-  }
-
   @Put('profile')
-
   @UseGuards(JwtAuthGuard)
   @ApiConsumes('multipart/form-data') // Khai báo form chứa file
   @ApiBody({

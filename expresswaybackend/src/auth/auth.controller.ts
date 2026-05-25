@@ -2,9 +2,11 @@ import {Controller, Post, Body, Get, Query, UnauthorizedException, BadRequestExc
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -45,12 +47,25 @@ export class AuthController {
   }
 
   @Post('forgot-password')
-  async forgotPassword(@Body() body: { email: string }) {
-    return await this.authService.forgotPassword(body.email);
+  @ApiResponse({ status: 200, description: 'Reset token generated and email dispatched.' })
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return await this.authService.forgotPassword(forgotPasswordDto);
   }
 
   @Post('reset-password')
-  async resetPassword(@Body() body: { token: string; newPassword: string }) {
-    return await this.authService.resetPassword(body.token, body.newPassword);
+  @ApiQuery({ 
+    name: 'token', 
+    required: true, 
+    description: 'The secret reset token extracted from the link sent to your email' 
+  })
+  @ApiResponse({ status: 200, description: 'Password updated successfully.' })
+  async resetPassword(
+    @Query('token') token: string, // Nhận token từ ô Query param trên Swagger
+    @Body() resetPasswordDto: ResetPasswordDto // Nhận password mới từ Body JSON
+  ) {
+    if (!token) {
+      throw new BadRequestException('Mã token xác nhận không được để trống!');
+    }
+    return await this.authService.resetPassword(token, resetPasswordDto);
   }
 }

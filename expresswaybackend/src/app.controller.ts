@@ -1,21 +1,26 @@
-import {Controller, Get, Post, UploadedFile, UseInterceptors} from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Post, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 
-@Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
-
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
-}
-
+@ApiTags('Upload')
 @Controller('upload')
-export class UploadController {
-  @Post('image')
+export class AppController {
+
+  @Post()
+  @ApiConsumes('multipart/form-data') 
+  @ApiBody({                   
+    schema: {
+      type: 'object',
+      properties: {
+        file: {                   
+          type: 'string',
+          format: 'binary',           
+          description: 'Chọn file hình ảnh từ máy tính (.jpg, .png)',
+        },
+      },
+    },
+  })
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({

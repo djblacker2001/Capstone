@@ -12,6 +12,18 @@ import { UpdateSectionDto } from './dto/update-sections.dto';
 @Controller('sections')
 export class SectionsController {
   constructor(private readonly sectionsService: SectionsService) { }
+  @Get()
+  @ApiQuery({ name: 'name', required: false, type: String, description: 'Filter by section name' })
+  @ApiQuery({ name: 'status', required: false, type: String, description: 'Filter by section status' })
+  @ApiQuery({ name: 'provinceName', required: false, type: String, description: 'Filter by province' })
+  async getAllSections(
+    @Query('name') name?: string,
+    @Query('status') status?: string,
+    @Query('provinceName') provinceName?: string,
+  ) {
+    return await this.sectionsService.findAll(name, status, provinceName);
+  }
+
   @Get('search-by-km')
   async searchByKm(@Query('km') km: string) {
     const kmNumber = parseFloat(km);

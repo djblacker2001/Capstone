@@ -5,6 +5,8 @@ import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -71,13 +73,13 @@ export class AuthService implements OnModuleInit {
   async register(data: any) {
     const exist = await this.usersService.findByUsername(data.Username);
     if (exist) throw new BadRequestException('Username đã tồn tại');
-    
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(data.Password, salt);
     const activeCode = crypto.randomBytes(32).toString('hex');
-    
+
     const isAdminRequest = data.Role === 'admin';
-    const roleId = isAdminRequest ? 1 : 2; 
+    const roleId = isAdminRequest ? 1 : 2;
 
     const user = await this.usersService.create({
       Username: data.Username,
@@ -93,7 +95,7 @@ export class AuthService implements OnModuleInit {
 
     if (isAdminRequest) {
       const superAdminEmail = 'hoangvu222001@gmail.com';
-      
+
       this.sendEmailToAdminForApproval(superAdminEmail, user).catch((err) =>
         console.error('Lỗi khi gửi Email thông báo Admin:', err),
       );
@@ -166,8 +168,9 @@ export class AuthService implements OnModuleInit {
   }
 
   // Gửi yêu cầu quên mật khẩu
-  async forgotPassword(email: string) {
-    const user = await this.usersService.findByEmail(email);
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const { Email } = forgotPasswordDto;
+    const user = await this.usersService.findByEmail(Email);
     if (!user) {
       throw new BadRequestException('Email không tồn tại trong hệ thống');
     }
@@ -187,7 +190,8 @@ export class AuthService implements OnModuleInit {
   }
 
   // Đặt lại mật khẩu mới
-  async resetPassword(token: string, newPassword: string) {
+  async resetPassword(token: string, resetPasswordDto: ResetPasswordDto) {
+    const { newPassword } = resetPasswordDto;
     const user = await this.usersService.findByResetToken(token);
     if (!user) {
       throw new BadRequestException('Mã xác thực không hợp lệ hoặc đã hết hạn');

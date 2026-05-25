@@ -112,8 +112,6 @@ export class UsersService {
     };
   }
 
-  // src/users/users.service.ts
-
   async updateProfile(userId: number, updateUserDto: UpdateUserDto) {
     // 1. Tìm xem tài khoản người dùng có tồn tại trong hệ thống không
     const user = await this.userRepository.findOne({ where: { UserId: userId } });

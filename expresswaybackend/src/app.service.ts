@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UploadedFile } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+  uploadImage(@UploadedFile() file: Express.Multer.File) {
+    return {
+      message: 'Upload thành công',
+      filename: file.filename,
+      path: `/images/${file.filename}`,
+    };
   }
 }
