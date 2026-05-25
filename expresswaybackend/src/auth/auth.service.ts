@@ -8,7 +8,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
-  private transporter: nodemailer.Transporter;
+  private transporter!: nodemailer.Transporter;
 
   constructor(
     private jwtService: JwtService,
