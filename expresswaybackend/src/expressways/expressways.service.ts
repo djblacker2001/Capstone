@@ -30,110 +30,6 @@ export class ExpresswaysService {
     'section.province'
   ];
 
-  async findAllSections(name?: string, status?: string, provinceName?: string) {
-    const whereCondition: any = {};
-    if (name) {
-      const sections = await this.sectionRepository.find({
-        where: {
-          NameSection: Like(`%${name}%`),
-        },
-      });
-
-      return {
-        success: true,
-        statusCode: 200,
-        message: `Tìm thấy các đoạn đường có tên chứa từ khóa: "${name}"`,
-        data: sections,
-      };
-    }
-
-    if (status) {
-      whereCondition.Status = status;
-    }
-
-    if (provinceName) {
-      whereCondition.ProvinceName = provinceName;
-    }
-
-    const sections = await this.sectionRepository.find({
-      where: whereCondition,
-      relations: ['bridge', 'interchange', 'tunnel', 'province', 'restStop']
-    });
-
-    let dynamicMessage = 'Lấy toàn bộ danh sách đoạn đường thành công!';
-    if (name && status) {
-      dynamicMessage = `Tìm thấy các đoạn đường có tên chứa "${name}" và trạng thái là "${status}"`;
-    } else if (name) {
-      dynamicMessage = `Tìm thấy các đoạn đường có tên chứa từ khóa: "${name}"`;
-    } else if (status) {
-      dynamicMessage = `Tìm thấy các đoạn đường có trạng thái là: "${status}"`;
-    }
-
-    return {
-      success: true,
-      statusCode: 200,
-      message: dynamicMessage,
-      data: sections,
-    };
-  }
-
-  async findAllRestStop(status?: string) {
-    if (status) {
-      return await this.restStopRepository.find({
-        where: { Status: status }
-      });
-    }
-    return await this.restStopRepository.find();
-  }
-
-  async findAllBridge() {
-    return await this.bridgeRepository.find({
-    });
-  }
-
-  async findAllTunnel() {
-    return await this.tunnelRepository.find({
-    });
-  }
-
-  async findAllInterchange(status?: string) {
-    if (status) {
-      return await this.interchangeRepository.find({
-        where: { Status: status }
-      });
-    }
-    return await this.interchangeRepository.find();
-  }
-
-  async findAllProvince() {
-    return await this.provinceRepository.find({
-    });
-  }
-
-  async getSectionStatistics() {
-    return await this.sectionRepository
-      .createQueryBuilder('section')
-      .leftJoin('section.expressway', 'expressway')
-      .leftJoin('section.bridge', 'bridge')
-      .leftJoin('section.tunnel', 'tunnel')
-      .leftJoin('section.interchange', 'interchange')
-      .leftJoin('section.province', 'province')
-      .select([
-        'section.SectionId AS id',
-        'section.NameSection AS sectionName',
-        'expressway.NameExpressway AS expresswayName',
-      ])
-
-      .addSelect('COUNT(DISTINCT bridge.BridgeId)', 'bridgeCount')
-      .addSelect('COUNT(DISTINCT tunnel.TunnelId)', 'tunnelCount')
-      .addSelect('COUNT(DISTINCT interchange.InterchangeId)', 'interchangeCount')
-      .addSelect('COUNT(DISTINCT province.ProvinceId)', 'provinceCount')
-      .groupBy('section.SectionId')
-      .addGroupBy('section.NameSection')
-      .addGroupBy('expressway.NameExpressway')
-      .getRawMany();
-  }
-
   async getGlobalStats() {
     const query = await this.expresswayRepository
       .createQueryBuilder('expressway')
@@ -159,33 +55,7 @@ export class ExpresswaysService {
     };
   }
 
-  async findSectionByKm(km: number) {
-    const section = await this.sectionRepository.findOne({
-      where: [
-        {
-          StartKm: LessThanOrEqual(km),
-          EndKm: MoreThanOrEqual(km),
-        }
-      ],
-      relations: ['expressway'],
-    });
-
-    if (!section) {
-      return {
-        success: false,
-        statusCode: 404,
-        message: `Không tìm thấy tuyến đường nào bao phủ vị trí Km ${km}`,
-        data: null
-      };
-    }
-
-    return {
-      success: true,
-      statusCode: 200,
-      message: 'Tìm thấy thông tin đoạn tuyến thành công!',
-      data: section
-    };
-  }
+  
 
   async getExpresswayStatusSummary() {
     const stats = await this.getGlobalStats();
@@ -215,18 +85,6 @@ export class ExpresswaysService {
       where: { ExpresswayId: id },
       relations: this.commonRelations,
     });
-  }
-
-  async findOneSection(id: number): Promise<Section> {
-    const section = await this.sectionRepository.findOne({
-      where: { SectionId: id },
-      relations: ['bridge', 'interchange', 'tunnel', 'restStop', 'province'],
-    });
-
-    if (!section) {
-      throw new NotFoundException(`Không tìm thấy đoạn đường với ID ${id}`);
-    }
-    return section;
   }
 
   async update(id: number, data: any) {

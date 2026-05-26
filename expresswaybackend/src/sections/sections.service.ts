@@ -10,7 +10,11 @@ export class SectionsService {
 
     ) { }
 
-    async findAll(name?: string, status?: string, provinceName?: string) {
+    async findAll() {
+        return this.sectionRepository.find({});
+    }
+
+    async findAllSection(name?: string, status?: string, provinceName?: string) {
         const whereCondition: any = {};
         if (name) {
             const sections = await this.sectionRepository.find({
@@ -111,5 +115,29 @@ export class SectionsService {
 
     async remove(id: number): Promise<void> {
         await this.sectionRepository.delete(id);
+    }
+
+    async getSectionStatistics() {
+        return await this.sectionRepository
+            .createQueryBuilder('section')
+            .leftJoin('section.expressway', 'expressway')
+            .leftJoin('section.bridge', 'bridge')
+            .leftJoin('section.tunnel', 'tunnel')
+            .leftJoin('section.interchange', 'interchange')
+            .leftJoin('section.province', 'province')
+            .select([
+                'section.SectionId AS id',
+                'section.NameSection AS sectionName',
+                'expressway.NameExpressway AS expresswayName',
+            ])
+
+            .addSelect('COUNT(DISTINCT bridge.BridgeId)', 'bridgeCount')
+            .addSelect('COUNT(DISTINCT tunnel.TunnelId)', 'tunnelCount')
+            .addSelect('COUNT(DISTINCT interchange.InterchangeId)', 'interchangeCount')
+            .addSelect('COUNT(DISTINCT province.ProvinceId)', 'provinceCount')
+            .groupBy('section.SectionId')
+            .addGroupBy('section.NameSection')
+            .addGroupBy('expressway.NameExpressway')
+            .getRawMany();
     }
 }

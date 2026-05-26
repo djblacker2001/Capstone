@@ -4,6 +4,8 @@ import { RestStop } from './rest-stops.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
+import { CreateRestStopDto } from './dto/create-rest-stops.dto';
+import { UpdateRestStopDto } from './dto/update-rest-stops.dto';
 
 @Controller('rest-stops')
 export class RestStopsController {
@@ -22,15 +24,15 @@ export class RestStopsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post()
-  create(@Body() data: Partial<RestStop>) {
-    return this.restStopsService.create(data);
+  create(@Body() createRestStopDto: CreateRestStopDto) {
+    return this.restStopsService.create(createRestStopDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Put(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() data: Partial<RestStop>) {
-    return this.restStopsService.update(id, data);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateRestStopDto: UpdateRestStopDto) {
+    return this.restStopsService.update(id, updateRestStopDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

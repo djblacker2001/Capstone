@@ -12,16 +12,22 @@ import { UpdateSectionDto } from './dto/update-sections.dto';
 @Controller('sections')
 export class SectionsController {
   constructor(private readonly sectionsService: SectionsService) { }
+
   @Get()
-  @ApiQuery({ name: 'name', required: false, type: String, description: 'Filter by section name' })
-  @ApiQuery({ name: 'status', required: false, type: String, description: 'Filter by section status' })
-  @ApiQuery({ name: 'provinceName', required: false, type: String, description: 'Filter by province' })
+  async getAll() {
+    return await this.sectionsService.findAll();
+  }
+
+  @Get('search')
+  @ApiQuery({ name: 'name', required: false, type: String,})
+  @ApiQuery({ name: 'status', required: false, type: String,})
+  @ApiQuery({ name: 'provinceName', required: false, type: String,})
   async getAllSections(
     @Query('name') name?: string,
     @Query('status') status?: string,
     @Query('provinceName') provinceName?: string,
   ) {
-    return await this.sectionsService.findAll(name, status, provinceName);
+    return await this.sectionsService.findAllSection(name, status, provinceName);
   }
 
   @Get('search-by-km')
@@ -43,6 +49,11 @@ export class SectionsController {
   @Get(':id')
   async getSectionDetail(@Param('id', ParseIntPipe) id: number) {
     return await this.sectionsService.findOne(id);
+  }
+
+  @Get('statistics')
+  async getStats() {
+    return this.sectionsService.getSectionStatistics();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

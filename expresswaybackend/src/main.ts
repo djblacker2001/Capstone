@@ -19,8 +19,8 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
   const config = new DocumentBuilder()
-    .setTitle('Hệ thống Quản lý Cao tốc Bắc - Nam Phía Đông')
-    .setDescription('Tài liệu API Backend cho giai đoạn Capstone 1')
+    .setTitle('Phần mềm Quản lý Cao tốc Bắc - Nam')
+    .setDescription('API Capstone')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

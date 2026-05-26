@@ -4,6 +4,8 @@ import { Sign } from './signs.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
+import { CreateSignDto } from './dto/create-signs.dto';
+import { UpdateSignDto } from './dto/update-signs.dto';
 
 @Controller('signs')
 export class SignsController {
@@ -27,15 +29,15 @@ export class SignsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post()
-  create(@Body() signData: Partial<Sign>) {
-    return this.signsService.create(signData);
+  create(@Body() createSignDto: CreateSignDto) {
+    return this.signsService.create(createSignDto);
   }
   
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Put(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() signData: Partial<Sign>) {
-    return this.signsService.update(id, signData);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateSignDto: UpdateSignDto) {
+    return this.signsService.update(id, updateSignDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
