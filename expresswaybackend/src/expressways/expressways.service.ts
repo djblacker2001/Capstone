@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { LessThanOrEqual, Like, MoreThanOrEqual, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { Expressway } from "./expressways.entity";
 import { Section } from "../sections/sections.entity";
 import { RestStop } from "../rest-stops/rest-stops.entity";
@@ -13,12 +13,6 @@ import { Tunnel } from "../tunnels/tunnels.entity";
 export class ExpresswaysService {
   constructor(
     @InjectRepository(Expressway) private expresswayRepository: Repository<Expressway>,
-    @InjectRepository(Section) private sectionRepository: Repository<Section>,
-    @InjectRepository(RestStop) private readonly restStopRepository: Repository<RestStop>,
-    @InjectRepository(Bridge) private readonly bridgeRepository: Repository<Bridge>,
-    @InjectRepository(Tunnel) private readonly tunnelRepository: Repository<Tunnel>,
-    @InjectRepository(Interchange) private readonly interchangeRepository: Repository<Interchange>,
-    @InjectRepository(Province) private provinceRepository: Repository<Province>,
   ) { }
 
   private readonly commonRelations = [
@@ -54,8 +48,6 @@ export class ExpresswaysService {
       totalUnderConstruction: parseInt(query.totalUnderConstruction) || 0,
     };
   }
-
-  
 
   async getExpresswayStatusSummary() {
     const stats = await this.getGlobalStats();

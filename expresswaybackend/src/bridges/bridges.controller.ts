@@ -1,7 +1,9 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { BridgesService } from './bridges.service';
 import { Bridge } from './bridges.entity';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('bridges')
 export class BridgesController {
   constructor(private readonly bridgesService: BridgesService) {}

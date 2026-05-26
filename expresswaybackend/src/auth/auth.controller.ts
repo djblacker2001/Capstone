@@ -60,8 +60,8 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: 'Password updated successfully.' })
   async resetPassword(
-    @Query('token') token: string, // Nhận token từ ô Query param trên Swagger
-    @Body() resetPasswordDto: ResetPasswordDto // Nhận password mới từ Body JSON
+    @Query('token') token: string,
+    @Body() resetPasswordDto: ResetPasswordDto
   ) {
     if (!token) {
       throw new BadRequestException('Mã token xác nhận không được để trống!');

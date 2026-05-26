@@ -12,7 +12,6 @@ export class Province {
   @Column({ type: 'nvarchar', length: 50 })
   Region!: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @ManyToMany(() => Section, (section) => section.province)
   section!: Section[];
 }

@@ -4,11 +4,11 @@ import { Section } from './sections.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-import { ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { CreateSectionDto } from './dto/create-sections.dto';
 import { UpdateSectionDto } from './dto/update-sections.dto';
 
-
+@ApiBearerAuth()
 @Controller('sections')
 export class SectionsController {
   constructor(private readonly sectionsService: SectionsService) { }
@@ -30,7 +30,7 @@ export class SectionsController {
     return await this.sectionsService.findAllSection(name, status, provinceName);
   }
 
-  @Get('search-by-km')
+  @Get('kilometre')
   async searchByKm(@Query('km') km: string) {
     const kmNumber = parseFloat(km);
 
@@ -46,15 +46,17 @@ export class SectionsController {
     return this.sectionsService.findSectionByKm(kmNumber);
   }
 
+  @Get('statistics')
+  async getStats() {
+    return this.sectionsService.getSectionStatistics();
+  }
+
   @Get(':id')
   async getSectionDetail(@Param('id', ParseIntPipe) id: number) {
     return await this.sectionsService.findOne(id);
   }
 
-  @Get('statistics')
-  async getStats() {
-    return this.sectionsService.getSectionStatistics();
-  }
+  
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')

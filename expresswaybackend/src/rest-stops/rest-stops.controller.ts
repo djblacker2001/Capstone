@@ -6,7 +6,9 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { CreateRestStopDto } from './dto/create-rest-stops.dto';
 import { UpdateRestStopDto } from './dto/update-rest-stops.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('rest-stops')
 export class RestStopsController {
   constructor(private readonly restStopsService: RestStopsService) {}

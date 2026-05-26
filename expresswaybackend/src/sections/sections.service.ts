@@ -118,7 +118,7 @@ export class SectionsService {
     }
 
     async getSectionStatistics() {
-        return await this.sectionRepository
+        const rawData = await this.sectionRepository
             .createQueryBuilder('section')
             .leftJoin('section.expressway', 'expressway')
             .leftJoin('section.bridge', 'bridge')
@@ -128,16 +128,27 @@ export class SectionsService {
             .select([
                 'section.SectionId AS id',
                 'section.NameSection AS sectionName',
+                'section.Length AS totalSectionLength',
                 'expressway.NameExpressway AS expresswayName',
             ])
-
             .addSelect('COUNT(DISTINCT bridge.BridgeId)', 'bridgeCount')
             .addSelect('COUNT(DISTINCT tunnel.TunnelId)', 'tunnelCount')
             .addSelect('COUNT(DISTINCT interchange.InterchangeId)', 'interchangeCount')
             .addSelect('COUNT(DISTINCT province.ProvinceId)', 'provinceCount')
             .groupBy('section.SectionId')
             .addGroupBy('section.NameSection')
+            .addGroupBy('section.Length')
             .addGroupBy('expressway.NameExpressway')
             .getRawMany();
+
+        return rawData.map((item) => ({
+            ...item,
+            id: parseInt(item.id) || 0,
+            totalSectionLength: parseFloat(item.totalSectionLength) || 0,
+            bridgeCount: parseInt(item.bridgeCount) || 0,
+            tunnelCount: parseInt(item.tunnelCount) || 0,
+            interchangeCount: parseInt(item.interchangeCount) || 0,
+            provinceCount: parseInt(item.provinceCount) || 0,
+        }));
     }
 }

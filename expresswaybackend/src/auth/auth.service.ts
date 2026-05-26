@@ -31,13 +31,7 @@ export class AuthService implements OnModuleInit {
       }
     });
 
-    this.transporter.verify((error) => {
-      if (error) {
-        console.error('Lỗi Transporter (Mail):', error.message);
-      } else {
-        console.log('Hệ thống Mail đã sẵn sàng!');
-      }
-    });
+    this.transporter.verify((error) => {});
   }
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -135,7 +129,6 @@ export class AuthService implements OnModuleInit {
     };
   }
 
-  // Hàm gửi mail nội bộ
   async sendEmail(to: string, link: string) {
     await this.transporter.sendMail({
       from: '"Hệ Thống Cao Tốc" <your_email@gmail.com>',
@@ -154,7 +147,6 @@ export class AuthService implements OnModuleInit {
     });
   }
 
-  // Tạo Token khi đăng nhập thành công
   async login(user: any) {
     const payload = {
       sub: user.UserId,
@@ -167,7 +159,6 @@ export class AuthService implements OnModuleInit {
     };
   }
 
-  // Gửi yêu cầu quên mật khẩu
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
     const { Email } = forgotPasswordDto;
     const user = await this.usersService.findByEmail(Email);
@@ -175,21 +166,15 @@ export class AuthService implements OnModuleInit {
       throw new BadRequestException('Email không tồn tại trong hệ thống');
     }
 
-    // Tạo token ngẫu nhiên
     const resetToken = crypto.randomBytes(32).toString('hex');
-
-    // Lưu token vào DB (Bạn cần thêm cột ResetToken vào bảng User)
     user.ResetToken = resetToken;
     await this.usersService.save(user);
 
     const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
-
-    // Gửi mail
     await this.sendEmailForgotPassword(user.Email, resetLink);
     return { success: true, message: 'Link đặt lại mật khẩu đã được gửi vào Email của bạn' };
   }
 
-  // Đặt lại mật khẩu mới
   async resetPassword(token: string, resetPasswordDto: ResetPasswordDto) {
     const { newPassword } = resetPasswordDto;
     const user = await this.usersService.findByResetToken(token);
@@ -203,7 +188,6 @@ export class AuthService implements OnModuleInit {
     return { success: true, message: 'Mật khẩu đã được cập nhật thành công' };
   }
 
-  // Hàm gửi mail riêng cho quên mật khẩu
   async sendEmailForgotPassword(to: string, link: string) {
     await this.transporter.sendMail({
       from: '"Hệ Thống Cao Tốc" <hoangvu222001@gmail.com>',
@@ -220,7 +204,6 @@ export class AuthService implements OnModuleInit {
     });
   }
 
-  // Hàm gửi mail nội bộ thông báo cho Admin tối cao duyệt thành viên
   async sendEmailToAdminForApproval(adminEmail: string, newUser: any) {
     await this.transporter.sendMail({
       from: '"Hệ Thống Cao Tốc" <hoangvu222001@gmail.com>',
