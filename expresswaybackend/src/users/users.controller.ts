@@ -7,7 +7,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-users.dto';
 
 @ApiTags('Users')
@@ -39,24 +39,22 @@ export class UsersController {
 
   @Put('profile')
   @UseGuards(JwtAuthGuard)
-  @ApiConsumes('multipart/form-data') // Khai báo form chứa file
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        // Định nghĩa các trường văn bản từ UpdateUserDto cho Swagger hiện ô nhập
         username: { type: 'string', description: 'New username' },
         email: { type: 'string', description: 'New email address' },
-        // Định nghĩa trường file để Swagger hiển thị nút chọn ảnh
-        avatar: { 
+        avatar: {
           type: 'string',
           format: 'binary',
-          description: 'Upload profile image file' 
+          description: 'Upload profile image file'
         },
       },
     },
   })
-  @UseInterceptors(FileInterceptor('avatar', { // Key nhận file là 'avatar'
+  @UseInterceptors(FileInterceptor('avatar', {
     storage: diskStorage({
       destination: './uploads/avatars',
       filename: (req, file, cb) => {
@@ -67,15 +65,13 @@ export class UsersController {
     }),
   }))
   async updateProfile(
-    @Req() req: any, 
+    @Req() req: any,
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() file: Express.Multer.File
   ) {
     const userId = req.user.id;
-
-    // Nếu người dùng có upload file mới, gắn tên file vào DTO để lưu vào Database
     if (file) {
-      updateUserDto.Avatar = file.filename; // Gán chuỗi tên file (hoặc đường dẫn)
+      updateUserDto.Avatar = file.filename;
     }
 
     return await this.usersService.updateProfile(+userId, updateUserDto);

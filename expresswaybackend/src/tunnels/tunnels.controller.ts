@@ -1,10 +1,16 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { TunnelsService } from './tunnels.service';
-import { Tunnel } from './tunnels.entity';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+import { CreateTunnelDto } from './dto/create-tunnels.dto';
+import { UpdateTunnelDto } from './dto/update-tunnels.dto';
 
+@ApiBearerAuth()
 @Controller('tunnels')
 export class TunnelsController {
-  constructor(private readonly tunnelsService: TunnelsService) {}
+  constructor(private readonly tunnelsService: TunnelsService) { }
 
   @Get()
   findAll() {
@@ -16,20 +22,22 @@ export class TunnelsController {
     return this.tunnelsService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Post()
-  create(@Body() tunnelData: Partial<Tunnel>) {
-    return this.tunnelsService.create(tunnelData);
+  create(@Body() createtunnelDto: CreateTunnelDto) {
+    return this.tunnelsService.create(createtunnelDto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Put(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number, 
-    @Body() tunnelData: Partial<Tunnel>
-  ) {
-    return this.tunnelsService.update(id, tunnelData);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updatetunnelDto: UpdateTunnelDto) {
+    return this.tunnelsService.update(id, updatetunnelDto);
   }
 
-  // Xóa hầm khỏi danh sách quản lý
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.tunnelsService.remove(id);
