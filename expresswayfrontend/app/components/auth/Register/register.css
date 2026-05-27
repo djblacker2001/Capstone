@@ -1,10 +1,8 @@
-/* Reset nhẹ */
 * {
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Canh giữa form */
 .ant-form {
     background: #ffffff;
     border-radius: 12px;
@@ -55,20 +53,16 @@ h1 {
     letter-spacing: 1px;
 }
 
-
-/* Label */
 .ant-form-item-label>label {
     font-weight: 600;
     color: #333;
 }
 
-/* Input */
 .ant-input,
 .ant-input-password {
     border-radius: 8px;
 }
 
-/* Focus input */
 .ant-input:focus,
 .ant-input-password:focus,
 .ant-input-focused {
@@ -80,7 +74,6 @@ h1 {
     justify-content: space-around;
 }
 
-/* Button */
 .login {
     display: flex;
     justify-content: space-between;
@@ -130,7 +123,6 @@ button {
     font-size: 0.85rem;
 }
 
-/* Message */
 .ant-message {
     font-size: 14px;
 }
@@ -139,7 +131,6 @@ button {
     color: #ff4d4f;
     font-size: 12px;
     margin-bottom: 12px;
-
 }
 
 @media (max-width: 768px) {

@@ -15,33 +15,30 @@ const LoginPage = () => {
         setLoading(true);
         try {
             setError('');
-            console.log("INPUT:", values);
-
-            // 1. Lấy danh sách users từ API
-            const res = await fetch('http://localhost:8080/users');
+            const res = await fetch('http://localhost:8080/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    Username: values.username,
+                    Password: values.password
+                }),
+            });
             const result = await res.json();
 
             if (!res.ok || !result.success) {
-                setError('Không thể lấy dữ liệu từ server');
+                setError(result.message || 'Sai tên đăng nhập hoặc mật khẩu');
                 return;
             }
 
-            const users = result.data;
-
-            // 2. Tìm user khớp với Username và Password (SO SÁNH TRỰC TIẾP CHỮ THÔ)
-            const user = users.find(
-                (u: any) =>
-                    u.Username.trim().toLowerCase() === values.username.trim().toLowerCase() &&
-                    String(u.Password).trim() === String(values.password).trim()
-            );
-
-            console.log("FOUND USER:", user);
-
+            const { accessToken, user } = result.data;
             if (!user) {
                 setError('Sai tên đăng nhập hoặc mật khẩu');
                 return;
             }
 
+            
             if (user.IsLocked) {
                 setError('Tài khoản này hiện đang bị khóa');
                 return;
@@ -52,6 +49,7 @@ const LoginPage = () => {
                 return;
             }
 
+            localStorage.setItem('token', accessToken);
             localStorage.setItem('user', JSON.stringify(user));
             window.dispatchEvent(new Event("storage"));
 

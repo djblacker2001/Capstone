@@ -1,10 +1,8 @@
-/* Reset nhẹ */
 * {
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Canh giữa form */
 .ant-form {
     background: #ffffff;
     border-radius: 12px;
@@ -17,7 +15,6 @@
     height: 700px;
 }
 
-/* Toàn màn hình + nền */
 body {
     margin: 0;
     width: 100%;

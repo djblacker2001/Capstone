@@ -74,7 +74,7 @@ export default function MainHeader() {
   const items = [
     { key: "home", label: <Link href="/home">Trang chủ</Link> },
     { key: "gioithieu", label: <Link href="/gioi-thieu">Giới thiệu</Link> },
-    { key: "tuyenduong", label: <Link href="/tuyen-duong">Tuyến đường</Link> },
+    { key: "tuyenduong", label: <Link href="/expressway">Tuyến đường</Link> },
     { key: "bienbao", label: <Link href="/bien-bao">Biển báo</Link> },
 
     ...(user?.Role === "admin"

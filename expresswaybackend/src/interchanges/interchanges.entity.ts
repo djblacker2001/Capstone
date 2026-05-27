@@ -18,6 +18,12 @@ export class Interchange {
   @Column({ name: 'Location', type: 'nvarchar', length: 100, nullable: true })
   Location?: string;
 
+  @Column({ name: 'Longitude', type: 'float', nullable: true})
+  Longitude?: number;
+
+  @Column({ name: 'Latitude', type: 'float', nullable: true})
+  Latitude?: number;
+
   @Column({ name: 'BOT', type: 'nvarchar', length: 50, nullable: true })
   BOT?: string;
 

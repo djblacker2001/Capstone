@@ -39,21 +39,16 @@ export class AuthService implements OnModuleInit {
     if (!user) {
       return null;
     }
-    console.log('Mật khẩu người dùng nhập:', pass);
-    console.log('Mật khẩu trong DB:', user.Password);
     let isMatch = false;
     const isHashed = user.Password.startsWith('$2b$') || user.Password.startsWith('$2a$');
     if (isHashed) {
       isMatch = await bcrypt.compare(pass, user.Password);
-      console.log('Kết quả so sánh Bcrypt:', isMatch);
     } else {
       isMatch = (user.Password === pass);
-      console.log('Kết quả so sánh chữ thô:', isMatch);
       if (isMatch) {
         const salt = await bcrypt.genSalt(10);
         const newHashedPassword = await bcrypt.hash(pass, salt);
         await this.usersService.updatePassword(user.UserId, newHashedPassword);
-        console.log(`User ${username} đã được nâng cấp lên Bcrypt thành công!`);
       }
     }
 
