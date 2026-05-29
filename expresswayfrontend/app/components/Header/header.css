@@ -7,14 +7,12 @@
     padding: 1px 16px;
 }
 
-/* LEFT */
 .left {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-/* Button */
 .menuBtn {
     display: none;
     color: white;
@@ -22,7 +20,6 @@
     background-color: #0A9646;
 }
 
-/* Desktop menu */
 .desktopMenu {
     margin-right: 50px;
     font-size: large;
@@ -46,7 +43,6 @@
   background: #0ec45d !important;
 }
 
-/* RIGHT USER */
 .right {
     display: flex;
     align-items: center;
@@ -68,12 +64,10 @@
     font-weight: 500;
 }
 
-/* Mobile menu */
 .mobileMenu {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.5s ease;
-    
 }
 
 .mobileMenu .ant-menu {
@@ -96,10 +90,8 @@
 
 .mobileMenu.show {
     max-height: 500px;
-    /* đủ chứa menu */
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .desktopMenu {
         display: none;

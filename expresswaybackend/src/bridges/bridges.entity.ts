@@ -19,8 +19,8 @@ export class Bridge {
   @Column({ name: 'Type', type: 'nvarchar', length: 50, nullable: true })
   Type?: string;
 
-  @Column({ name: 'Overpass', type: 'nvarchar', length: 100, nullable: true })
-  Overpass?: string;
+  @Column({ name: 'Crossing', type: 'nvarchar', length: 100, nullable: true })
+  Crossing?: string;
 
   @ManyToOne(() => Section, (section) => section.bridge)
   @JoinColumn({ name: 'SectionId' })

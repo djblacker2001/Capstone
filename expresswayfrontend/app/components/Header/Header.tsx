@@ -72,25 +72,25 @@ export default function MainHeader() {
   };
 
   const items = [
-    { key: "home", label: <Link href="/home">Trang chủ</Link> },
-    { key: "gioithieu", label: <Link href="/gioi-thieu">Giới thiệu</Link> },
-    { key: "tuyenduong", label: <Link href="/expressway">Tuyến đường</Link> },
-    { key: "bienbao", label: <Link href="/bien-bao">Biển báo</Link> },
+    { key: "home", label: <Link href="/home">Home</Link> },
+    { key: "gioithieu", label: <Link href="/introduce">Introduce</Link> },
+    { key: "tuyenduong", label: <Link href="/expressway">Expressway</Link> },
+    { key: "bienbao", label: <Link href="/sign">Sign</Link> },
 
     ...(user?.Role === "admin"
       ? [
-        { key: "manageExpressway", label: <Link href="/manageExpressway">Quản lý cao tốc</Link> },
-        { key: "manageUser", label: <Link href="/manageUser">Quản lý người dùng</Link> },
-        { key: "manageSign", label: <Link href="/manageSign">Quản lý biển báo</Link> },
+        { key: "manageExpressway", label: <Link href="/manageExpressway">Manage Expressway</Link> },
+        { key: "manageUser", label: <Link href="/manageUser">Manage User</Link> },
+        { key: "manageSign", label: <Link href="/manageSign">Manage Sign</Link> },
       ]
       : []),
   ];
 
   const userMenu: MenuProps["items"] = [
-    { key: "profile", icon: <UserOutlined />, label: <Link href="/profile">Thông tin cá nhân</Link> },
-    { key: "settings", icon: <SettingOutlined />, label: "Cài đặt" },
+    { key: "profile", icon: <UserOutlined />, label: <Link href="/profile">Personal information</Link> },
+    { key: "settings", icon: <SettingOutlined />, label: "Setting" },
     { type: "divider" },
-    { key: "logout", icon: <LogoutOutlined />, label: "Đăng xuất", onClick: handleLogout },
+    { key: "logout", icon: <LogoutOutlined />, label: "Log out", onClick: handleLogout },
   ];
 
   return (

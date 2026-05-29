@@ -10,8 +10,6 @@ const Footer: React.FC = () => {
             <div className="footer">
                 <div className="footer-top">
                     <Row gutter={[24, 24]}>
-
-                        {/* Cột 1 */}
                         <Col xs={24} md={6}>
                             <div className="footer-brand">
                                 <Row>
@@ -19,29 +17,22 @@ const Footer: React.FC = () => {
                                         <img src="./expresswayicon2.png" style={{ width: 60 }} alt="logo" />
                                     </Col>
                                     <Col span={18}>
-                                        <h3>Hệ thống Đường cao tốc Việt Nam</h3>
+                                        <h3>Expressway Management System</h3>
                                     </Col>
                                 </Row>
                             </div>
-                            <p>
-                                Website cung cấp thông tin về hệ thống cao tốc Bắc – Nam,
-                                bao gồm bản đồ, tuyến đường và tiến độ xây dựng.
-                            </p>
+                            <p>The website provides information about the North-South expressway system, including maps, routes, and construction progress.</p>
                         </Col>
-
-                        {/* Cột 2 */}
                         <Col xs={24} md={6}>
                             <h3>Khám phá</h3>
                             <ul className="footer-list">
-                                <li><Link href="/gioi-thieu">Giới thiệu</Link></li>
-                                <li><Link href="/tuyen-duong">Tuyến đường</Link></li>
-                                <li><Link href="/ban-do">Bản đồ</Link></li>
-                                <li><Link href="/bien-bao">Biển báo</Link></li>
-                                <li><Link href="/tin-tuc">Tin tức</Link></li>
+                                <li><Link href="/introduce">Introduce</Link></li>
+                                <li><Link href="/expressway">Expressway</Link></li>
+                                <li><Link href="/map">Map</Link></li>
+                                <li><Link href="/sign">Sign</Link></li>
+                                <li><Link href="/news">News</Link></li>
                             </ul>
                         </Col>
-
-                        {/* Cột 3 */}
                         <Col xs={24} md={6}>
                             <h3>Thông tin</h3>
                             <ul className="footer-list">
@@ -51,14 +42,12 @@ const Footer: React.FC = () => {
                                 <li><Link href="/du-lieu">Dữ liệu</Link></li>
                             </ul>
                         </Col>
-
-                        {/* Cột 4 */}
                         <Col xs={24} md={6}>
                             <h3>Liên hệ</h3>
                             <ul className="footer-list">
-                                <li>Sinh viên: Vũ Lê Hoàng</li>
-                                <li>MSSV: 2331200226</li>
-                                <li>Trường: Đại học quốc tế miền đông</li>
+                                <li>Student: Vũ Lê Hoàng</li>
+                                <li>IRN: 2331200226</li>
+                                <li>Eastern International University</li>
                                 <li>Email: hoang.vu.cit23@eiu.edu.vn</li>
                             </ul>
                         </Col>
@@ -67,7 +56,7 @@ const Footer: React.FC = () => {
                 </div>
 
                 <div className="footer-bottom">
-                    © {currentYear} Hệ thống Đường cao tốc Việt Nam
+                    © {currentYear} Expressway Management System in Vietnam
                 </div>
             </div>
         </footer>

@@ -1,0 +1,12 @@
+{
+  "NOT_FOUND": "Không tìm thấy người dùng có ID {id}",
+  "ACCOUNT_NOT_FOUND": "Không tìm thấy tài khoản người dùng!",
+  "ADMIN_DELETE_DENIED": "Chính sách bảo mật: Bạn không được phép xóa tài khoản thuộc nhóm Quản trị viên!",
+  "DELETE_SUCCESS": "Xóa tài khoản người dùng thành công: {username}",
+  "ROLE_INVALID": "Mã định danh nhóm quyền (RoleId) không hợp lệ trên hệ thống!",
+  "ROLE_UPDATE_SUCCESS": "Cập nhật quyền hạn thành viên thành công!",
+  "USERNAME_TAKEN": "Tên đăng nhập này đã có người sử dụng!",
+  "PROFILE_UPDATE_SUCCESS": "Cập nhật thông tin cá nhân thành công!",
+  "AVATAR_DELETE_ERROR": "Không thể xóa tệp tin ảnh trên hệ thống máy chủ!",
+  "AVATAR_DELETE_SUCCESS": "Xóa ảnh đại diện thành công!"
+}

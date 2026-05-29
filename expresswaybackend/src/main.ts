@@ -19,10 +19,17 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
   const config = new DocumentBuilder()
-    .setTitle('Phần mềm Quản lý Cao tốc Bắc - Nam')
+    .setTitle('North-South Expressway Management Software')
     .setDescription('API Capstone')
     .setVersion('1.0')
     .addBearerAuth()
+    .addGlobalParameters({
+      name: 'accept-language',
+      in: 'header',
+      required: false,
+      schema: { default: 'en' },
+      description: 'Ngôn ngữ phản hồi: truyền "vi" cho Tiếng Việt hoặc "en" cho Tiếng Anh',
+    })
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -28,24 +28,24 @@ const LoginPage = () => {
             const result = await res.json();
 
             if (!res.ok || !result.success) {
-                setError(result.message || 'Sai tên đăng nhập hoặc mật khẩu');
+                setError(result.message || 'Wrong usernam or password');
                 return;
             }
 
             const { accessToken, user } = result.data;
             if (!user) {
-                setError('Sai tên đăng nhập hoặc mật khẩu');
+                setError('Wrong usernam or password');
                 return;
             }
 
             
             if (user.IsLocked) {
-                setError('Tài khoản này hiện đang bị khóa');
+                setError('The account is currently locked.');
                 return;
             }
 
             if (!user.IsActive) {
-                setError('Tài khoản chưa được kích hoạt qua Email');
+                setError('The account has not been activated via email.');
                 return;
             }
 
@@ -53,12 +53,12 @@ const LoginPage = () => {
             localStorage.setItem('user', JSON.stringify(user));
             window.dispatchEvent(new Event("storage"));
 
-            message.success('Đăng nhập thành công!');
+            message.success('Login success!');
             window.location.href = '/';
 
         } catch (err) {
             console.error(err);
-            setError('Lỗi kết nối server');
+            setError('Error server');
         } finally {
             setLoading(false);
         }
@@ -71,12 +71,12 @@ const LoginPage = () => {
                     <img src="/expresswayicon3.png" alt="logo3" style={{ width: '200px' }} />
                 </div>
 
-                <h1><b>ĐĂNG NHẬP</b></h1>
+                <h1><b>Log in</b></h1>
 
                 <Form.Item
                     label="Tên đăng nhập"
                     name="username"
-                    rules={[{ required: true, message: 'Vui lòng nhập username' }]}
+                    rules={[{ required: true, message: 'Please enter username' }]}
                 >
                     <Input placeholder="Nhập username" size="large" />
                 </Form.Item>
@@ -84,16 +84,16 @@ const LoginPage = () => {
                 <Form.Item
                     label="Mật khẩu"
                     name="password"
-                    rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+                    rules={[{ required: true, message: 'Please enter password' }]}
                 >
-                    <Input.Password placeholder="Nhập mật khẩu" size="large" />
+                    <Input.Password placeholder="Enter password" size="large" />
                 </Form.Item>
 
                 {error && <div className="login-error" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
 
                 <div className='login'>
                     <Button type="primary" htmlType="submit" block className='button1' loading={loading}>
-                        Đăng nhập
+                        Login
                     </Button>
 
                     <Button
@@ -102,13 +102,13 @@ const LoginPage = () => {
                         className='button2'
                         onClick={() => router.push('/register')}
                     >
-                        Đăng ký
+                        Register
                     </Button>
                 </div>
 
                 <div className="footer-links" style={{ textAlign: 'center', marginTop: '15px' }}>
                     <Link href="/forgot-password" style={{ color: '#1890ff', fontSize: '14px' }}>
-                        Quên mật khẩu?
+                        Forgot password?
                     </Link>
                 </div>
             </Form>

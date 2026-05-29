@@ -18,12 +18,12 @@ export class MailService {
     async sendVerificationEmail(email: string, code: string) {
         const url = `http://localhost:8080/auth/verify?code=${code}`;
         const mailOptions = {
-            from: '"Hệ Thống Cao Tốc" <email_cua_ban@gmail.com>',
+            from: '"Expressway System" <email_cua_ban@gmail.com>',
             to: email,
-            subject: 'Xác thực tài khoản của bạn',
-            html: `<h3>Chào mừng bạn!</h3>
-             <p>Vui lòng click vào link dưới đây để kích hoạt tài khoản:</p>
-             <a href="${url}">${url}</a>`,
+            subject: 'Verify your account',
+            html: `<h3>Welcome!</h3>
+            <p>Please click the link below to activate your account:</p>
+            <a href="${url}">${url}</a>`,
         };
 
         return await this.transporter.sendMail(mailOptions);

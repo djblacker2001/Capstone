@@ -2,20 +2,32 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Province } from './provinces.entity';
+import { I18nContext, I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class ProvincesService {
   constructor(
     @InjectRepository(Province)
     private provinceRepository: Repository<Province>,
+    private readonly i18n: I18nService,
   ) { }
+
+  private get lang(): string {
+    return I18nContext.current()?.lang || 'en';
+  }
 
   findAll() {
     return this.provinceRepository.find();
   }
 
-  findOne(id: number) {
-    return this.provinceRepository.findOneBy({ ProvinceId: id });
+  async findOne(id: number) {
+    const province = await this.provinceRepository.findOneBy({ ProvinceId: id });
+    if (!province) {
+      throw new NotFoundException(
+        this.i18n.t('province.NOT_FOUND', { lang: this.lang, args: { id } })
+      );
+    }
+    return province;
   }
 
   async create(data: Partial<Province>): Promise<Province> {
@@ -24,16 +36,19 @@ export class ProvincesService {
   }
 
   async update(id: number, data: Partial<Province>): Promise<Province> {
+    await this.findOne(id);
+    
     await this.provinceRepository.update(id, data);
-    const updatedProvince = await this.findOne(id);
-    if (!updatedProvince) {
-      throw new NotFoundException(`Không tìm thấy tỉnh thành với ID: ${id}`);
-    }
-    return updatedProvince;
+    return this.findOne(id);
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<any> {
+    await this.findOne(id);
     await this.provinceRepository.delete(id);
-    return { message: `Đã xóa tỉnh có ID ${id}` };
+    return { 
+      success: true,
+      statusCode: 200,
+      message: this.i18n.t('province.DELETE_SUCCESS', { lang: this.lang, args: { id } }) 
+    };
   }
 }

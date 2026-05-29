@@ -86,7 +86,7 @@ export class AuthService implements OnModuleInit {
       const superAdminEmail = 'hoangvu222001@gmail.com';
 
       this.sendEmailToAdminForApproval(superAdminEmail, user).catch((err) =>
-        console.error('Lỗi khi gửi Email thông báo Admin:', err),
+        console.error('Error sending Admin notification email:', err),
       );
 
       return {
@@ -96,19 +96,19 @@ export class AuthService implements OnModuleInit {
     } else {
       const verifyLink = `http://localhost:8080/auth/verify?code=${activeCode}`;
       this.sendEmail(user.Email, verifyLink).catch((err) =>
-        console.error('Lỗi khi gửi Email kích hoạt cho User:', err),
+        console.error('Error sending activation email to User.:', err),
       );
 
       return {
         success: true,
-        message: 'Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.',
+        message: 'Registration successful! Please check your email to activate your account.',
       };
     }
   }
 
   async verify(code: string) {
     const user = await this.usersService.findByActiveCode(code);
-    if (!user) throw new BadRequestException('Mã không hợp lệ');
+    if (!user) throw new BadRequestException('Invalid code');
 
     user.IsActive = true;
     user.ActiveCode = null;
@@ -118,7 +118,7 @@ export class AuthService implements OnModuleInit {
 
     return {
       success: true,
-      message: 'Kích hoạt thành công!',
+      message: 'Activation successful!',
       accessToken,
       user: { id: user.UserId, username: user.Username }
     };
@@ -126,17 +126,17 @@ export class AuthService implements OnModuleInit {
 
   async sendEmail(to: string, link: string) {
     await this.transporter.sendMail({
-      from: '"Hệ Thống Cao Tốc" <your_email@gmail.com>',
+      from: '"Expressway System" <your_email@gmail.com>',
       to,
-      subject: 'Xác nhận tài khoản Expressway',
+      subject: 'Confirm your Expressway account.',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; border: 1px solid #eee; padding: 20px;">
-          <h2 style="color: #2e7d32;">Chào mừng bạn đến với Expressway System!</h2>
-          <p>Bạn đã đăng ký tài khoản thành công. Vui lòng nhấn vào nút bên dưới để kích hoạt:</p>
+          <h2 style="color: #2e7d32;">Welcome to the Expressway System!</h2>
+          <p>You have successfully registered an account. Please click the button below to activate it:</p>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${link}" style="background-color: #2e7d32; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Kích Hoạt Ngay</a>
+            <a href="${link}" style="background-color: #2e7d32; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Activate Now</a>
           </div>
-          <p style="font-size: 12px; color: #777;">Nếu nút không hoạt động, copy link này: ${link}</p>
+          <p style="font-size: 12px; color: #777;">If the button doesn't work, copy this link: ${link}</p>
         </div>
       `,
     });
@@ -158,7 +158,7 @@ export class AuthService implements OnModuleInit {
     const { Email } = forgotPasswordDto;
     const user = await this.usersService.findByEmail(Email);
     if (!user) {
-      throw new BadRequestException('Email không tồn tại trong hệ thống');
+      throw new BadRequestException('The email address does not exist in the system.');
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
@@ -167,33 +167,33 @@ export class AuthService implements OnModuleInit {
 
     const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
     await this.sendEmailForgotPassword(user.Email, resetLink);
-    return { success: true, message: 'Link đặt lại mật khẩu đã được gửi vào Email của bạn' };
+    return { success: true, message: 'The password reset link has been sent to your email.' };
   }
 
   async resetPassword(token: string, resetPasswordDto: ResetPasswordDto) {
     const { newPassword } = resetPasswordDto;
     const user = await this.usersService.findByResetToken(token);
     if (!user) {
-      throw new BadRequestException('Mã xác thực không hợp lệ hoặc đã hết hạn');
+      throw new BadRequestException('The verification code is invalid or has expired.');
     }
     user.Password = newPassword;
     user.ResetToken = null;
     await this.usersService.save(user);
 
-    return { success: true, message: 'Mật khẩu đã được cập nhật thành công' };
+    return { success: true, message: 'Password has been successfully updated' };
   }
 
   async sendEmailForgotPassword(to: string, link: string) {
     await this.transporter.sendMail({
-      from: '"Hệ Thống Cao Tốc" <hoangvu222001@gmail.com>',
+      from: '"Expressway System" <hoangvu222001@gmail.com>',
       to,
-      subject: 'Đặt lại mật khẩu Expressway',
+      subject: 'Reset password',
       html: `
       <div style="font-family: Arial, sans-serif; padding: 20px;">
-        <h3>Yêu cầu đặt lại mật khẩu</h3>
-        <p>Bạn đã yêu cầu đặt lại mật khẩu. Vui lòng nhấn vào nút bên dưới:</p>
-        <a href="${link}" style="background-color: #f44336; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Đặt lại mật khẩu</a>
-        <p>Nếu bạn không yêu cầu điều này, hãy bỏ qua email này.</p>
+        <h3>Password reset request</h3>
+        <p>You have requested a password reset. Please click the button below:</p>
+        <a href="${link}" style="background-color: #f44336; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset password</a>
+        <p>Unless you specifically requested this, please disregard this email.</p>
       </div>
     `,
     });
@@ -201,7 +201,7 @@ export class AuthService implements OnModuleInit {
 
   async sendEmailToAdminForApproval(adminEmail: string, newUser: any) {
     await this.transporter.sendMail({
-      from: '"Hệ Thống Cao Tốc" <hoangvu222001@gmail.com>',
+      from: '"Expressway System" <hoangvu222001@gmail.com>',
       to: adminEmail,
       subject: `[Yêu cầu cấp quyền] Tài khoản xin làm Admin: ${newUser.Username}`,
       html: `
@@ -241,16 +241,16 @@ export class AuthService implements OnModuleInit {
   async changePassword(userId: number, dto: ChangePasswordDto) {
     const user = await this.usersService.findOne(userId);
     if (!user) {
-      throw new BadRequestException('Không tìm thấy người dùng trong hệ thống');
+      throw new BadRequestException('The user was not found in the system.');
     }
 
     const isMatch = await bcrypt.compare(dto.oldPassword, user.Password);
     if (!isMatch) {
-      throw new BadRequestException('Mật khẩu cũ không chính xác!');
+      throw new BadRequestException('The old password is incorrect!');
     }
 
     if (dto.oldPassword === dto.newPassword) {
-      throw new BadRequestException('Mật khẩu mới không được trùng với mật khẩu cũ!');
+      throw new BadRequestException('The new password must not be the same as the old password!');
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -259,7 +259,7 @@ export class AuthService implements OnModuleInit {
 
     return {
       success: true,
-      message: 'Thay đổi mật khẩu thành công! Vui lòng sử dụng mật khẩu mới cho lần đăng nhập tiếp theo.',
+      message: 'Password changed successfully! Please use your new password for your next login.',
     };
   }
 }

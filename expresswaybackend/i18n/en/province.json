@@ -1,0 +1,4 @@
+{
+  "NOT_FOUND": "Không tìm thấy tỉnh thành với ID: {id}",
+  "DELETE_SUCCESS": "Đã xóa thành công tỉnh thành có ID {id}"
+}

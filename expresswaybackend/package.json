@@ -37,6 +37,7 @@
     "mssql": "^12.5.0",
     "multer": "^2.1.1",
     "mysql2": "^3.22.3",
+    "nestjs-i18n": "^10.8.4",
     "next-i18next": "^16.0.7",
     "nodemailer": "^8.0.7",
     "passport": "^0.7.0",

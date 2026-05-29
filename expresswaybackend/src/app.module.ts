@@ -15,7 +15,8 @@ import { DataSource } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ProvincesModule } from './provinces/provinces.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import path, { join } from 'path';
+import { HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 
 @Module({
   imports: [
@@ -47,6 +48,18 @@ import { join } from 'path';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads', 'images'),
       serveRoot: '/images',
+    }),
+
+    I18nModule.forRoot({
+      fallbackLanguage: 'en',
+      loaderOptions: {
+        path: path.join(process.cwd(), 'i18n'), 
+        watch: true,
+      },
+      resolvers: [
+        new QueryResolver(['lang', 'l']),
+        new HeaderResolver(['x-custom-lang', 'accept-language']),
+      ],
     }),
   ],
   controllers: [AppController],

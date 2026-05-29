@@ -21,11 +21,11 @@ export default function ForgotPasswordPage() {
 
   return (
     <div style={{ maxWidth: 400, margin: '100px auto', textAlign: 'center' }}>
-      <h2>Quên mật khẩu?</h2>
-      <p>Nhập email của bạn để nhận link đặt lại mật khẩu</p>
-      <Input placeholder="Nhập Email" onChange={(e) => setEmail(e.target.value)} />
+      <h2>Forgot Password?</h2>
+      <p>Enter your email address to receive a password reset link.</p>
+      <Input placeholder="Enter your email" onChange={(e) => setEmail(e.target.value)} />
       <Button type="primary" onClick={handleSendRequest} style={{ marginTop: 20 }}>
-        Gửi yêu cầu
+        Submit a request
       </Button>
     </div>
   );

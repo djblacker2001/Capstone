@@ -1,0 +1,12 @@
+{
+  "NOT_FOUND": "Not found User ID {id}",
+  "ACCOUNT_NOT_FOUND": "User account not found!",
+  "ADMIN_DELETE_DENIED": "Security policy: You are not allowed to delete accounts belonging to the Administrators group!",
+  "DELETE_SUCCESS": "User account successfully deleted: {username}",
+  "ROLE_INVALID": "The RoleId code is invalid in the system!",
+  "ROLE_UPDATE_SUCCESS": "User permissions updated successfully!",
+  "USERNAME_TAKEN": "This username is already in use!",
+  "PROFILE_UPDATE_SUCCESS": "Personal information updated successfully!",
+  "AVATAR_DELETE_ERROR": "Unable to delete image files on the server!",
+  "AVATAR_DELETE_SUCCESS": "Profile picture successfully removed!"
+}

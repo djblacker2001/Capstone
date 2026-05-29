@@ -1,0 +1,6 @@
+{
+  "NOT_FOUND": "Sign with ID {id} not found",
+  "SEARCH_EMPTY": "No signs found matching the description keyword: \"{keyword}\"",
+  "SEARCH_SUCCESS": "Found {count} signs matching the description!",
+  "DELETE_SUCCESS": "Sign account successfully deleted with ID {id}"
+}

@@ -1,0 +1,6 @@
+{
+  "NOT_FOUND": "Không tìm thấy biển báo có ID là {id}",
+  "SEARCH_EMPTY": "Không tìm thấy biển báo nào có mô tả khớp với từ khóa: \"{keyword}\"",
+  "SEARCH_SUCCESS": "Tìm thấy {count} biển báo phù hợp với mô tả!",
+  "DELETE_SUCCESS": "Xóa thành công biển báo có ID là {id}"
+}

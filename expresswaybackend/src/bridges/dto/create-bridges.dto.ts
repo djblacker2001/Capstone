@@ -17,5 +17,5 @@ export class CreateBridgeDto {
     Type?: string;
 
     @ApiProperty()
-    Overpass?: string;
+    Crossing?: string;
 }

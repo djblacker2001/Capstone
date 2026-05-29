@@ -1,17 +1,24 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
 import { UpdateUserDto } from './dto/update-users.dto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { I18nContext, I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly i18n: I18nService,
   ) { }
+
+  // Hàm helper rút gọn để lấy ngôn ngữ hiện tại của Request Context
+  private get lang(): string {
+    return I18nContext.current()?.lang || 'en';
+  }
 
   async findByActiveCode(code: string): Promise<User | null> {
     return await this.userRepository.findOne({ where: { ActiveCode: code } });
@@ -35,7 +42,11 @@ export class UsersService {
     const user = await this.userRepository.findOne({
       where: { UserId: id },
     });
-    if (!user) throw new NotFoundException(`Không tìm thấy người dùng ID ${id}`);
+    if (!user) {
+      throw new NotFoundException(
+        this.i18n.t('user.NOT_FOUND', { lang: this.lang, args: { id } })
+      );
+    }
     return user;
   }
 
@@ -48,18 +59,22 @@ export class UsersService {
     const userToDelete = await this.userRepository.findOne({ where: { UserId: id } });
 
     if (!userToDelete) {
-      throw new NotFoundException(`Không tìm thấy người dùng có ID bằng ${id}`);
+      throw new NotFoundException(
+        this.i18n.t('user.NOT_FOUND', { lang: this.lang, args: { id } })
+      );
     }
 
     if (userToDelete.Role === 'admin') {
-      throw new BadRequestException('Hệ thống bảo mật: Bạn không được phép xóa tài khoản thuộc nhóm Quản trị viên (Admin)!');
+      throw new BadRequestException(
+        this.i18n.t('user.ADMIN_DELETE_DENIED', { lang: this.lang })
+      );
     }
 
     await this.userRepository.delete({ UserId: id });
     return {
       success: true,
       statusCode: 200,
-      message: `Đã xóa thành công tài khoản người dùng: ${userToDelete.Username}`,
+      message: this.i18n.t('user.DELETE_SUCCESS', { lang: this.lang, args: { username: userToDelete.Username } }),
     };
   }
 
@@ -82,18 +97,24 @@ export class UsersService {
     });
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Không tìm thấy người dùng có ID ${userId}`);
+      throw new NotFoundException(
+        this.i18n.t('user.NOT_FOUND', { lang: this.lang, args: { id: userId } })
+      );
     }
   }
 
   async changeUserRole(userId: number, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOne({ where: { UserId: userId } });
     if (!user) {
-      throw new NotFoundException(`Không tìm thấy người dùng có ID bằng ${userId}`);
+      throw new NotFoundException(
+        this.i18n.t('user.NOT_FOUND', { lang: this.lang, args: { id: userId } })
+      );
     }
 
     if (updateUserDto.RoleId && ![1, 2, 3].includes(updateUserDto.RoleId)) {
-      throw new BadRequestException('Mã RoleId không hợp lệ trong hệ thống!');
+      throw new BadRequestException(
+        this.i18n.t('user.ROLE_INVALID', { lang: this.lang })
+      );
     }
 
     Object.assign(user, updateUserDto);
@@ -101,7 +122,7 @@ export class UsersService {
     const { Password, ...userWithoutPassword } = updatedUser;
 
     return {
-      message: 'Cập nhật quyền hạn người dùng thành công!',
+      message: this.i18n.t('user.ROLE_UPDATE_SUCCESS', { lang: this.lang }),
       data: userWithoutPassword,
     };
   }
@@ -109,7 +130,9 @@ export class UsersService {
   async updateProfile(userId: number, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOne({ where: { UserId: userId } });
     if (!user) {
-      throw new NotFoundException(`Không tìm thấy tài khoản người dùng!`);
+      throw new NotFoundException(
+        this.i18n.t('user.ACCOUNT_NOT_FOUND', { lang: this.lang })
+      );
     }
 
     if (updateUserDto.Username && updateUserDto.Username !== user.Username) {
@@ -117,7 +140,9 @@ export class UsersService {
         where: { Username: updateUserDto.Username }
       });
       if (isUsernameExist) {
-        throw new BadRequestException('Tên đăng nhập (Username) này đã có người sử dụng!');
+        throw new BadRequestException(
+          this.i18n.t('user.USERNAME_TAKEN', { lang: this.lang })
+        );
       }
     }
 
@@ -127,41 +152,40 @@ export class UsersService {
 
     return {
       success: true,
-      message: 'Cập nhật thông tin cá nhân thành công!',
+      message: this.i18n.t('user.PROFILE_UPDATE_SUCCESS', { lang: this.lang }),
       data: result,
     };
   }
 
   async removeAvatar(userId: number) {
-    // 1. Tìm kiếm người dùng trong hệ thống
     const user = await this.userRepository.findOne({ where: { UserId: userId } });
     if (!user) {
-      throw new NotFoundException(`Không tìm thấy tài khoản người dùng!`);
+      throw new NotFoundException(
+        this.i18n.t('user.ACCOUNT_NOT_FOUND', { lang: this.lang })
+      );
     }
 
-    // 2. Nếu người dùng đang có avatar, tiến hành xóa file vật lý trên server
     if (user.Avatar) {
       try {
         const filePath = path.resolve(user.Avatar);
         if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath); // Xóa file vật lý khỏi ổ đĩa
+          fs.unlinkSync(filePath);
         }
       } catch (error) {
-        console.error('Lỗi khi xóa file avatar cũ:', error);
-        throw new InternalServerErrorException('Không thể xóa tệp tin ảnh trên server!');
+        console.error('Error when deleting old avatar file:', error);
+        throw new InternalServerErrorException(
+          this.i18n.t('user.AVATAR_DELETE_ERROR', { lang: this.lang })
+        );
       }
     }
 
-    // 3. Cập nhật trường Avatar về null trong SQL Server
     user.Avatar = null;
     const updatedUser = await this.userRepository.save(user);
-
-    // 4. Bóc tách loại bỏ các trường bảo mật trước khi trả về kết quả
     const { Password, ResetToken, ActiveCode, ...result } = updatedUser;
     return {
       success: true,
       statusCode: 200,
-      message: 'Xóa ảnh đại diện thành công!',
+      message: this.i18n.t('user.AVATAR_DELETE_SUCCESS', { lang: this.lang }),
       data: result,
     };
   }

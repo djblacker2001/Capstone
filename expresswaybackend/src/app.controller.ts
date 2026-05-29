@@ -40,7 +40,7 @@ export class AppController {
   )
   uploadImage(@UploadedFile() file: Express.Multer.File) {
     return {
-      message: 'Upload thành công',
+      message: 'Upload successful',
       path: `/images/${file.filename}`,
     };
   }

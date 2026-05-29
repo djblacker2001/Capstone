@@ -2,14 +2,21 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Interchange } from './interchanges.entity';
+import { I18nContext, I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class InterchangesService {
   constructor(
     @InjectRepository(Interchange)
     private readonly interchangeRepository: Repository<Interchange>,
+    private readonly i18n: I18nService,
+    
   ) {}
 
+  private get lang(): string {
+    return I18nContext.current()?.lang || 'en';
+  }
+  
   async findAll(): Promise<Interchange[]> {
     return await this.interchangeRepository.find({
     });
@@ -37,7 +44,13 @@ export class InterchangesService {
 
   async findOne(id: number): Promise<Interchange> {
     const interchange = await this.interchangeRepository.findOne({ where: { InterchangeId: id } });
-    if (!interchange) throw new NotFoundException(`Không tìm thấy nút giao ID ${id}`);
+    
+    if (!interchange) {
+      throw new NotFoundException(
+        this.i18n.t('interchange.NOT_FOUND', { lang: this.lang, args: { id } })
+      );
+    }
+    
     return interchange;
   }
 }

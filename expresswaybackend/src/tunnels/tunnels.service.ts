@@ -20,7 +20,7 @@ export class TunnelsService {
       where: { TunnelId: id },
       relations: ['section'] 
     });
-    if (!tunnel) throw new NotFoundException(`Không tìm thấy hầm với ID ${id}`);
+    if (!tunnel) throw new NotFoundException(`Not found Tunnel ID ${id}`);
     return tunnel;
   }
 

@@ -52,9 +52,9 @@ const RegisterPage = () => {
                 <div className='logo'>
                     <img src="/expresswayicon3.png" alt="logo3" style={{ width: '200px' }} />
                 </div>
-                <h1><b>ĐĂNG KÝ</b></h1>
+                <h1><b>Register</b></h1>
 
-                <Form.Item label="Tên đăng nhập" name="Username" rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}>
+                <Form.Item label="Tên đăng nhập" name="Username" rules={[{ required: true, message: 'Please enter username' }]}>
                     <Input placeholder="user123..." />
                 </Form.Item>
 
@@ -62,18 +62,18 @@ const RegisterPage = () => {
                     label="Email"
                     name="Email"
                     rules={[
-                        { required: true, message: 'Vui lòng nhập email!' },
-                        { type: 'email', message: 'Email không đúng định dạng!' }
+                        { required: true, message: 'Please enter your email' },
+                        { type: 'email', message: 'Email is not in the correct format!' }
                     ]}
                 >
                     <Input placeholder="example@gmail.com" />
                 </Form.Item>
 
-                <Form.Item label="Mật khẩu" name="Password" rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}>
+                <Form.Item label="Mật khẩu" name="Password" rules={[{ required: true, message: 'Please enter the password!' }]}>
                     <Input.Password />
                 </Form.Item>
 
-                <Form.Item label="Xác nhận mật khẩu" name="confirm" rules={[{ required: true, message: 'Vui lòng xác nhận mật khẩu!' }]}>
+                <Form.Item label="Xác nhận mật khẩu" name="confirm" rules={[{ required: true, message: 'Please confirm your password!' }]}>
                     <Input.Password />
                 </Form.Item>
 
@@ -83,14 +83,14 @@ const RegisterPage = () => {
                     initialValue="user"
                 >
                     <Select size="large">
-                        <Select.Option value="user">Người dùng thông thường</Select.Option>
-                        <Select.Option value="admin">Quản trị viên (Admin)</Select.Option>
+                        <Select.Option value="user">User</Select.Option>
+                        <Select.Option value="admin">Admin</Select.Option>
                     </Select>
                 </Form.Item>
 
                 <div className='login'>
                     <Button type="primary" htmlType="submit" block className='button1' loading={loading}>
-                        Đăng ký
+                        Register
                     </Button>
                     <Button
                         type="default"
@@ -99,7 +99,7 @@ const RegisterPage = () => {
                         onClick={() => router.push('/login')}
                         style={{ marginTop: '10px' }}
                     >
-                        Đã có tài khoản? Đăng nhập
+                        Has Account? Login
                     </Button>
                 </div>
             </Form>
