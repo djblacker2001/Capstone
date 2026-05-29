@@ -2,13 +2,6 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Expressway } from "./expressways.entity";
-import { Section } from "../sections/sections.entity";
-import { RestStop } from "../rest-stops/rest-stops.entity";
-import { Bridge } from "../bridges/bridges.entity";
-import { Interchange } from "../interchanges/interchanges.entity";
-import { Province } from "../provinces/provinces.entity";
-import { Tunnel } from "../tunnels/tunnels.entity";
-
 @Injectable()
 export class ExpresswaysService {
   constructor(
@@ -32,7 +25,6 @@ export class ExpresswaysService {
         'COUNT(DISTINCT expressway.ExpresswayId) AS totalExpressways',
         'COUNT(section.SectionId) AS totalSections',
       ])
-      // Tính tổng chiều dài dựa trên bảng Section
       .addSelect('SUM(section.Length)', 'totalSystemLength')
       .addSelect("SUM(CASE WHEN section.Status = N'Hoàn thành' THEN 1 ELSE 0 END)", 'totalCompleted')
       .addSelect("SUM(CASE WHEN section.Status = N'Đang thi công' THEN 1 ELSE 0 END)", 'totalUnderConstruction')
