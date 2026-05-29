@@ -23,5 +23,5 @@ export class CreateUserDto {
     IsLocked!: boolean;
 
     @ApiProperty()
-    Avatar?: string;
+    Avatar?: string | null;
 }

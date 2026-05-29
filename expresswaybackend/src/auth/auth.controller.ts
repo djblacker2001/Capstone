@@ -20,7 +20,7 @@ export class AuthController {
 
   @Get('verify')
   async verify(@Query('code') code: string) {
-    if (!code) throw new BadRequestException('Mã xác nhận không được để trống');
+    if (!code) throw new BadRequestException('The verification code cannot be left blank.');
     return this.authService.verify(code);
   }
 
@@ -32,7 +32,7 @@ export class AuthController {
     );
     if (!user) {
       throw new UnauthorizedException(
-        'Tài khoản hoặc mật khẩu không chính xác',
+        'Incorrect username or password',
       );
     }
     return this.authService.login(user);
@@ -64,7 +64,7 @@ export class AuthController {
     @Body() resetPasswordDto: ResetPasswordDto
   ) {
     if (!token) {
-      throw new BadRequestException('Mã token xác nhận không được để trống!');
+      throw new BadRequestException('The confirmation token code cannot be left blank!');
     }
     return await this.authService.resetPassword(token, resetPasswordDto);
   }

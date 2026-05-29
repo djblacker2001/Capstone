@@ -31,7 +31,7 @@ export class User {
   ActiveCode?: string | null;
 
   @Column({ name: 'Avatar', type: 'nvarchar', length: 'MAX', nullable: true })
-  Avatar?: string;
+  Avatar?: string | null;
 
   @Column({ name: 'ResetToken', type: 'nvarchar', length: 'MAX', nullable: true })
   ResetToken?: string | null;

@@ -1,8 +1,10 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
 import { UpdateUserDto } from './dto/update-users.dto';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class UsersService {
@@ -126,6 +128,40 @@ export class UsersService {
     return {
       success: true,
       message: 'Cập nhật thông tin cá nhân thành công!',
+      data: result,
+    };
+  }
+
+  async removeAvatar(userId: number) {
+    // 1. Tìm kiếm người dùng trong hệ thống
+    const user = await this.userRepository.findOne({ where: { UserId: userId } });
+    if (!user) {
+      throw new NotFoundException(`Không tìm thấy tài khoản người dùng!`);
+    }
+
+    // 2. Nếu người dùng đang có avatar, tiến hành xóa file vật lý trên server
+    if (user.Avatar) {
+      try {
+        const filePath = path.resolve(user.Avatar);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath); // Xóa file vật lý khỏi ổ đĩa
+        }
+      } catch (error) {
+        console.error('Lỗi khi xóa file avatar cũ:', error);
+        throw new InternalServerErrorException('Không thể xóa tệp tin ảnh trên server!');
+      }
+    }
+
+    // 3. Cập nhật trường Avatar về null trong SQL Server
+    user.Avatar = null;
+    const updatedUser = await this.userRepository.save(user);
+
+    // 4. Bóc tách loại bỏ các trường bảo mật trước khi trả về kết quả
+    const { Password, ResetToken, ActiveCode, ...result } = updatedUser;
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Xóa ảnh đại diện thành công!',
       data: result,
     };
   }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, ParseIntPipe, UseGuards, Put, Patch, UploadedFile, UseInterceptors, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, ParseIntPipe, UseGuards, Put, Patch, UploadedFile, UseInterceptors, Req, HttpCode, HttpStatus } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './users.entity';
 import { Roles } from '../auth/roles.decorator';
@@ -7,7 +7,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-users.dto';
 
 @ApiTags('Users')
@@ -30,6 +30,14 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @Delete('avatar')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async removeAvatar(@Req() req: any) {
+    const userId = req.user.userId;
+    return await this.usersService.removeAvatar(+userId);
+  }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Delete(':id')
@@ -40,6 +48,7 @@ export class UsersController {
   @Put('profile')
   @UseGuards(JwtAuthGuard)
   @ApiConsumes('multipart/form-data')
+  @HttpCode(HttpStatus.OK)
   @ApiBody({
     schema: {
       type: 'object',

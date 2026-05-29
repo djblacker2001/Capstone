@@ -61,7 +61,7 @@ export class AuthService implements OnModuleInit {
 
   async register(data: any) {
     const exist = await this.usersService.findByUsername(data.Username);
-    if (exist) throw new BadRequestException('Username đã tồn tại');
+    if (exist) throw new BadRequestException('Username already exists.');
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(data.Password, salt);
@@ -91,7 +91,7 @@ export class AuthService implements OnModuleInit {
 
       return {
         success: true,
-        message: 'Yêu cầu đăng ký quyền Admin đã được gửi! Vui lòng đợi Admin tối cao phê duyệt hệ thống.',
+        message: 'Admin registration request has been submitted! Please wait for the Supreme Admin to approve the system.',
       };
     } else {
       const verifyLink = `http://localhost:8080/auth/verify?code=${activeCode}`;

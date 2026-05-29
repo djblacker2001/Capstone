@@ -45,8 +45,8 @@ import { join } from 'path';
     AuthModule,
     ProvincesModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads', 'images'), // Trỏ thẳng vào thư mục chứa ảnh thực tế
-      serveRoot: '/images', // URL ảo trên trình duyệt (Ví dụ: http://localhost:8080/images/abc.png)
+      rootPath: join(__dirname, '..', 'uploads', 'images'),
+      serveRoot: '/images',
     }),
   ],
   controllers: [AppController],
