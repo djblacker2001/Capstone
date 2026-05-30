@@ -1,9 +1,7 @@
-import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import MainLayout from "../layout/Layout";
 
-const SignPage = () => {
+const IntroducePage = () => {
     return (
-        <ProtectedRoute>
         <MainLayout>
             <table>
                 <th>
@@ -16,8 +14,7 @@ const SignPage = () => {
                 </tr>
             </table>
         </MainLayout>
-        </ProtectedRoute>
     )
 }
 
-export default SignPage;
+export default IntroducePage;
