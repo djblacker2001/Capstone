@@ -18,7 +18,6 @@ export class RestStopsService {
         });
     }
 
-
     private get lang(): string {
         return I18nContext.current()?.lang || 'en';
     }

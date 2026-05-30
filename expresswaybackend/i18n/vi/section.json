@@ -1,0 +1,9 @@
+{
+  "SEARCH_NAME": "Tìm thấy các đoạn đường có tên chứa từ khóa: \"{name}\"",
+  "SEARCH_STATUS": "Tìm thấy các đoạn đường có trạng thái là: \"{status}\"",
+  "SEARCH_BOTH": "Tìm thấy các đoạn đường có tên chứa \"{name}\" và trạng thái là \"{status}\"",
+  "FETCH_ALL_SUCCESS": "Lấy toàn bộ danh sách đoạn đường thành công!",
+  "NOT_FOUND": "Không tìm thấy đoạn đường với ID {id}",
+  "KM_NOT_FOUND": "Không tìm thấy tuyến đường nào bao phủ vị trí Km {km}",
+  "KM_FOUND": "Tìm thấy thông tin đoạn tuyến thành công!"
+}

@@ -15,7 +15,6 @@ export class UsersService {
     private readonly i18n: I18nService,
   ) { }
 
-  // Hàm helper rút gọn để lấy ngôn ngữ hiện tại của Request Context
   private get lang(): string {
     return I18nContext.current()?.lang || 'en';
   }

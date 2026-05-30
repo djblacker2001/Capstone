@@ -1,4 +1,4 @@
-import {Controller, Post, Body, Get, Query, UnauthorizedException, BadRequestException, Req, UseGuards,} from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, UnauthorizedException, BadRequestException, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -7,11 +7,19 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { I18nContext, I18nService } from 'nestjs-i18n';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(
+    private authService: AuthService,
+    private readonly i18n: I18nService,
+  ) { }
+
+  private get lang(): string {
+    return I18nContext.current()?.lang || 'en';
+  }
 
   @Post('register')
   async register(@Body() body: RegisterDto) {
@@ -20,7 +28,11 @@ export class AuthController {
 
   @Get('verify')
   async verify(@Query('code') code: string) {
-    if (!code) throw new BadRequestException('The verification code cannot be left blank.');
+    if (!code) {
+      throw new BadRequestException(
+        this.i18n.t('auth.CODE_REQUIRED', { lang: this.lang })
+      );
+    }
     return this.authService.verify(code);
   }
 
@@ -32,7 +44,7 @@ export class AuthController {
     );
     if (!user) {
       throw new UnauthorizedException(
-        'Incorrect username or password',
+        this.i18n.t('auth.LOGIN_FAILED', { lang: this.lang })
       );
     }
     return this.authService.login(user);
@@ -42,7 +54,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('change-password')
   async changePassword(@Req() req: any, @Body() changePasswordDto: ChangePasswordDto) {
-    const userId = req.user.id; 
+    const userId = req.user.userId; 
     return await this.authService.changePassword(+userId, changePasswordDto);
   }
 
@@ -58,13 +70,16 @@ export class AuthController {
     required: true, 
     description: 'The secret reset token extracted from the link sent to your email' 
   })
+
   @ApiResponse({ status: 200, description: 'Password updated successfully.' })
   async resetPassword(
     @Query('token') token: string,
     @Body() resetPasswordDto: ResetPasswordDto
   ) {
     if (!token) {
-      throw new BadRequestException('The confirmation token code cannot be left blank!');
+      throw new BadRequestException(
+        this.i18n.t('auth.TOKEN_REQUIRED', { lang: this.lang })
+      );
     }
     return await this.authService.resetPassword(token, resetPasswordDto);
   }

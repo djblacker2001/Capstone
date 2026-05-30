@@ -76,15 +76,7 @@ export class ExpresswaysService {
     return this.findOneExpressway(id);
   }
 
-  async remove(id: number) {
-    const expressway = await this.findOneExpressway(id);
-    if (!expressway) {
-      throw new NotFoundException(`Không tìm thấy cao tốc với ID ${id} để xóa`);
-    }
-    await this.expresswayRepository.remove(expressway);
-    return {
-      message: `Xóa thành công cao tốc ${expressway.NameExpressway}`,
-      id: id
-    };
+  async remove(id: number): Promise<void> {
+    await this.expresswayRepository.delete(id);
   }
 }

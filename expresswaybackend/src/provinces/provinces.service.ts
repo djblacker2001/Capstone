@@ -16,11 +16,11 @@ export class ProvincesService {
     return I18nContext.current()?.lang || 'en';
   }
 
-  findAll() {
+  async findAll() {
     return this.provinceRepository.find();
   }
 
-  async findOne(id: number) {
+  async findOneProvince(id: number) {
     const province = await this.provinceRepository.findOneBy({ ProvinceId: id });
     if (!province) {
       throw new NotFoundException(
@@ -36,19 +36,11 @@ export class ProvincesService {
   }
 
   async update(id: number, data: Partial<Province>): Promise<Province> {
-    await this.findOne(id);
-    
     await this.provinceRepository.update(id, data);
-    return this.findOne(id);
+    return this.findOneProvince(id);
   }
 
   async remove(id: number): Promise<any> {
-    await this.findOne(id);
     await this.provinceRepository.delete(id);
-    return { 
-      success: true,
-      statusCode: 200,
-      message: this.i18n.t('province.DELETE_SUCCESS', { lang: this.lang, args: { id } }) 
-    };
   }
 }

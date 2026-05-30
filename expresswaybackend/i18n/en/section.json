@@ -1,0 +1,9 @@
+{
+  "SEARCH_NAME": "Found sections with name containing keyword: \"{name}\"",
+  "SEARCH_STATUS": "Found sections with status: \"{status}\"",
+  "SEARCH_BOTH": "Found sections with name containing \"{name}\" and status is \"{status}\"",
+  "FETCH_ALL_SUCCESS": "Successfully retrieved the entire list of road sections!",
+  "NOT_FOUND": "Section with ID {id} not found",
+  "KM_NOT_FOUND": "No route covering location Km {km} was found",
+  "KM_FOUND": "Successfully found road section information!"
+}

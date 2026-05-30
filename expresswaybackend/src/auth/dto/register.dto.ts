@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, MinLength } from "class-validator";
+import { i18nValidationMessage } from "nestjs-i18n";
 
 export class RegisterDto {
   @ApiProperty()
@@ -10,7 +11,9 @@ export class RegisterDto {
   Email!: string;
 
   @ApiProperty()
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  @MinLength(6, { 
+    message: i18nValidationMessage('validation.PASSWORD_MIN_LENGTH') 
+  })
   Password!: string;
   
   @ApiProperty()

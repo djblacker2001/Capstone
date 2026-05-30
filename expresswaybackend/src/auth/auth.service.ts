@@ -7,6 +7,7 @@ import { UsersService } from '../users/users.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { I18nContext, I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -15,7 +16,12 @@ export class AuthService implements OnModuleInit {
   constructor(
     private jwtService: JwtService,
     private usersService: UsersService,
+    private readonly i18n: I18nService,
   ) { }
+
+  private get lang(): string {
+    return I18nContext.current()?.lang || 'en';
+  }
 
   onModuleInit() {
     this.transporter = nodemailer.createTransport({
@@ -31,7 +37,7 @@ export class AuthService implements OnModuleInit {
       }
     });
 
-    this.transporter.verify((error) => {});
+    this.transporter.verify((error) => { });
   }
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -61,7 +67,9 @@ export class AuthService implements OnModuleInit {
 
   async register(data: any) {
     const exist = await this.usersService.findByUsername(data.Username);
-    if (exist) throw new BadRequestException('Username already exists.');
+    if (exist) {
+      throw new BadRequestException(this.i18n.t('auth.USERNAME_EXIST', { lang: this.lang }));
+    }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(data.Password, salt);
@@ -91,7 +99,7 @@ export class AuthService implements OnModuleInit {
 
       return {
         success: true,
-        message: 'Admin registration request has been submitted! Please wait for the Supreme Admin to approve the system.',
+        message: this.i18n.t('auth.ADMIN_REG_SUCCESS', { lang: this.lang }),
       };
     } else {
       const verifyLink = `http://localhost:8080/auth/verify?code=${activeCode}`;
@@ -101,14 +109,16 @@ export class AuthService implements OnModuleInit {
 
       return {
         success: true,
-        message: 'Registration successful! Please check your email to activate your account.',
+        message: this.i18n.t('auth.USER_REG_SUCCESS', { lang: this.lang }),
       };
     }
   }
 
   async verify(code: string) {
     const user = await this.usersService.findByActiveCode(code);
-    if (!user) throw new BadRequestException('Invalid code');
+    if (!user) {
+      throw new BadRequestException(this.i18n.t('auth.INVALID_CODE', { lang: this.lang }));
+    }
 
     user.IsActive = true;
     user.ActiveCode = null;
@@ -118,7 +128,7 @@ export class AuthService implements OnModuleInit {
 
     return {
       success: true,
-      message: 'Activation successful!',
+      message: this.i18n.t('auth.ACTIVATION_SUCCESS', { lang: this.lang }),
       accessToken,
       user: { id: user.UserId, username: user.Username }
     };
@@ -158,7 +168,7 @@ export class AuthService implements OnModuleInit {
     const { Email } = forgotPasswordDto;
     const user = await this.usersService.findByEmail(Email);
     if (!user) {
-      throw new BadRequestException('The email address does not exist in the system.');
+      throw new BadRequestException(this.i18n.t('auth.EMAIL_NOT_FOUND', { lang: this.lang }));
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
@@ -167,20 +177,29 @@ export class AuthService implements OnModuleInit {
 
     const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
     await this.sendEmailForgotPassword(user.Email, resetLink);
-    return { success: true, message: 'The password reset link has been sent to your email.' };
+    return {
+      success: true,
+      message: this.i18n.t('auth.FORGOT_PASSWORD_SUCCESS', { lang: this.lang })
+    };
   }
 
   async resetPassword(token: string, resetPasswordDto: ResetPasswordDto) {
     const { newPassword } = resetPasswordDto;
     const user = await this.usersService.findByResetToken(token);
     if (!user) {
-      throw new BadRequestException('The verification code is invalid or has expired.');
+      throw new BadRequestException(this.i18n.t('auth.INVALID_CODE', { lang: this.lang }));
     }
-    user.Password = newPassword;
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    user.Password = hashedPassword;
     user.ResetToken = null;
     await this.usersService.save(user);
 
-    return { success: true, message: 'Password has been successfully updated' };
+    return {
+      success: true,
+      message: this.i18n.t('auth.RESET_PASSWORD_SUCCESS', { lang: this.lang })
+    };
   }
 
   async sendEmailForgotPassword(to: string, link: string) {
@@ -203,36 +222,36 @@ export class AuthService implements OnModuleInit {
     await this.transporter.sendMail({
       from: '"Expressway System" <hoangvu222001@gmail.com>',
       to: adminEmail,
-      subject: `[Yêu cầu cấp quyền] Tài khoản xin làm Admin: ${newUser.Username}`,
+      subject: `[Permission Request] Account requesting to be Admin: ${newUser.Username}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-          <h2 style="color: #d32f2f; border-bottom: 2px solid #d32f2f; padding-bottom: 10px;">Yêu Cầu Cấp Quyền Hệ Thống</h2>
-          <p>Chào Admin tối cao, hệ thống ghi nhận một người dùng muốn đăng ký tài khoản với quyền <strong>Admin</strong>:</p>
+          <h2 style="color: #d32f2f; border-bottom: 2px solid #d32f2f; padding-bottom: 10px;">System Permission Request</h2>
+          <p>Dear Supreme Admin, the system has detected a user wishing to register an account with <strong>Admin</strong> privileges:</p>
           
           <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
             <tr style="background-color: #f9f9f9;">
-              <td style="padding: 8px; font-weight: bold; width: 40%;">ID Người Dùng:</td>
+              <td style="padding: 8px; font-weight: bold; width: 40%;">User ID:</td>
               <td style="padding: 8px; color: #d32f2f; font-weight: bold;">${newUser.UserId}</td>
             </tr>
             <tr>
-              <td style="padding: 8px; font-weight: bold;">Tên Đăng Nhập:</td>
+              <td style="padding: 8px; font-weight: bold;">Username:</td>
               <td style="padding: 8px;">${newUser.Username}</td>
             </tr>
             <tr style="background-color: #f9f9f9;">
-              <td style="padding: 8px; font-weight: bold;">Email Liên Hệ:</td>
+              <td style="padding: 8px; font-weight: bold;">Email contact:</td>
               <td style="padding: 8px;">${newUser.Email}</td>
             </tr>
             <tr>
-              <td style="padding: 8px; font-weight: bold;">Thời Gian Đăng Ký:</td>
+              <td style="padding: 8px; font-weight: bold;">Registration Period:</td>
               <td style="padding: 8px;">${new Date(newUser.CreatedAt).toLocaleString()}</td>
             </tr>
           </table>
 
-          <p><strong>Hướng dẫn duyệt tác vụ:</strong></p>
-          <p>Vui lòng đăng nhập tài khoản Admin của bạn trên Swagger UI, tìm tới API <code>PUT /users/${newUser.UserId}</code> và tiến hành truyền Body để cập nhật quyền chính thức cho thành viên này.</p>
+          <p><strong>Task browsing guide:</strong></p>
+          <p>Please log in to your Admin account on Swagger UI., find the API <code>PUT /users/${newUser.UserId}</code> and pass the Body to update the official permissions for this member.</p>
           
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-          <p style="font-size: 11px; color: #888; text-align: center;">Đây là email tự động gửi từ hệ thống Capstone Expressway Backend.</p>
+          <p style="font-size: 11px; color: #888; text-align: center;">This is an automated email sent from the Capstone Expressway Backend system.</p>
         </div>
       `,
     });
@@ -241,16 +260,16 @@ export class AuthService implements OnModuleInit {
   async changePassword(userId: number, dto: ChangePasswordDto) {
     const user = await this.usersService.findOne(userId);
     if (!user) {
-      throw new BadRequestException('The user was not found in the system.');
+      throw new BadRequestException(this.i18n.t('auth.USER_NOT_FOUND', { lang: this.lang }));
     }
 
     const isMatch = await bcrypt.compare(dto.oldPassword, user.Password);
     if (!isMatch) {
-      throw new BadRequestException('The old password is incorrect!');
+      throw new BadRequestException(this.i18n.t('auth.OLD_PASSWORD_INCORRECT', { lang: this.lang }));
     }
 
     if (dto.oldPassword === dto.newPassword) {
-      throw new BadRequestException('The new password must not be the same as the old password!');
+      throw new BadRequestException(this.i18n.t('auth.PASSWORD_SAME', { lang: this.lang }));
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -259,7 +278,7 @@ export class AuthService implements OnModuleInit {
 
     return {
       success: true,
-      message: 'Password changed successfully! Please use your new password for your next login.',
+      message: this.i18n.t('auth.CHANGE_PASSWORD_SUCCESS', { lang: this.lang }),
     };
   }
 }

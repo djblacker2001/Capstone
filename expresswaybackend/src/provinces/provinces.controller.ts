@@ -21,7 +21,7 @@ export class ProvincesController {
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.provincesService.findOne(id);
+    return this.provincesService.findOneProvince(id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

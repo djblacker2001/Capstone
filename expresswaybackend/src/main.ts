@@ -28,7 +28,7 @@ async function bootstrap() {
       in: 'header',
       required: false,
       schema: { default: 'en' },
-      description: 'Ngôn ngữ phản hồi: truyền "vi" cho Tiếng Việt hoặc "en" cho Tiếng Anh',
+      description: 'Feedback language:"vi" for Vietnamese or "en" for English',
     })
     .build();
 

@@ -2,13 +2,18 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThanOrEqual, LessThanOrEqual, Repository, Like } from 'typeorm';
 import { Section } from './sections.entity';
+import { I18nContext, I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class SectionsService {
     constructor(
         @InjectRepository(Section) private readonly sectionRepository: Repository<Section>,
-
+        private readonly i18n: I18nService,
     ) { }
+
+    private get lang(): string {
+        return I18nContext.current()?.lang || 'en';
+    }
 
     async findAll() {
         return this.sectionRepository.find({});
@@ -16,6 +21,7 @@ export class SectionsService {
 
     async findAllSection(name?: string, status?: string, provinceName?: string) {
         const whereCondition: any = {};
+        
         if (name) {
             const sections = await this.sectionRepository.find({
                 where: {
@@ -26,7 +32,7 @@ export class SectionsService {
             return {
                 success: true,
                 statusCode: 200,
-                message: `Tìm thấy các đoạn đường có tên chứa từ khóa: "${name}"`,
+                message: this.i18n.t('section.SEARCH_NAME', { lang: this.lang, args: { name } }),
                 data: sections,
             };
         }
@@ -44,13 +50,13 @@ export class SectionsService {
             relations: ['bridge', 'interchange', 'tunnel', 'province', 'restStop']
         });
 
-        let dynamicMessage = 'Lấy toàn bộ danh sách đoạn đường thành công!';
+        let dynamicMessage = this.i18n.t('section.FETCH_ALL_SUCCESS', { lang: this.lang });
         if (name && status) {
-            dynamicMessage = `Tìm thấy các đoạn đường có tên chứa "${name}" và trạng thái là "${status}"`;
+            dynamicMessage = this.i18n.t('section.SEARCH_BOTH', { lang: this.lang, args: { name, status } });
         } else if (name) {
-            dynamicMessage = `Tìm thấy các đoạn đường có tên chứa từ khóa: "${name}"`;
+            dynamicMessage = this.i18n.t('section.SEARCH_NAME', { lang: this.lang, args: { name } });
         } else if (status) {
-            dynamicMessage = `Tìm thấy các đoạn đường có trạng thái là: "${status}"`;
+            dynamicMessage = this.i18n.t('section.SEARCH_STATUS', { lang: this.lang, args: { status } });
         }
 
         return {
@@ -61,16 +67,16 @@ export class SectionsService {
         };
     }
 
-
-
-    async findOne(id: number): Promise<Section> {
+    async findOneSection(id: number): Promise<Section> {
         const section = await this.sectionRepository.findOne({
             where: { SectionId: id },
             relations: ['bridge', 'interchange', 'tunnel', 'restStop', 'province'],
         });
 
         if (!section) {
-            throw new NotFoundException(`Không tìm thấy đoạn đường với ID ${id}`);
+            throw new NotFoundException(
+                this.i18n.t('section.NOT_FOUND', { lang: this.lang, args: { id } })
+            );
         }
         return section;
     }
@@ -90,7 +96,7 @@ export class SectionsService {
             return {
                 success: false,
                 statusCode: 404,
-                message: `Không tìm thấy tuyến đường nào bao phủ vị trí Km ${km}`,
+                message: this.i18n.t('section.KM_NOT_FOUND', { lang: this.lang, args: { km } }),
                 data: null
             };
         }
@@ -98,7 +104,7 @@ export class SectionsService {
         return {
             success: true,
             statusCode: 200,
-            message: 'Tìm thấy thông tin đoạn tuyến thành công!',
+            message: this.i18n.t('section.KM_FOUND', { lang: this.lang }),
             data: section
         };
     }
@@ -110,10 +116,11 @@ export class SectionsService {
 
     async update(id: number, data: Partial<Section>): Promise<Section> {
         await this.sectionRepository.update(id, data);
-        return this.findOne(id);
+        return this.findOneSection(id);
     }
 
     async remove(id: number): Promise<void> {
+        await this.findOneSection(id);
         await this.sectionRepository.delete(id);
     }
 

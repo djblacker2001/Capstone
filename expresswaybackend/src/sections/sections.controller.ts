@@ -53,7 +53,7 @@ export class SectionsController {
 
   @Get(':id')
   async getSectionDetail(@Param('id', ParseIntPipe) id: number) {
-    return await this.sectionsService.findOne(id);
+    return await this.sectionsService.findOneSection(id);
   }
 
   
