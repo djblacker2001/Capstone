@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import './style.css';
 
 interface MapProps {
   isFullscreen: boolean;
@@ -10,71 +11,154 @@ interface MapProps {
   geojsonData: any;
 }
 
-function MapController({ isFullscreen, geojsonData }: { isFullscreen: boolean; geojsonData: any }) {
+function MapController({
+  isFullscreen,
+  geojsonData,
+}: {
+  isFullscreen: boolean;
+  geojsonData: any;
+}) {
   const map = useMap();
+  const routingRef = useRef<any>(null);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !map || !geojsonData) return;
+    if (typeof window === 'undefined' || !map) return;
+
     const L = require('leaflet');
-    window.L = L;
+    (window as any).L = L;
     require('leaflet-routing-machine');
 
-    const coords = geojsonData.geometry.coordinates;
-    const startPt = L.latLng(coords[0][1], coords[0][0]);
-    const endPt = L.latLng(coords[1][1], coords[1][0]);
-
-    const routingOptions: any = {
-      waypoints: [startPt, endPt],
+    routingRef.current = (L as any).Routing.control({
+      waypoints: [],
       routeWhileDragging: false,
       show: false,
       addWaypoints: false,
-      createMarker: () => L.layerGroup([]),
+      draggableWaypoints: false,
+      fitSelectedRoutes: false,
+
+      createMarker: () => null,
+
       lineOptions: {
-        styles: [{ color: '#ff3838', opacity: 0.8, weight: 6 }],
+        styles: [
+          {
+            color: '#ff3838',
+            opacity: 0.8,
+            weight: 6,
+          },
+        ],
         extendToWaypoints: true,
-        missingRouteTolerance: 100
-      }
-    };
+        missingRouteTolerance: 100,
+      },
+    }).addTo(map);
 
-    const routingControl = (L as any).Routing.control(routingOptions).addTo(map);
+    routingRef.current.on('routesfound', (e: any) => {
+      if (!e.routes?.length) return;
 
-    routingControl.on('routesfound', function (e: any) {
-      const routes = e.routes;
-      const bounds = L.latLngBounds(routes[0].coordinates);
-      map.fitBounds(bounds, { padding: [20, 20] });
+      const bounds = L.latLngBounds(
+        e.routes[0].coordinates
+      );
+
+      map.fitBounds(bounds, {
+        padding: [20, 20],
+      });
     });
 
     return () => {
-      if (map && routingControl) {
-        map.removeControl(routingControl);
+      try {
+        routingRef.current?.off();
+        routingRef.current?.remove();
+        routingRef.current = null;
+      } catch (err) {
+        console.error('Routing cleanup error:', err);
       }
     };
-  }, [map, geojsonData]);
+  }, [map]);
+
+  useEffect(() => {
+    if (!routingRef.current || !geojsonData) return;
+
+    try {
+      const L = require('leaflet');
+
+      const coords = geojsonData?.geometry?.coordinates;
+
+      if (!coords || coords.length < 2) return;
+
+      const startPoint = L.latLng(
+        coords[0][1],
+        coords[0][0]
+      );
+
+      const endPoint = L.latLng(
+        coords[coords.length - 1][1],
+        coords[coords.length - 1][0]
+      );
+
+      routingRef.current.setWaypoints([
+        startPoint,
+        endPoint,
+      ]);
+    } catch (err) {
+      console.error('Update route error:', err);
+    }
+  }, [geojsonData]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       map.invalidateSize();
     }, 400);
+
     return () => clearTimeout(timer);
   }, [isFullscreen, map]);
 
   return null;
 }
 
-export default function MapComponent({ isFullscreen, setIsFullscreen, geojsonData }: MapProps) {
+export default function MapComponent({
+  isFullscreen,
+  setIsFullscreen,
+  geojsonData,
+}: MapProps) {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener(
+        'keydown',
+        handleKeyDown
+      );
+    };
+  }, [isFullscreen, setIsFullscreen]);
+
   return (
     <MapContainer
-      center={[20.8348, 105.8840]}
+      center={[20.8348, 105.884]}
       zoom={11}
-      style={{ height: '100%', width: '100%' }}
+      style={{
+        height: '100%',
+        width: '100%',
+      }}
       zoomControl={isFullscreen}
       attributionControl={false}
     >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <MapController isFullscreen={isFullscreen} geojsonData={geojsonData} />
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+
+      <MapController
+        isFullscreen={isFullscreen}
+        geojsonData={geojsonData}
+      />
 
       {isFullscreen && (
         <button
+          className="esc"
           onClick={() => setIsFullscreen(false)}
           style={{
             position: 'absolute',
@@ -86,10 +170,10 @@ export default function MapComponent({ isFullscreen, setIsFullscreen, geojsonDat
             border: '2px solid black',
             fontWeight: 'bold',
             cursor: 'pointer',
-            borderRadius: '4px'
+            borderRadius: '4px',
           }}
         >
-          THU NHỎ ✖
+          ESC
         </button>
       )}
     </MapContainer>

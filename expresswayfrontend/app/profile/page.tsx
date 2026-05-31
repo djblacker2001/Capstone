@@ -4,6 +4,8 @@ import { Upload, Button, Input, message, Divider } from 'antd';
 import { UserOutlined, UploadOutlined, SaveOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import "./style.css"
+import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
+import MainLayout from '../layout/Layout';
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -76,53 +78,58 @@ export default function ProfilePage() {
     if (!user) return <div style={{ textAlign: 'center', marginTop: 100 }}>Đang tải...</div>;
 
     return (
-        <div style={{ maxWidth: 500, margin: '50px auto', padding: '30px', border: '1px solid #f0f0f0', borderRadius: '15px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', backgroundColor: '#fff' }}>
-            <h2 style={{ textAlign: 'center', marginBottom: 20 }}>Hồ sơ cá nhân</h2>
-            <Divider />
+        <ProtectedRoute>
+            <MainLayout>
+                <div className="expr">
+                <div className="form">
+                    <h2 style={{ textAlign: 'center', marginBottom: 20 }}>Hồ sơ cá nhân</h2>
+                    <Divider />
 
-            <div style={{ textAlign: 'center', marginBottom: 30 }}>
-                <Upload
-                    showUploadList={false}
-                    beforeUpload={handleBeforeUpload}
-                    accept="image/*"
-                >
-                    <div style={{ position: 'relative', display: 'inline-block', cursor: 'pointer' }}>
-                        <img
-                            // Ưu tiên hiện Preview, nếu không có thì hiện ảnh từ Server, cuối cùng là ảnh mặc định
-                            className="avatar"
-                            src={previewImage || (user.Avatar ? `http://localhost:8080/${user.Avatar}` : '/default-avatar.png')}
-                            alt="avatar"
-                        />
+                    <div style={{ textAlign: 'center', marginBottom: 30 }}>
+                        <Upload
+                            showUploadList={false}
+                            beforeUpload={handleBeforeUpload}
+                            accept="image/*"
+                        >
+                            <div style={{ position: 'relative', display: 'inline-block', cursor: 'pointer' }}>
+                                <img
+                                    className="avatar"
+                                    src={previewImage || (user.Avatar ? `http://localhost:8080/${user.Avatar}` : '/default-avatar.png')}
+                                    alt="avatar"
+                                />
+                            </div>
+                        </Upload>
+                        <p style={{ color: '#8c8c8c', marginTop: 15 }}>Click vào ảnh để chọn hình mới</p>
                     </div>
-                </Upload>
-                <p style={{ color: '#8c8c8c', marginTop: 15 }}>Click vào ảnh để chọn hình mới</p>
-            </div>
 
-            <div style={{ marginBottom: 20 }}>
-                <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Tên đăng nhập:</label>
-                <Input value={user.Username} disabled prefix={<UserOutlined style={{ color: '#bfbfbf' }} />} />
-            </div>
-            
-            <div style={{ marginBottom: 30 }}>
-                <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Email:</label>
-                <Input value={user.Email} disabled />
-            </div>
+                    <div style={{ marginBottom: 20 }}>
+                        <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Tên đăng nhập:</label>
+                        <Input value={user.Username} disabled prefix={<UserOutlined style={{ color: '#bfbfbf' }} />} />
+                    </div>
 
-            <div style={{ display: 'flex', gap: '10px' }}>
-                <Button 
-                    type="primary" 
-                    icon={<SaveOutlined />} 
-                    size="large" 
-                    style={{ flex: 1 }} 
-                    onClick={handleSaveProfile}
-                    loading={uploading}
-                >
-                    Lưu thay đổi
-                </Button>
-                <Button size="large" style={{ flex: 1 }} onClick={() => router.push('/')}>
-                    Hủy bỏ
-                </Button>
-            </div>
-        </div>
+                    <div style={{ marginBottom: 30 }}>
+                        <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Email:</label>
+                        <Input value={user.Email} disabled />
+                    </div>
+
+                    <div className="button" style={{ display: 'flex', gap: '10px' }}>
+                        <Button
+                            type="primary"
+                            icon={<SaveOutlined />}
+                            size="large"
+                            style={{ flex: 1 }}
+                            onClick={handleSaveProfile}
+                            loading={uploading}
+                        >
+                            Lưu thay đổi
+                        </Button>
+                        <Button size="large" style={{ flex: 1 }} onClick={() => router.push('/')}>
+                            Hủy bỏ
+                        </Button>
+                    </div>
+                </div>
+                </div>
+            </MainLayout>
+        </ProtectedRoute>
     );
 }

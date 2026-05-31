@@ -40,7 +40,7 @@ const ExpresswayPage = () => {
                                     Avatar Expressway
                                 </div>
                                 <div style={{ width: '100%', height: '200px', border: '4px solid black', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-                                    Hình biển báo tốc độ
+                                    Image Limited Speed
                                 </div>
                                 <div className="map-wrapper">
                                     <div className={isFullscreen ? 'map-expanded' : 'map-small'}>
@@ -54,7 +54,7 @@ const ExpresswayPage = () => {
                                     {!isFullscreen && (
                                         <div style={{ marginTop: '10px', textAlign: 'center' }}>
                                             <a href="#" onClick={(e) => { e.preventDefault(); setIsFullscreen(true); }} style={{ color: '#007bff', textDecoration: 'underline', fontSize: '14px', fontWeight: 500 }}>
-                                                Xem bản đồ toàn màn hình
+                                                Full screen
                                             </a>
                                         </div>
                                     )}
@@ -64,7 +64,7 @@ const ExpresswayPage = () => {
                         </Col>
                         <Col xs={24} md={16} lg={18}>
                             <Card style={{ minHeight: '650px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>Thông tin chi tiết đoạn đường</h2>
+                                <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>Detail information</h2>
                             </Card>
                         </Col>
                     </Row>

@@ -1,6 +1,6 @@
 import MainLayout from "../layout/Layout";
 
-const IntroducePage = () => {
+const DashboardPage = () => {
     return (
         <MainLayout>
             <table>
@@ -17,4 +17,4 @@ const IntroducePage = () => {
     )
 }
 
-export default IntroducePage;
+export default DashboardPage;

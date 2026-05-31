@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation'; // Sửa import ở đây
+import { useSearchParams, useRouter } from 'next/navigation';
 import { message } from 'antd';
 
 export default function VerifyPage() {
@@ -10,7 +10,6 @@ export default function VerifyPage() {
 
   useEffect(() => {
     const verifyAccount = async () => {
-      // KIỂM TRA: Nếu không có code thì không làm gì cả hoặc báo lỗi
       if (!code) return;
 
       try {
@@ -19,8 +18,6 @@ export default function VerifyPage() {
 
         if (data.success) {
           message.success('Xác thực thành công!');
-
-          // 1. Lưu token và thông tin user vào localStorage
           localStorage.setItem('token', data.accessToken);
           localStorage.setItem('user', JSON.stringify(data.user));
           router.push(`/`);
@@ -37,7 +34,7 @@ export default function VerifyPage() {
     if (code) {
       verifyAccount();
     }
-  }, [code, router]); // Thêm dependencies để tránh lỗi cảnh báo của React
+  }, [code, router]);
 
   return (
     <div style={{ textAlign: 'center', marginTop: '100px', fontFamily: 'Arial' }}>

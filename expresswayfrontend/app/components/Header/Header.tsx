@@ -1,4 +1,3 @@
-//Header.tsx
 "use client";
 import "./header.css";
 import { Layout, Menu, Button, Avatar, Dropdown, MenuProps } from "antd";
@@ -68,12 +67,12 @@ export default function MainHeader() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   const items = [
     { key: "home", label: <Link href="/home">Home</Link> },
-    { key: "gioithieu", label: <Link href="/introduce">Introduce</Link> },
+    { key: "bangdieukhien", label: <Link href="/dashboard">Dashboard</Link> },
     { key: "tuyenduong", label: <Link href="/expressway">Expressway</Link> },
     { key: "bienbao", label: <Link href="/sign">Sign</Link> },
 
@@ -134,6 +133,16 @@ export default function MainHeader() {
           )}
         </div>
       </Header>
+      <div
+        ref={menuRef}
+        className={`mobileMenu ${open ? "show" : ""}`}
+      >
+        <Menu
+          mode="inline"
+          items={items}
+          onClick={() => setOpen(false)}
+        />
+      </div>
     </header>
   );
 }
