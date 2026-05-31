@@ -159,9 +159,23 @@ export class AuthService implements OnModuleInit {
       role: user.Role,
     };
     return {
+      message: this.i18n.t('auth.LOGIN_SUCCESS', { lang: this.lang }),
       accessToken: this.jwtService.sign(payload),
       user: user
     };
+  }
+
+  private tokenBlacklist: Set<string> = new Set();
+  async logout(token: string) {
+    this.tokenBlacklist.add(token);
+    return {
+      success: true,
+      message: this.i18n.t('auth.LOGOUT_SUCCESS', { lang: this.lang }),
+    };
+  }
+
+  isTokenBlacklisted(token: string): boolean {
+    return this.tokenBlacklist.has(token);
   }
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {

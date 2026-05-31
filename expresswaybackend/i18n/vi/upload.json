@@ -1,0 +1,6 @@
+{
+  "UPLOAD_SUCCESS": "Tải lên tệp ảnh thành công",
+  "NOT_FOUND": "File ảnh không tồn tại trên hệ thống hoặc đã bị xóa trước đó!",
+  "DELETE_ERROR": "Có lỗi xảy ra khi xóa file: {error}",
+  "DELETE_SUCCESS": "Xóa file {filename} thành công!"
+}

@@ -1,0 +1,6 @@
+{
+  "UPLOAD_SUCCESS": "Upload successful",
+  "NOT_FOUND": "The image file does not exist on the system or has been deleted previously!",
+  "DELETE_ERROR": "An error occurred while deleting the file: {error}",
+  "DELETE_SUCCESS": "File {filename} deleted successfully!"
+}

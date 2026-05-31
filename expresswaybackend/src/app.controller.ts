@@ -6,12 +6,22 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Roles } from './auth/roles.decorator';
 import { RolesGuard } from './auth/roles.guard';
 import { AppService } from './app.service';
+import { I18nContext, I18nService } from 'nestjs-i18n';
+import { join } from 'path';
+import * as fs from 'fs';
 
 @ApiBearerAuth()
 @ApiTags('Upload')
 @Controller('uploads')
 export class AppController {
-  constructor(private readonly appService: AppService) { }
+  constructor(
+    private readonly appService: AppService,
+    private readonly i18n: I18nService,
+  ) { }
+
+  private get lang(): string {
+    return I18nContext.current()?.lang || 'en';
+  }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
@@ -31,6 +41,13 @@ export class AppController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
+        destination: (req, file, cb) => {
+          const uploadPath = join(process.cwd(), 'uploads', 'images');
+          if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+          }
+          cb(null, uploadPath);
+        },
         filename: (req, file, cb) => {
           const uniqueName = Date.now() + '-' + file.originalname;
           cb(null, uniqueName);
@@ -40,7 +57,7 @@ export class AppController {
   )
   uploadImage(@UploadedFile() file: Express.Multer.File) {
     return {
-      message: 'Upload successful',
+      message: this.i18n.t('upload.UPLOAD_SUCCESS', { lang: this.lang }),
       path: `/images/${file.filename}`,
     };
   }
@@ -48,12 +65,7 @@ export class AppController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Delete('images/:filename')
-  @ApiParam({
-    name: 'filename',
-    required: true,
-    type: String
-  })
-
+  @ApiParam({ name: 'filename', required: true, type: String })
   @ApiResponse({ status: 200, description: 'File deleted successfully.' })
   async deleteImage(@Param('filename') filename: string) {
     return await this.appService.deleteImage(filename);

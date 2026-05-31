@@ -5,6 +5,10 @@ import { LogoutOutlined, MenuOutlined, SettingOutlined, UserOutlined } from "@an
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
+import axiosClient from "@/api/axiosClient";
+
 
 const { Header } = Layout;
 
@@ -13,6 +17,7 @@ export default function MainHeader() {
   const [user, setUser] = useState<any>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
 
@@ -64,10 +69,22 @@ export default function MainHeader() {
     };
   }, [open]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-    window.location.href = "/";
+  // const handleLogout = () => {
+  //   localStorage.removeItem("user");
+  //   setUser(null);
+  //   window.location.href = "/";
+  // };
+
+  const handleLogout = async () => {
+    try {
+      await axiosClient.post('/auth/logout');
+    } catch (error) {
+      console.error("Lỗi xóa token phía server:", error);
+    } finally {
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+      router.push('/');
+    }
   };
 
   const items = [

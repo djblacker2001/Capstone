@@ -6,7 +6,9 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { CreateSignDto } from './dto/create-signs.dto';
 import { UpdateSignDto } from './dto/update-signs.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('signs')
 export class SignsController {
   constructor(private readonly signsService: SignsService) {}
