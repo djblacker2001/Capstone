@@ -127,6 +127,7 @@ export class UsersService {
   }
 
   async updateProfile(userId: number, updateUserDto: UpdateUserDto) {
+    // 1. Tìm user trong Database
     const user = await this.userRepository.findOne({ where: { UserId: userId } });
     if (!user) {
       throw new NotFoundException(
@@ -134,18 +135,30 @@ export class UsersService {
       );
     }
 
-    if (updateUserDto.Username && updateUserDto.Username !== user.Username) {
+    // 🌟 NÂNG CẤP: Bóc tách an toàn cả 2 trường hợp người dùng truyền Hoa hoặc Thường
+    const inputData = updateUserDto as any;
+    const newUsername = inputData.Username || inputData.username;
+    const newEmail = inputData.Email || inputData.email;
+
+    // 2. Kiểm tra trùng Username (nếu người dùng thực sự muốn đổi sang một tên khác tên cũ)
+    if (newUsername && newUsername !== user.Username) {
       const isUsernameExist = await this.userRepository.findOne({
-        where: { Username: updateUserDto.Username }
+        where: { Username: newUsername }
       });
       if (isUsernameExist) {
         throw new BadRequestException(
           this.i18n.t('user.USERNAME_TAKEN', { lang: this.lang })
         );
       }
+      
+      user.Username = newUsername;
     }
-
-    Object.assign(user, updateUserDto);
+    if (newEmail && newEmail.trim() !== "" && newEmail !== user.Email) {
+      user.Email = newEmail;
+    }
+    if (inputData.Avatar || inputData.avatar) {
+      user.Avatar = inputData.Avatar || inputData.avatar;
+    }
     const updatedUser = await this.userRepository.save(user);
     const { Password, ResetToken, ActiveCode, ...result } = updatedUser;
 

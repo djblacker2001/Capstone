@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, ParseIntPipe, UseGuards, Put, Patch, UploadedFile, UseInterceptors, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, ParseIntPipe, UseGuards, Put, Patch, UploadedFile, UseInterceptors, Req, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './users.entity';
 import { Roles } from '../auth/roles.decorator';
@@ -78,11 +78,15 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() file: Express.Multer.File
   ) {
-    const userId = req.user.id;
+    const jwtUserId = req.user.userId; 
+    if (!jwtUserId) {
+      throw new UnauthorizedException('Invalid token payload structure');
+    }
+
     if (file) {
       updateUserDto.Avatar = file.filename;
     }
 
-    return await this.usersService.updateProfile(+userId, updateUserDto);
+    return await this.usersService.updateProfile(+jwtUserId, updateUserDto);
   }
 }

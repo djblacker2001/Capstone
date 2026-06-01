@@ -22,12 +22,6 @@ export class InterchangesService {
     });
   }
 
-  async findBySection(sectionId: number): Promise<Interchange[]> {
-    return await this.interchangeRepository.find({
-      where: { SectionId: sectionId }
-    });
-  }
-
   async create(data: Partial<Interchange>): Promise<Interchange> {
     const newInterchange = this.interchangeRepository.create(data);
     return await this.interchangeRepository.save(newInterchange);

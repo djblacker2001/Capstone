@@ -22,43 +22,37 @@ export class SectionsService {
     }
 
     async findAllSection(name?: string, status?: string, provinceName?: string) {
-        const whereCondition: any = {};
+        const query = this.sectionRepository.createQueryBuilder('section')
+            .leftJoinAndSelect('section.bridge', 'bridge')
+            .leftJoinAndSelect('section.interchange', 'interchange')
+            .leftJoinAndSelect('section.tunnel', 'tunnel')
+            .leftJoinAndSelect('section.province', 'province')
+            .leftJoinAndSelect('section.restStop', 'restStop');
 
         if (name) {
-            const sections = await this.sectionRepository.find({
-                where: {
-                    NameSection: Like(`%${name}%`),
-                },
-            });
-
-            return {
-                success: true,
-                statusCode: 200,
-                message: this.i18n.t('section.SEARCH_NAME', { lang: this.lang, args: { name } }),
-                data: sections,
-            };
+            query.andWhere('section.NameSection LIKE :name', { name: `%${name}%` });
         }
 
         if (status) {
-            whereCondition.Status = status;
+            query.andWhere('section.Status = :status', { status });
         }
 
         if (provinceName) {
-            whereCondition.ProvinceName = provinceName;
+            query.andWhere('province.ProvinceName LIKE :provinceName', { provinceName: `%${provinceName}%` });
         }
 
-        const sections = await this.sectionRepository.find({
-            where: whereCondition,
-            relations: ['bridge', 'interchange', 'tunnel', 'province', 'restStop']
-        });
-
+        query.orderBy('section.SectionId', 'ASC');
+        const sections = await query.getMany();
         let dynamicMessage = this.i18n.t('section.FETCH_ALL_SUCCESS', { lang: this.lang });
+
         if (name && status) {
             dynamicMessage = this.i18n.t('section.SEARCH_BOTH', { lang: this.lang, args: { name, status } });
         } else if (name) {
             dynamicMessage = this.i18n.t('section.SEARCH_NAME', { lang: this.lang, args: { name } });
         } else if (status) {
             dynamicMessage = this.i18n.t('section.SEARCH_STATUS', { lang: this.lang, args: { status } });
+        } else if (provinceName) {
+            dynamicMessage = `Search by province successfully: ${provinceName}`;
         }
 
         return {

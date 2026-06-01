@@ -18,11 +18,6 @@ export class InterchangesController {
     return this.interchangesService.findAll();
   }
 
-  @Get('section/:sectionId')
-  findBySection(@Param('sectionId', ParseIntPipe) sectionId: number) {
-    return this.interchangesService.findBySection(sectionId);
-  }
-
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.interchangesService.findOne(id);

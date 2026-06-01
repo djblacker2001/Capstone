@@ -1,0 +1,4 @@
+{
+    "NOT_FOUND": "Không tìm thấy tuyến cao tốc có mã định danh số {id}!",
+    "NAME_TAKEN": "Tên tuyến cao tốc \"{name}\" này đã tồn tại trong hệ thống!"
+}

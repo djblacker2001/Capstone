@@ -1,0 +1,4 @@
+{
+    "NOT_FOUND": "Expressway with ID {id} was not found in the system!",
+    "NAME_TAKEN": "The expressway name \"{name}\" is already taken!"
+}

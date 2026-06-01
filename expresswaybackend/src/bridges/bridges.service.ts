@@ -6,17 +6,17 @@ import { I18nContext, I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class BridgesService {
-    constructor(
-        @InjectRepository(Bridge)
-        private readonly bridgeRepository: Repository<Bridge>,
-        private readonly i18n: I18nService,
-    ) { }
+  constructor(
+    @InjectRepository(Bridge)
+    private readonly bridgeRepository: Repository<Bridge>,
+    private readonly i18n: I18nService,
+  ) { }
 
-    findAll(): Promise<Bridge[]> {
-        return this.bridgeRepository.find({ relations: ['section'] });
-    }
+  findAll(): Promise<Bridge[]> {
+    return this.bridgeRepository.find({ relations: ['section'] });
+  }
 
-    private get lang(): string {
+  private get lang(): string {
     return I18nContext.current()?.lang || 'en';
   }
 
@@ -34,17 +34,17 @@ export class BridgesService {
     return bridge;
   }
 
-    create(data: Partial<Bridge>): Promise<Bridge> {
-        const newBridge = this.bridgeRepository.create(data);
-        return this.bridgeRepository.save(newBridge);
-    }
+  create(data: Partial<Bridge>): Promise<Bridge> {
+    const newBridge = this.bridgeRepository.create(data);
+    return this.bridgeRepository.save(newBridge);
+  }
 
-    async update(id: number, data: Partial<Bridge>): Promise<Bridge> {
-        await this.bridgeRepository.update(id, data);
-        return this.findOne(id);
-    }
+  async update(id: number, data: Partial<Bridge>): Promise<Bridge> {
+    await this.bridgeRepository.update(id, data);
+    return this.findOne(id);
+  }
 
-    async remove(id: number): Promise<void> {
-        await this.bridgeRepository.delete(id);
-    }
+  async remove(id: number): Promise<void> {
+    await this.bridgeRepository.delete(id);
+  }
 }

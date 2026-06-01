@@ -9,7 +9,3 @@ ghi table trên API https://docs.google.com/spreadsheets/d/1hWOIR6iNfHYh9b6UmkET
 tk: hoangvu222001
 email: zelovu235698@gmail.com
 pass: hoang
-
-"Username": "hoang.vu.cit23",
-"Email": "hoang.vu.cit23@eiu.edu.vn",
-"Password": "2331200226",
