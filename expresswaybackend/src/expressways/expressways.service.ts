@@ -26,9 +26,9 @@ export class ExpresswaysService {
         'COUNT(section.SectionId) AS totalSections',
       ])
       .addSelect('SUM(section.Length)', 'totalSystemLength')
-      .addSelect("SUM(CASE WHEN section.Status = N'Hoàn thành' THEN 1 ELSE 0 END)", 'totalCompleted')
-      .addSelect("SUM(CASE WHEN section.Status = N'Đang thi công' THEN 1 ELSE 0 END)", 'totalUnderConstruction')
-      .addSelect("SUM(CASE WHEN section.Status = N'Đang thi công mở rộng' THEN 1 ELSE 0 END)", 'totalExtendConstruction')
+      .addSelect("SUM(CASE WHEN section.Status = N'Complete' THEN 1 ELSE 0 END)", 'totalCompleted')
+      .addSelect("SUM(CASE WHEN section.Status = N'Under construction' THEN 1 ELSE 0 END)", 'totalUnderConstruction')
+      .addSelect("SUM(CASE WHEN section.Status = N'Extend under construction' THEN 1 ELSE 0 END)", 'totalExtendConstruction')
       .getRawOne();
 
     return {

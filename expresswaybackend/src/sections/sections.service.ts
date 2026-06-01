@@ -16,12 +16,14 @@ export class SectionsService {
     }
 
     async findAll() {
-        return this.sectionRepository.find({});
+        return this.sectionRepository.find({
+            relations: ["province", "bridge", "restStop", "tunnel", "interchange"]
+        });
     }
 
     async findAllSection(name?: string, status?: string, provinceName?: string) {
         const whereCondition: any = {};
-        
+
         if (name) {
             const sections = await this.sectionRepository.find({
                 where: {
@@ -142,10 +144,16 @@ export class SectionsService {
             .addSelect('COUNT(DISTINCT tunnel.TunnelId)', 'tunnelCount')
             .addSelect('COUNT(DISTINCT interchange.InterchangeId)', 'interchangeCount')
             .addSelect('COUNT(DISTINCT province.ProvinceId)', 'provinceCount')
+
+            .addSelect("SUM(CASE WHEN interchange.status = 'Complete' THEN 1 ELSE 0 END)", 'interchangeCompleteCount')
+            .addSelect("SUM(CASE WHEN interchange.status = 'Under construction' THEN 1 ELSE 0 END)", 'interchangeUnderConstructionCount')
+            .addSelect("SUM(CASE WHEN interchange.status = 'Not yet construction' THEN 1 ELSE 0 END)", 'interchangeNotYetConstructionCount')
+
             .groupBy('section.SectionId')
             .addGroupBy('section.NameSection')
             .addGroupBy('section.Length')
             .addGroupBy('expressway.NameExpressway')
+            .orderBy('section.SectionId', 'ASC')
             .getRawMany();
 
         return rawData.map((item) => ({
@@ -156,6 +164,10 @@ export class SectionsService {
             tunnelCount: parseInt(item.tunnelCount) || 0,
             interchangeCount: parseInt(item.interchangeCount) || 0,
             provinceCount: parseInt(item.provinceCount) || 0,
+
+            interchangeCompleteCount: parseInt(item.interchangeCompleteCount) || 0,
+            interchangeUnderConstructionCount: parseInt(item.interchangeUnderConstructionCount) || 0,
+            interchangeNotYetConstructionCount: parseInt(item.interchangeNotYetConstructionCount) || 0,
         }));
     }
 }
