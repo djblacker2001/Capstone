@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query, UnauthorizedException, BadRequestException, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, UnauthorizedException, BadRequestException, Req, UseGuards, Param, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -8,6 +8,8 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { I18nContext, I18nService } from 'nestjs-i18n';
+import { Roles } from './roles.decorator';
+import { RolesGuard } from './roles.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -34,6 +36,12 @@ export class AuthController {
       );
     }
     return this.authService.verify(code);
+  }
+
+  @Get('approve-admin/:id')
+  async approveAdmin(@Param('id') id: string, @Res() res: any) {
+    await this.authService.activateAdminAccount(Number(id));
+    return res.redirect('http://localhost:8080/api/');
   }
 
   @Post('login')
@@ -67,7 +75,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('change-password')
   async changePassword(@Req() req: any, @Body() changePasswordDto: ChangePasswordDto) {
-    const userId = req.user.userId; 
+    const userId = req.user.userId;
     return await this.authService.changePassword(+userId, changePasswordDto);
   }
 
@@ -78,10 +86,10 @@ export class AuthController {
   }
 
   @Post('reset-password')
-  @ApiQuery({ 
-    name: 'token', 
-    required: true, 
-    description: 'The secret reset token extracted from the link sent to your email' 
+  @ApiQuery({
+    name: 'token',
+    required: true,
+    description: 'The secret reset token extracted from the link sent to your email'
   })
 
   @ApiResponse({ status: 200, description: 'Password updated successfully.' })

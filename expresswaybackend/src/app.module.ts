@@ -30,7 +30,7 @@ import { HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       options: {
         encrypt: true,
-        trustServerCertificate: true,
+        trustServerCertificate: true, 
       },
     }),
 

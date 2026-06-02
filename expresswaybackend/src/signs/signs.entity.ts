@@ -6,7 +6,7 @@ export class Sign {
   SignId!: number;
 
   @Column({ name: 'Symbol', type: 'nvarchar', length: 100 })
-  Sympol!: string;
+  Symbol!: string;
 
   @Column({ name: 'Image', type: 'nvarchar', length: 'MAX', nullable: true })
   Image?: string;

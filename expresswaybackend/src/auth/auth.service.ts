@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, OnModuleInit } from '@nestjs/common';
+import { Injectable, BadRequestException, OnModuleInit, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
@@ -144,6 +144,20 @@ export class AuthService implements OnModuleInit {
     };
   }
 
+  async activateAdminAccount(userId: number): Promise<void> {
+    const user = await this.usersService.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException(
+        this.i18n.t('auth.USER_NOT_FOUND', { lang: this.lang })
+      );
+    }
+
+    user.IsActive = true;
+    user.ActiveCode = null;
+    await this.usersService.save(user);
+  }
+
   async sendEmail(to: string, link: string) {
     await this.transporter.sendMail({
       from: '"Expressway System" <your_email@gmail.com>',
@@ -175,17 +189,42 @@ export class AuthService implements OnModuleInit {
     };
   }
 
-  private tokenBlacklist: Set<string> = new Set();
+
+  private tokenBlacklist: Map<string, number> = new Map();
   async logout(token: string) {
-    this.tokenBlacklist.add(token);
-    return {
-      success: true,
-      message: this.i18n.t('auth.LOGOUT_SUCCESS', { lang: this.lang }),
-    };
+    try {
+      const decoded: any = this.jwtService.decode(token);
+      const expireTime = decoded?.exp ? decoded.exp * 1000 : Date.now() + 24 * 60 * 60 * 1000;
+      this.tokenBlacklist.set(token, expireTime);
+      this.cleanExpiredTokens();
+
+      return {
+        success: true,
+        message: this.i18n.t('auth.LOGOUT_SUCCESS', { lang: this.lang }),
+      };
+    } catch (error) {
+      this.tokenBlacklist.set(token, Date.now() + 2 * 60 * 60 * 1000);
+      return { success: true, message: 'Logged out' };
+    }
   }
 
   isTokenBlacklisted(token: string): boolean {
-    return this.tokenBlacklist.has(token);
+    if (!this.tokenBlacklist.has(token)) return false;
+    const expireTime = this.tokenBlacklist.get(token);
+    if (expireTime && Date.now() > expireTime) {
+      this.tokenBlacklist.delete(token);
+      return false;
+    }
+    return true;
+  }
+
+  private cleanExpiredTokens() {
+    const now = Date.now();
+    for (const [token, expireTime] of this.tokenBlacklist.entries()) {
+      if (now > expireTime) {
+        this.tokenBlacklist.delete(token);
+      }
+    }
   }
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
@@ -243,12 +282,13 @@ export class AuthService implements OnModuleInit {
   }
 
   async sendEmailToAdminForApproval(adminEmail: string, newUser: any) {
-  const approvalLink = `http://localhost:3000/admin/approve-user?id=${newUser.UserId}`;
-  await this.transporter.sendMail({
-    from: '"Expressway System" <hoangvu222001@gmail.com>',
-    to: adminEmail,
-    subject: `[Permission Request] Account requesting to be Admin: ${newUser.Username}`,
-    html: `
+    const approvalLink = `http://localhost:8080/auth/approve-admin/${newUser.UserId}`;
+    // const approvalLink = `http://localhost:3000/admin/approve-user?id=${newUser.UserId}`;
+    await this.transporter.sendMail({
+      from: '"Expressway System" <hoangvu222001@gmail.com>',
+      to: adminEmail,
+      subject: `[Permission Request] Account requesting to be Admin: ${newUser.Username}`,
+      html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         
         <div style="background-color: #ffffff; padding: 25px; border-bottom: 2px solid #d32f2f;">
@@ -294,8 +334,8 @@ export class AuthService implements OnModuleInit {
         </div>
       </div>
     `,
-  });
-}
+    });
+  }
 
   async changePassword(userId: number, dto: ChangePasswordDto) {
     const user = await this.usersService.findOne(userId);

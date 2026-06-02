@@ -5,7 +5,7 @@ export class CreateSignDto {
     SignId!: number;
 
     @ApiProperty()
-    Sympol!: string;
+    Symbol!: string;
 
     @ApiProperty()
     Image?: string;
