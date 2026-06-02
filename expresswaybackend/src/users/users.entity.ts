@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, JoinColumn, ManyToOne, Index } from 'typeorm';
 import { Role } from '../roles/roles.entity';
 
 @Entity({ name: 'User', schema: 'dbo' })
@@ -13,6 +13,7 @@ export class User {
   Username!: string;
 
   @Column({ name: 'Email', type: 'nvarchar', length: 100 })
+  @Index({ unique: true })
   Email!: string;
 
   @Column({ name: 'Password', type: 'nvarchar', length: 'MAX' })

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { User } from './users.entity';
 import { UpdateUserDto } from './dto/update-users.dto';
 import * as fs from 'fs';
@@ -77,11 +77,6 @@ export class UsersService {
     };
   }
 
-  async update(id: number, updateData: any): Promise<any> {
-    await this.userRepository.update({ UserId: id }, updateData);
-    return this.userRepository.findOneBy({ UserId: id });
-  }
-
   async findByEmail(email: string) {
     return await this.userRepository.findOneBy({ Email: email });
   }
@@ -127,20 +122,15 @@ export class UsersService {
   }
 
   async updateProfile(userId: number, updateUserDto: UpdateUserDto) {
-    // 1. Tìm user trong Database
     const user = await this.userRepository.findOne({ where: { UserId: userId } });
     if (!user) {
       throw new NotFoundException(
         this.i18n.t('user.ACCOUNT_NOT_FOUND', { lang: this.lang })
       );
     }
-
-    // 🌟 NÂNG CẤP: Bóc tách an toàn cả 2 trường hợp người dùng truyền Hoa hoặc Thường
     const inputData = updateUserDto as any;
     const newUsername = inputData.Username || inputData.username;
     const newEmail = inputData.Email || inputData.email;
-
-    // 2. Kiểm tra trùng Username (nếu người dùng thực sự muốn đổi sang một tên khác tên cũ)
     if (newUsername && newUsername !== user.Username) {
       const isUsernameExist = await this.userRepository.findOne({
         where: { Username: newUsername }
@@ -150,15 +140,31 @@ export class UsersService {
           this.i18n.t('user.USERNAME_TAKEN', { lang: this.lang })
         );
       }
-      
+
       user.Username = newUsername;
     }
+
     if (newEmail && newEmail.trim() !== "" && newEmail !== user.Email) {
+      const isEmailExist = await this.userRepository.findOne({
+        where: {
+          Email: newEmail,
+          UserId: Not(userId)
+        }
+      });
+
+      if (isEmailExist) {
+        throw new BadRequestException(
+          this.i18n.t('user.EMAIL_TAKEN', { lang: this.lang })
+        );
+      }
+
       user.Email = newEmail;
     }
+
     if (inputData.Avatar || inputData.avatar) {
       user.Avatar = inputData.Avatar || inputData.avatar;
     }
+
     const updatedUser = await this.userRepository.save(user);
     const { Password, ResetToken, ActiveCode, ...result } = updatedUser;
 

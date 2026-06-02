@@ -21,7 +21,6 @@ export default function ProfilePage() {
         }
     }, []);
 
-    // Hàm xử lý khi chọn file (Chưa upload ngay, chỉ hiện Preview)
     const handleBeforeUpload = (file: any) => {
         const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
         if (!isJpgOrPng) {
@@ -34,8 +33,6 @@ export default function ProfilePage() {
             setPreviewImage(e.target.result);
         };
         reader.readAsDataURL(file);
-
-        // Lưu file vào state để dành cho lúc bấm nút Lưu
         setFileList([file]);
         return false;
     };
@@ -58,12 +55,9 @@ export default function ProfilePage() {
 
             if (res.ok) {
                 const updatedUser = await res.json();
-                // 1. Cập nhật LocalStorage
                 localStorage.setItem('user', JSON.stringify(updatedUser));
-                // 2. Bắn tín hiệu để Header cập nhật ảnh ngay lập tức
                 window.dispatchEvent(new Event("userUpdate"));
                 message.success('Đã lưu ảnh đại diện thành công!');
-                // 3. Chuyển về trang chủ
                 router.push('/');
             } else {
                 message.error('Lưu ảnh thất bại.');

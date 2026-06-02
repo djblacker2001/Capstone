@@ -8,5 +8,6 @@
   "USERNAME_TAKEN": "Tên đăng nhập này đã có người sử dụng!",
   "PROFILE_UPDATE_SUCCESS": "Cập nhật thông tin cá nhân thành công!",
   "AVATAR_DELETE_ERROR": "Không thể xóa tệp tin ảnh trên hệ thống máy chủ!",
-  "AVATAR_DELETE_SUCCESS": "Xóa ảnh đại diện thành công!"
+  "AVATAR_DELETE_SUCCESS": "Xóa ảnh đại diện thành công!",
+  "EMAIL_TAKEN": "Email này đã được sử dụng bởi một tài khoản khác trong hệ thống!"
 }

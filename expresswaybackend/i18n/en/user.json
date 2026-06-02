@@ -8,5 +8,6 @@
   "USERNAME_TAKEN": "This username is already in use!",
   "PROFILE_UPDATE_SUCCESS": "Personal information updated successfully!",
   "AVATAR_DELETE_ERROR": "Unable to delete image files on the server!",
-  "AVATAR_DELETE_SUCCESS": "Profile picture successfully removed!"
+  "AVATAR_DELETE_SUCCESS": "Profile picture successfully removed!",
+  "EMAIL_TAKEN": "This email address is already registered to another account!"
 }

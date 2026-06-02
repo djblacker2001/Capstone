@@ -66,24 +66,35 @@ export class AuthService implements OnModuleInit {
   }
 
   async register(data: any) {
-    const exist = await this.usersService.findByUsername(data.Username);
-    if (exist) {
+    const inputUsername = data.Username || data.username;
+    const inputEmail = data.Email || data.email;
+    const inputPassword = data.Password || data.password;
+    const inputRole = data.Role || data.role || 'user';
+    const existUsername = await this.usersService.findByUsername(inputUsername);
+    if (existUsername) {
       throw new BadRequestException(this.i18n.t('auth.USERNAME_EXIST', { lang: this.lang }));
     }
 
+    if (inputEmail) {
+      const existEmail = await this.usersService.findByEmail(inputEmail);
+      if (existEmail) {
+        throw new BadRequestException(this.i18n.t('auth.EMAIL_EXIST', { lang: this.lang }));
+      }
+    } else {
+      throw new BadRequestException(this.i18n.t('auth.EMAIL_REQUIRED', { lang: this.lang }));
+    }
+
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(data.Password, salt);
+    const hashedPassword = await bcrypt.hash(inputPassword, salt);
     const activeCode = crypto.randomBytes(32).toString('hex');
-
-    const isAdminRequest = data.Role === 'admin';
+    const isAdminRequest = inputRole === 'admin';
     const roleId = isAdminRequest ? 1 : 2;
-
     const user = await this.usersService.create({
-      Username: data.Username,
-      Email: data.Email,
+      Username: inputUsername,
+      Email: inputEmail,
       Password: hashedPassword,
       RoleId: roleId,
-      Role: data.Role || 'user',
+      Role: inputRole,
       IsActive: isAdminRequest ? false : true,
       IsLocked: false,
       ActiveCode: activeCode,
@@ -92,7 +103,6 @@ export class AuthService implements OnModuleInit {
 
     if (isAdminRequest) {
       const superAdminEmail = 'hoangvu222001@gmail.com';
-
       this.sendEmailToAdminForApproval(superAdminEmail, user).catch((err) =>
         console.error('Error sending Admin notification email:', err),
       );
@@ -233,43 +243,59 @@ export class AuthService implements OnModuleInit {
   }
 
   async sendEmailToAdminForApproval(adminEmail: string, newUser: any) {
-    await this.transporter.sendMail({
-      from: '"Expressway System" <hoangvu222001@gmail.com>',
-      to: adminEmail,
-      subject: `[Permission Request] Account requesting to be Admin: ${newUser.Username}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-          <h2 style="color: #d32f2f; border-bottom: 2px solid #d32f2f; padding-bottom: 10px;">System Permission Request</h2>
-          <p>Dear Supreme Admin, the system has detected a user wishing to register an account with <strong>Admin</strong> privileges:</p>
-          
-          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-            <tr style="background-color: #f9f9f9;">
-              <td style="padding: 8px; font-weight: bold; width: 40%;">User ID:</td>
-              <td style="padding: 8px; color: #d32f2f; font-weight: bold;">${newUser.UserId}</td>
+  const approvalLink = `http://localhost:3000/admin/approve-user?id=${newUser.UserId}`;
+  await this.transporter.sendMail({
+    from: '"Expressway System" <hoangvu222001@gmail.com>',
+    to: adminEmail,
+    subject: `[Permission Request] Account requesting to be Admin: ${newUser.Username}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        
+        <div style="background-color: #ffffff; padding: 25px; border-bottom: 2px solid #d32f2f;">
+          <h2 style="color: #d32f2f; margin: 0; font-size: 24px; font-weight: bold; letter-spacing: 0.5px;">System Permission Request</h2>
+        </div>
+
+        <div style="padding: 30px; background-color: #ffffff; color: #333333; line-height: 1.6;">
+          <p style="margin-top: 0; font-size: 15px;">Dear Supreme Admin,</p>
+          <p style="font-size: 15px;">The system has detected a user wishing to register an account with <strong style="color: #000;">Admin privileges</strong>:</p>
+
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0; background-color: #f9f9f9; border-radius: 6px; overflow: hidden;">
+            <tr>
+              <td style="padding: 12px 15px; font-weight: bold; width: 40%; border-bottom: 1px solid #ededed;">User ID:</td>
+              <td style="padding: 12px 15px; color: #d32f2f; font-weight: bold; border-bottom: 1px solid #ededed;">${newUser.UserId}</td>
             </tr>
             <tr>
-              <td style="padding: 8px; font-weight: bold;">Username:</td>
-              <td style="padding: 8px;">${newUser.Username}</td>
-            </tr>
-            <tr style="background-color: #f9f9f9;">
-              <td style="padding: 8px; font-weight: bold;">Email contact:</td>
-              <td style="padding: 8px;">${newUser.Email}</td>
+              <td style="padding: 12px 15px; font-weight: bold; border-bottom: 1px solid #ededed;">Username:</td>
+              <td style="padding: 12px 15px; color: #555555; border-bottom: 1px solid #ededed;">${newUser.Username}</td>
             </tr>
             <tr>
-              <td style="padding: 8px; font-weight: bold;">Registration Period:</td>
-              <td style="padding: 8px;">${new Date(newUser.CreatedAt).toLocaleString()}</td>
+              <td style="padding: 12px 15px; font-weight: bold; border-bottom: 1px solid #ededed;">Email contact:</td>
+              <td style="padding: 12px 15px; border-bottom: 1px solid #ededed;"><a href="mailto:${newUser.Email}" style="color: #0275d8; text-decoration: none;">${newUser.Email}</a></td>
+            </tr>
+            <tr>
+              <td style="padding: 12px 15px; font-weight: bold;">Registration Period:</td>
+              <td style="padding: 12px 15px; color: #555555;">${new Date(newUser.CreatedAt).toLocaleString()}</td>
             </tr>
           </table>
 
-          <p><strong>Task browsing guide:</strong></p>
-          <p>Please log in to your Admin account on Swagger UI., find the API <code>PUT /users/${newUser.UserId}</code> and pass the Body to update the official permissions for this member.</p>
+          <p style="font-size: 15px; margin-bottom: 25px;">Please review the information above and click the button below to instantly approve and activate this administrator account.</p>
           
-          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-          <p style="font-size: 11px; color: #888; text-align: center;">This is an automated email sent from the Capstone Expressway Backend system.</p>
+          <div style="text-align: center; margin: 35px 0;">
+            <a href="${approvalLink}" 
+               target="_blank" 
+               style="background-color: #d32f2f; color: #ffffff; text-decoration: none; padding: 14px 35px; font-weight: bold; font-size: 16px; border-radius: 5px; display: inline-block; box-shadow: 0 4px 6px rgba(211, 47, 47, 0.25); transition: background-color 0.2s;">
+               Xác Nhận & Kích Hoạt Quyền Admin
+            </a>
+          </div>
         </div>
-      `,
-    });
-  }
+
+        <div style="background-color: #f5f5f5; padding: 15px; text-align: center; border-top: 1px solid #e0e0e0;">
+          <span style="font-size: 12px; color: #777777;">This is an automated email sent from the Capstone Expressway Backend system.</span>
+        </div>
+      </div>
+    `,
+  });
+}
 
   async changePassword(userId: number, dto: ChangePasswordDto) {
     const user = await this.usersService.findOne(userId);
