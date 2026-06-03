@@ -13,7 +13,7 @@ const RegisterPage = () => {
         setLoading(true);
         try {
             if (values.Password !== values.confirm) {
-                message.error('Mật khẩu không khớp');
+                message.error('Password not match.');
                 setLoading(false);
                 return;
             }
@@ -36,11 +36,11 @@ const RegisterPage = () => {
                 return;
             }
 
-            message.success('Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.', 10);
+            message.success('Registration successful! Please check your email to activate your account.', 10);
             router.push('/login');
 
         } catch (err) {
-            message.error('Lỗi server');
+            message.error('Server Error');
         } finally {
             setLoading(false);
         }
@@ -54,7 +54,7 @@ const RegisterPage = () => {
                 </div>
                 <h1><b>Register</b></h1>
 
-                <Form.Item label="Tên đăng nhập" name="Username" rules={[{ required: true, message: 'Please enter username' }]}>
+                <Form.Item label="Username" name="Username" rules={[{ required: true, message: 'Please enter username' }]}>
                     <Input placeholder="user123..." />
                 </Form.Item>
 
@@ -69,16 +69,16 @@ const RegisterPage = () => {
                     <Input placeholder="example@gmail.com" />
                 </Form.Item>
 
-                <Form.Item label="Mật khẩu" name="Password" rules={[{ required: true, message: 'Please enter the password!' }]}>
+                <Form.Item label="Password" name="Password" rules={[{ required: true, message: 'Please enter the password!' }]}>
                     <Input.Password />
                 </Form.Item>
 
-                <Form.Item label="Xác nhận mật khẩu" name="confirm" rules={[{ required: true, message: 'Please confirm your password!' }]}>
+                <Form.Item label="Confirm Password" name="confirm" rules={[{ required: true, message: 'Please confirm your password!' }]}>
                     <Input.Password />
                 </Form.Item>
 
                 <Form.Item
-                    label="Vai trò"
+                    label="Role"
                     name="Role"
                     initialValue="user"
                 >

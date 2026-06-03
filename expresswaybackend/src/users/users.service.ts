@@ -207,4 +207,34 @@ export class UsersService {
       data: result,
     };
   }
+
+  // Trong file users.service.ts
+
+  /**
+   * 1. Hàm đếm tổng số lượng người dùng đang hoạt động trong hệ thống
+   */
+  async countAllActiveUsers(): Promise<number> {
+    // Thay 'userRepository' bằng tên biến Repository bảng User trong file của bạn
+    return await this.userRepository.count({
+      where: { IsActive: true }
+    });
+  }
+
+  /**
+   * 2. Hàm thống kê số lượng người dùng đăng ký theo từng tháng (Phục vụ vẽ biểu đồ)
+   */
+  async countUsersByMonth(): Promise<any[]> {
+    const rawData = await this.userRepository
+      .createQueryBuilder('user')
+      .select("FORMAT(user.CreatedAt, 'yyyy-MM')", 'month') // Dành cho SQL Server. Nếu dùng MySQL/Postgres thì đổi thành: DATE_FORMAT(user.CreatedAt, '%Y-%m') hoặc TO_CHAR
+      .addSelect('COUNT(user.UserId)', 'newUsers')
+      .groupBy("FORMAT(user.CreatedAt, 'yyyy-MM')")
+      .orderBy('month', 'ASC')
+      .getRawMany();
+
+    return rawData.map(item => ({
+      month: item.month,
+      newUsers: Number(item.newUsers),
+    }));
+  }
 }

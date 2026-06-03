@@ -74,7 +74,7 @@ const LoginPage = () => {
                 <h1><b>Log in</b></h1>
 
                 <Form.Item
-                    label="Tên đăng nhập"
+                    label="Username"
                     name="username"
                     rules={[{ required: true, message: 'Please enter username' }]}
                 >
@@ -82,7 +82,7 @@ const LoginPage = () => {
                 </Form.Item>
 
                 <Form.Item
-                    label="Mật khẩu"
+                    label="Password"
                     name="password"
                     rules={[{ required: true, message: 'Please enter password' }]}
                 >

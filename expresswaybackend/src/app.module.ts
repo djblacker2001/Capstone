@@ -17,6 +17,7 @@ import { ProvincesModule } from './provinces/provinces.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import path, { join } from 'path';
 import { HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
       rootPath: join(__dirname, '..', 'uploads', 'images'),
       serveRoot: '/images',
     }),
+    DashboardModule,
 
     I18nModule.forRoot({
       fallbackLanguage: 'en',
