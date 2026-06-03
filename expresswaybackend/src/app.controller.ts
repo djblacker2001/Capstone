@@ -1,6 +1,6 @@
-import { Controller, Post, UseInterceptors, UploadedFile, UseGuards, Delete, Param } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFile, UseGuards, Delete, Param, Get, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiBody, ApiTags, ApiParam, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiConsumes, ApiBody, ApiTags, ApiParam, ApiResponse, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Roles } from './auth/roles.decorator';
@@ -23,6 +23,24 @@ export class AppController {
     return I18nContext.current()?.lang || 'en';
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Get('list-files')
+  async getFileList() {
+    return await this.appService.getAllUploadedFiles();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Get('images/:filename')
+  async viewUploadedFile(
+    @Param('filename') filename: string, 
+    @Res() res: any
+  ) {
+    const filePath = await this.appService.getFile(filename);
+    return res.sendFile(filePath);
+  }
+  
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post()

@@ -11,6 +11,27 @@ export class AppService {
     return I18nContext.current()?.lang || 'en';
   }
 
+  async getAllUploadedFiles(): Promise<string[]> {
+    const dirPath = join(process.cwd(), 'uploads', 'images');
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+      return [];
+    }
+
+    const files = fs.readdirSync(dirPath);
+    return files;
+  }
+
+  async getFile(filename: string): Promise<string> {
+    const filePath = join(process.cwd(), 'uploads', 'images', filename);
+    if (!fs.existsSync(filePath)) {
+      throw new NotFoundException(
+        this.i18n.t('upload.NOT_FOUND', { lang: this.lang })
+      );
+    }
+    return filePath;
+  }
+
   async deleteImage(filename: string) {
     const filePath = join(process.cwd(), 'uploads', 'images', filename);
     

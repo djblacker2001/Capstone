@@ -238,7 +238,7 @@ export class AuthService implements OnModuleInit {
     user.ResetToken = resetToken;
     await this.usersService.save(user);
 
-    const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
+    const resetLink = `http://localhost:8080/reset-password?token=${resetToken}`;
     await this.sendEmailForgotPassword(user.Email, resetLink);
     return {
       success: true,
