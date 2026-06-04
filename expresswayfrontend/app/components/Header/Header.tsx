@@ -104,7 +104,7 @@ export default function MainHeader() {
 
   const userMenu: MenuProps["items"] = [
     { key: "profile", icon: <UserOutlined />, label: <Link href="/profile">Personal information</Link> },
-    { key: "settings", icon: <SettingOutlined />, label: "Setting" },
+    { key: "settings", icon: <SettingOutlined />, label: <Link href="/setting">Setting</Link> },
     { type: "divider" },
     { key: "logout", icon: <LogoutOutlined />, label: "Log out", onClick: handleLogout },
   ];
@@ -133,10 +133,14 @@ export default function MainHeader() {
                 <Avatar
                   src={
                     user?.Avatar || user?.avatar
-                      ? `http://localhost:8080/${user.Avatar || user.avatar}`
+                      ? (user.Avatar || user.avatar).startsWith('http')
+                        ? (user.Avatar || user.avatar)
+                        : (user.Avatar || user.avatar).includes('uploads/avatars')
+                          ? `http://localhost:8080/${user.Avatar || user.avatar}`
+                          : `http://localhost:8080/uploads/avatars/${user.Avatar || user.avatar}`
                       : undefined
                   }
-                  icon={!user?.Avatar && <UserOutlined />}
+                  icon={<UserOutlined />}
                 />
                 <span className="username">
                   {user.Username || user.username}

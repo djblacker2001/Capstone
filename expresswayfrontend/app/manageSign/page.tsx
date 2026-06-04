@@ -6,16 +6,7 @@ const ManageSignPage = () => {
     return (
         <ProtectedRoute role="admin">
             <MainLayout>
-                <table>
-                    <th>
-                        ID
-                    </th>
-                    <tr>
-                        <td>
-                            rfsdfsd
-                        </td>
-                    </tr>
-                </table>
+                Manage Sign
             </MainLayout>
         </ProtectedRoute>
     )

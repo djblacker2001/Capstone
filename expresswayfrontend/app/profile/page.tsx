@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Upload, Button, Input, message, Divider } from 'antd';
-import { UserOutlined, UploadOutlined, SaveOutlined } from '@ant-design/icons';
+import { Input, Divider, Avatar } from 'antd'; 
+import { UserOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import "./style.css"
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
@@ -10,9 +10,6 @@ import MainLayout from '../layout/Layout';
 export default function ProfilePage() {
     const router = useRouter();
     const [user, setUser] = useState<any>(null);
-    const [fileList, setFileList] = useState<any[]>([]);
-    const [previewImage, setPreviewImage] = useState('');
-    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         const savedUser = localStorage.getItem('user');
@@ -21,107 +18,56 @@ export default function ProfilePage() {
         }
     }, []);
 
-    const handleBeforeUpload = (file: any) => {
-        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-        if (!isJpgOrPng) {
-            message.error('Bạn chỉ có thể tải lên định dạng JPG/PNG!');
-            return Upload.LIST_IGNORE;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-            setPreviewImage(e.target.result);
-        };
-        reader.readAsDataURL(file);
-        setFileList([file]);
-        return false;
-    };
-
-    const handleSaveProfile = async () => {
-        if (fileList.length === 0) {
-            message.warning("Vui lòng chọn ảnh trước khi lưu!");
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('file', fileList[0]);
-
-        setUploading(true);
-        try {
-            const res = await fetch(`http://localhost:8080/users/${user.UserId}/avatar`, {
-                method: 'PATCH',
-                body: formData,
-            });
-
-            if (res.ok) {
-                const updatedUser = await res.json();
-                localStorage.setItem('user', JSON.stringify(updatedUser));
-                window.dispatchEvent(new Event("userUpdate"));
-                message.success('Đã lưu ảnh đại diện thành công!');
-                router.push('/');
-            } else {
-                message.error('Lưu ảnh thất bại.');
-            }
-        } catch (error) {
-            message.error('Lỗi kết nối server.');
-        } finally {
-            setUploading(false);
-        }
-    };
-
-    if (!user) return <div style={{ textAlign: 'center', marginTop: 100 }}>Đang tải...</div>;
+    if (!user) return <div style={{ textAlign: 'center', marginTop: 100 }}>Loading...</div>;
+    const currentAvatar = user.Avatar || user.avatar;
+    const avatarSrc = currentAvatar
+        ? currentAvatar.startsWith('http')
+            ? currentAvatar
+            : currentAvatar.includes('uploads/avatars')
+                ? `http://localhost:8080/${currentAvatar}`
+                : `http://localhost:8080/uploads/avatars/${currentAvatar}`
+        : undefined;
 
     return (
         <ProtectedRoute>
             <MainLayout>
                 <div className="expr">
-                <div className="form">
-                    <h2 style={{ textAlign: 'center', marginBottom: 20 }}>Hồ sơ cá nhân</h2>
-                    <Divider />
-
-                    <div style={{ textAlign: 'center', marginBottom: 30 }}>
-                        <Upload
-                            showUploadList={false}
-                            beforeUpload={handleBeforeUpload}
-                            accept="image/*"
-                        >
-                            <div style={{ position: 'relative', display: 'inline-block', cursor: 'pointer' }}>
-                                <img
-                                    className="avatar"
-                                    src={previewImage || (user.Avatar ? `http://localhost:8080/${user.Avatar}` : '/default-avatar.png')}
-                                    alt="avatar"
+                    <div className="form">
+                        <h2 style={{ textAlign: 'center', marginBottom: 20 }}>Personal profile</h2>
+                        <Divider />
+                        <div style={{ textAlign: 'center', marginBottom: 30 }}>
+                            <div style={{ display: 'inline-block' }}>
+                                <Avatar
+                                    size={120}
+                                    icon={<UserOutlined />} 
+                                    src={avatarSrc}
+                                    style={{ 
+                                        backgroundColor: '#f5f5f5', 
+                                        color: '#bfbfbf',           
+                                        border: '1px solid #d9d9d9',
+                                        cursor: 'default' 
+                                    }}
                                 />
                             </div>
-                        </Upload>
-                        <p style={{ color: '#8c8c8c', marginTop: 15 }}>Click vào ảnh để chọn hình mới</p>
+                        </div>
+                        <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Username</label>
+                            <Input value={user.Username || user.username} disabled prefix={<UserOutlined style={{ color: '#bfbfbf' }} />} />
+                        </div>
+                        <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Email</label>
+                            <Input value={user.Email || user.email} disabled />
+                        </div>
+                        <div style={{ marginBottom: 30 }}>
+                            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Role</label>
+                            <Input 
+                                value={user.Role || user.role || 'Admin'} 
+                                disabled 
+                                prefix={<SafetyCertificateOutlined style={{ color: '#52c41a' }} />} 
+                                style={{ fontWeight: 'bold', color: '#2e7d32' }}
+                            />
+                        </div>
                     </div>
-
-                    <div style={{ marginBottom: 20 }}>
-                        <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Tên đăng nhập:</label>
-                        <Input value={user.Username} disabled prefix={<UserOutlined style={{ color: '#bfbfbf' }} />} />
-                    </div>
-
-                    <div style={{ marginBottom: 30 }}>
-                        <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Email:</label>
-                        <Input value={user.Email} disabled />
-                    </div>
-
-                    <div className="button" style={{ display: 'flex', gap: '10px' }}>
-                        <Button
-                            type="primary"
-                            icon={<SaveOutlined />}
-                            size="large"
-                            style={{ flex: 1 }}
-                            onClick={handleSaveProfile}
-                            loading={uploading}
-                        >
-                            Lưu thay đổi
-                        </Button>
-                        <Button size="large" style={{ flex: 1 }} onClick={() => router.push('/')}>
-                            Hủy bỏ
-                        </Button>
-                    </div>
-                </div>
                 </div>
             </MainLayout>
         </ProtectedRoute>

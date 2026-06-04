@@ -128,9 +128,11 @@ export class UsersService {
         this.i18n.t('user.ACCOUNT_NOT_FOUND', { lang: this.lang })
       );
     }
+
     const inputData = updateUserDto as any;
     const newUsername = inputData.Username || inputData.username;
     const newEmail = inputData.Email || inputData.email;
+
     if (newUsername && newUsername !== user.Username) {
       const isUsernameExist = await this.userRepository.findOne({
         where: { Username: newUsername }
@@ -140,7 +142,6 @@ export class UsersService {
           this.i18n.t('user.USERNAME_TAKEN', { lang: this.lang })
         );
       }
-
       user.Username = newUsername;
     }
 
@@ -157,7 +158,6 @@ export class UsersService {
           this.i18n.t('user.EMAIL_TAKEN', { lang: this.lang })
         );
       }
-
       user.Email = newEmail;
     }
 
@@ -165,13 +165,17 @@ export class UsersService {
       user.Avatar = inputData.Avatar || inputData.avatar;
     }
 
+    // 1. Lưu user xuống Database
     const updatedUser = await this.userRepository.save(user);
+
+    // 2. Loại bỏ các trường nhạy cảm, giữ lại toàn bộ các trường khác (Bao gồm cả Role/Role, UserId, v.v...)
     const { Password, ResetToken, ActiveCode, ...result } = updatedUser;
 
+    // 3. Trả về đúng cấu trúc cũ của bạn nhưng data đã chắc chắn chứa đầy đủ quyền hạn
     return {
       success: true,
       message: this.i18n.t('user.PROFILE_UPDATE_SUCCESS', { lang: this.lang }),
-      data: result,
+      data: result, // Trả về cục user sạch ở đây
     };
   }
 
