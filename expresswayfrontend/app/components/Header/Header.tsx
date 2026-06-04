@@ -20,18 +20,11 @@ export default function MainHeader() {
   const router = useRouter();
 
   useEffect(() => {
-
     const loadUser = () => {
       try {
         const savedUser = localStorage.getItem("user");
-
-        console.log("LOAD USER:", savedUser);
-
         if (savedUser && savedUser !== "undefined") {
           const parsed = JSON.parse(savedUser);
-
-          console.log("PARSED USER:", parsed);
-
           setUser(parsed);
         } else {
           setUser(null);
@@ -44,12 +37,18 @@ export default function MainHeader() {
 
     loadUser();
 
-    window.addEventListener("userUpdate", loadUser);
-
-    return () => {
-      window.removeEventListener("userUpdate", loadUser);
+    // 🔥 SỬA TẠI ĐÂY: Thêm một hàm bọc nhỏ để tạo độ trễ an toàn khi có sự kiện update
+    const handleUpdateEvent = () => {
+      setTimeout(() => {
+        loadUser();
+      }, 50); // Chờ 50 mili-giây để dữ liệu localStorage chắc chắn đã được lưu xong
     };
 
+    window.addEventListener("userUpdate", handleUpdateEvent);
+
+    return () => {
+      window.removeEventListener("userUpdate", handleUpdateEvent);
+    };
   }, []);
 
   useEffect(() => {

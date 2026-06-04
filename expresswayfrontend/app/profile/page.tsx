@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Input, Divider, Avatar } from 'antd'; 
 import { UserOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
-import "./style.css"
+import "./profile.css"
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 import MainLayout from '../layout/Layout';
 

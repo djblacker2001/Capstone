@@ -25,7 +25,7 @@ export class AppController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  @Get('list-files')
+  @Get()
   async getFileList() {
     return await this.appService.getAllUploadedFiles();
   }

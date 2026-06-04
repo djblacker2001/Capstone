@@ -1,9 +1,15 @@
-* {
+/* ==========================================================================
+   🟢 CÔ LẬP TOÀN BỘ FILE BẰNG CLASS .login-page-wrapper
+   Tất cả các thuộc tính bên dưới CHỈ CÓ TÁC DỤNG khi nằm trong trang Đăng nhập.
+   Khi quay về trang đầu, các thuộc tính này sẽ tự động vô hiệu hóa!
+   ========================================================================== */
+
+.login-page-wrapper * {
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.ant-form {
+.login-page-wrapper .ant-form {
     background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
@@ -15,27 +21,20 @@
     height: 700px;
 }
 
-body {
-    margin: 0;
+.login-page-wrapper .expr {
+    background-color: rgba(255, 255, 255, 0.1); 
     width: 100%;
-    height: 100%;
-    background-image: url(/backgroundlogin.png);
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.expr {
-    background-color: rgba(255, 255, 255, 0.5);
-    width: 100%;
-    height: 100%;
-}
-
-.iconuser {
+.login-page-wrapper .iconuser {
     width: 100px;
 }
 
-.logo {
+.login-page-wrapper .logo {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -44,7 +43,7 @@ body {
     margin-bottom: 20px;
 }
 
-h1 {
+.login-page-wrapper h1 {
     text-align: center;
     color: #0A9646;
     font-size: 1.8rem;
@@ -52,45 +51,45 @@ h1 {
     letter-spacing: 1px;
 }
 
-
 /* Label */
-.ant-form-item-label>label {
+.login-page-wrapper .ant-form-item-label>label {
     font-weight: 600;
     color: #333;
 }
 
 /* Input */
-.ant-input,
-.ant-input-password {
+.login-page-wrapper .ant-input,
+.login-page-wrapper .ant-input-password {
     border-radius: 8px;
 }
 
 /* Focus input */
-.ant-input:focus,
-.ant-input-password:focus,
-.ant-input-focused {
+.login-page-wrapper .ant-input:focus,
+.login-page-wrapper .ant-input-password:focus,
+.login-page-wrapper .ant-input-focused {
     border-color: #0A9646 !important;
-    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+    box-shadow: 0 0 0 2px rgba(10, 150, 70, 0.2);
 }
 
-.sign {
+.login-page-wrapper .sign {
     justify-content: space-around;
 }
 
 /* Button */
-.login {
+.login-page-wrapper .login {
     display: flex;
     justify-content: space-between;
+    gap: 15px;
 }
 
-button {
+/* Giờ đây nút bấm 150px này chỉ áp dụng cho riêng trang Đăng nhập */
+.login-page-wrapper button {
     width: 150px !important;
     height: 40px !important;
     margin-top: 10px;
-
 }
 
-.button1 {
+.login-page-wrapper .button1 {
     border-radius: 8px;
     background-color: #0A9646;
     border-color: #0A9646;
@@ -98,56 +97,48 @@ button {
     color: #ffffff !important;
 }
 
-.button1:hover {
+.login-page-wrapper .button1:hover {
     background-color: #087537 !important;
     border-color: #087537 !important;
 }
 
-.button2 {
+.login-page-wrapper .button2 {
     border-radius: 8px;
     border-color: #0A9646;
     font-weight: 600;
     color: #0A9646;
 }
 
-.button2:hover {
+.login-page-wrapper .button2:hover {
     background-color: #0A9646 !important;
     border-color: #0A9646 !important;
     color: #ffffff !important;
 }
 
-.footer-links {
+.login-page-wrapper .footer-links {
     margin-top: 20px;
 }
 
-.footer-links a {
+.login-page-wrapper .footer-links a {
     text-decoration: none;
     color: #003366;
     font-size: 0.85rem;
 }
 
-/* Message */
-.ant-message {
-    font-size: 14px;
-}
-
-.login-error {
-    color: #ff4d4f;
-    font-size: 12px;
-    margin-bottom: 12px;
-
-}
-
+/* Responsive */
 @media (max-width: 768px) {
-    .ant-form {
+    .login-page-wrapper .ant-form {
         width: 350px;
+        height: auto;
+        padding: 20px;
     }
     
-    .login {
+    .login-page-wrapper .login {
         display: block;
     }
 
-    button {
-        margin-bottom: 5px;
+    .login-page-wrapper button {
+        width: 100% !important;
+        margin-bottom: 10px;
     }
 }

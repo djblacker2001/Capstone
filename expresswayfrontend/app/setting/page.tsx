@@ -1,14 +1,13 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { Form, Input, Button, Upload, Avatar, message, Divider, Tabs } from 'antd';
 import { UserOutlined, MailOutlined, LockOutlined, UploadOutlined, SaveOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
-import "./style.css";
+import "./setting.css";
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 import MainLayout from '../layout/Layout';
 
-const SettingPage = () => {
+export default function SettingPage() {
     const router = useRouter();
     const [formInfo] = Form.useForm();
     const [formPassword] = Form.useForm();
@@ -18,36 +17,29 @@ const SettingPage = () => {
     const [previewImage, setPreviewImage] = useState('');
     const [loadingInfo, setLoadingInfo] = useState(false);
     const [loadingPassword, setLoadingPassword] = useState(false);
-
-    // 1. Lấy thông tin user hiện tại từ localStorage khi tải trang
     useEffect(() => {
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
             const parsedUser = JSON.parse(savedUser);
             setUser(parsedUser);
-
-            // 1. Điền thông tin text vào Form
             formInfo.setFieldsValue({
                 username: parsedUser.Username || parsedUser.username,
                 email: parsedUser.Email || parsedUser.email,
             });
 
-            // 2. 🔥 BỔ SUNG: Kiểm tra xem user đã từng có avatar chưa để set làm ảnh hiển thị mặc định
             const currentAvatar = parsedUser.Avatar || parsedUser.avatar;
             if (currentAvatar) {
-                // Tự động xử lý chuỗi path tương tự như bên Header để không bị lỗi vỡ ảnh
                 const fullAvatarUrl = currentAvatar.startsWith('http')
                     ? currentAvatar
                     : currentAvatar.includes('uploads/avatars')
                         ? `http://localhost:8080/${currentAvatar}`
                         : `http://localhost:8080/uploads/avatars/${currentAvatar}`;
 
-                setPreviewImage(fullAvatarUrl); // Đưa ảnh cũ làm ảnh preview ban đầu
+                setPreviewImage(fullAvatarUrl);
             }
         }
     }, [formInfo]);
 
-    // 2. Xử lý khi chọn ảnh đại diện mới (Client-side Preview)
     const handleBeforeUpload = (file: any) => {
         const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
         if (!isJpgOrPng) {
@@ -57,63 +49,80 @@ const SettingPage = () => {
 
         const reader = new FileReader();
         reader.onload = (e: any) => {
-            setPreviewImage(e.target.result); // Tạo link ảnh tạm thời để xem trước công việc
+            setPreviewImage(e.target.result);
         };
         reader.readAsDataURL(file);
         setFileList([file]);
-        return false; // Ngăn Antd tự động upload trực tiếp luôn
+        return false;
     };
 
-    // 3. API xử lý cập nhật Thông tin cá nhân & Avatar
     const onUpdateInfo = async (values: any) => {
         setLoadingInfo(true);
         try {
             const formData = new FormData();
-            formData.append('username', values.username);
-            formData.append('email', values.email);
+            const finalUsername = values.username || user?.Username || user?.username;
+            const finalEmail = values.email || user?.Email || user?.email;
+
+            formData.append('username', finalUsername);
+            formData.append('email', finalEmail);
 
             if (fileList.length > 0) {
-                // 🔥 CHỈNH SỬA 1: Đổi chữ 'file' thành 'avatar' cho khớp với FileInterceptor('avatar')
                 formData.append('avatar', fileList[0]);
             }
 
-            // 🔥 CHỈNH SỬA 2: Đổi URL thành /users/profile theo đúng định tuyến Backend của bạn
+            const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token') || localStorage.getItem('token');
+
+            if (!token || token === "undefined") {
+                message.error("Mã xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại!");
+                setLoadingInfo(false);
+                return;
+            }
+
             const res = await fetch(`http://localhost:8080/users/profile`, {
-                method: 'PUT', // Giữ nguyên PUT khớp với @Put('profile')
+                method: 'PUT',
                 headers: {
-                    // Bắt buộc truyền Token vì Backend có @UseGuards(JwtAuthGuard)
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    // TUYỆT ĐỐI KHÔNG set Content-Type ở đây nha
+                    'Authorization': `Bearer ${token}` // Gửi token lên cho JwtAuthGuard của NestJS kiểm tra
                 },
-                body: formData,
+                body: formData, // Trình duyệt tự nhận diện Content-Type, không tự set thủ công
             });
 
             if (res.ok) {
                 const responseJson = await res.json();
-                const updatedUser = responseJson.data;
+                const updatedUserFromBackend = responseJson.data;
 
-                localStorage.setItem('user', JSON.stringify(updatedUser));
-                setUser(updatedUser);
+                if (updatedUserFromBackend) {
+                    const mergedUser = {
+                        ...user,
+                        ...updatedUserFromBackend,
+                        Username: updatedUserFromBackend.Username || updatedUserFromBackend.username || user?.Username,
+                        Email: updatedUserFromBackend.Email || updatedUserFromBackend.email || user?.Email,
+                        Avatar: updatedUserFromBackend.Avatar || updatedUserFromBackend.avatar || user?.Avatar,
+                        Role: user?.Role || updatedUserFromBackend.Role || updatedUserFromBackend.role
+                    };
 
-                // 🟢 SỬA TẠI ĐÂY: Sau khi up thành công, không clear preview nữa mà cập nhật đường dẫn ảnh mới luôn
-                const newAvatar = updatedUser.Avatar || updatedUser.avatar;
-                if (newAvatar) {
-                    const fullAvatarUrl = newAvatar.startsWith('http')
-                        ? newAvatar
-                        : newAvatar.includes('uploads/avatars')
-                            ? `http://localhost:8080/${newAvatar}`
-                            : `http://localhost:8080/uploads/avatars/${newAvatar}`;
-                    setPreviewImage(fullAvatarUrl);
+                    // 🟢 1. Ghi đè dữ liệu mới chuẩn vào localStorage
+                    localStorage.setItem('user', JSON.stringify(mergedUser));
+                    setUser(mergedUser);
                 }
 
-                setFileList([]); // Chỉ clear mảng file thô để chuẩn bị cho lần chọn tiếp theo
+                setFileList([]);
 
+                // 🟢 2. Bắn sự kiện đổi ảnh đại diện nhỏ trên Header ngay tức thì
                 window.dispatchEvent(new Event("userUpdate"));
                 message.success('Cập nhật thông tin cá nhân thành công!');
+
+                // 🟢 3. ĐIỀU HƯỚNG AN TOÀN: Dùng window.location.href bọc trong setTimeout ngắn (500ms)
+                // Cách này giúp Header kịp nhận ảnh mới ngay tại chỗ, đồng thời tải lại trang chủ sạch sẽ,
+                // đảm bảo hiển thị đầy đủ hình nền cao tốc và giữ nguyên 3 mục quản lý Admin cố định!
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 500);
             } else {
-                message.error('Cập nhật thất bại. Vui lòng thử lại.');
+                const errorData = await res.json().catch(() => ({}));
+                message.error(errorData.message || 'Cập nhật thất bại. Vui lòng thử lại.');
             }
         } catch (error) {
+            console.error("Lỗi kết nối update:", error);
             message.error('Lỗi kết nối đến máy chủ.');
         } finally {
             setLoadingInfo(false);
@@ -122,13 +131,15 @@ const SettingPage = () => {
 
     // 4. API xử lý Đổi mật khẩu
     const onChangePassword = async (values: any) => {
-        setLoadingPassword(false);
+        setLoadingPassword(true);
         try {
-            const res = await fetch(`http://localhost:8080/users/${user.UserId}/change-password`, {
+            const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token') || localStorage.getItem('token');
+
+            const res = await fetch(`http://localhost:8080/users/change-password`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     oldPassword: values.oldPassword,
@@ -138,9 +149,12 @@ const SettingPage = () => {
 
             if (res.ok) {
                 message.success('Đổi mật khẩu thành công!');
-                formPassword.resetFields(); // Xóa sạch dữ liệu trên form mật khẩu sau khi đổi xong
+                formPassword.resetFields();
+                setTimeout(() => {
+                    router.push('/');
+                }, 800);
             } else {
-                const errData = await res.json();
+                const errData = await res.json().catch(() => ({}));
                 message.error(errData.message || 'Mật khẩu cũ không chính xác.');
             }
         } catch (error) {
@@ -152,19 +166,19 @@ const SettingPage = () => {
 
     if (!user) return <div style={{ textAlign: 'center', marginTop: 100 }}>Đang tải...</div>;
 
-    // Cấu trúc danh mục tab của Ant Design
+    // Cấu trúc danh mục tab Ant Design
     const tabItems = [
         {
             key: '1',
             label: 'Thông tin cá nhân',
             children: (
                 <Form form={formInfo} layout="vertical" onFinish={onUpdateInfo}>
-                    {/* Khu vực Avatar */}
+                    {/* Khu vực hiển thị ảnh đại diện tròn */}
                     <div style={{ textAlign: 'center', marginBottom: 25 }}>
                         <Avatar
                             size={100}
                             icon={<UserOutlined />}
-                            src={previewImage || (user.Avatar ? `http://localhost:8080/${user.Avatar}` : undefined)}
+                            src={previewImage || undefined}
                             style={{ border: '1px solid #d9d9d9', marginBottom: 15 }}
                         />
                         <div style={{ display: 'block' }}>
@@ -181,7 +195,7 @@ const SettingPage = () => {
                     <Form.Item
                         label="Tên đăng nhập"
                         name="username"
-                        rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
+                        rules={[{ required: true, message: 'Tên đăng nhập không được để trống!' }]}
                     >
                         <Input prefix={<UserOutlined />} placeholder="Nhập username" />
                     </Form.Item>
@@ -190,7 +204,7 @@ const SettingPage = () => {
                         label="Email"
                         name="email"
                         rules={[
-                            { required: true, message: 'Vui lòng nhập Email!' },
+                            { required: true, message: 'Email không được để trống!' },
                             { type: 'email', message: 'Email không đúng định dạng!' }
                         ]}
                     >
@@ -261,12 +275,11 @@ const SettingPage = () => {
                     <div className="form" style={{ maxWidth: 500, margin: '0 auto' }}>
                         <h2 style={{ textAlign: 'center', marginBottom: 10 }}>Cài đặt tài khoản</h2>
                         <Divider style={{ margin: '12px 0' }} />
+
                         <Tabs defaultActiveKey="1" items={tabItems} centered />
                     </div>
                 </div>
             </MainLayout>
         </ProtectedRoute>
-    )
+    );
 }
-
-export default SettingPage;

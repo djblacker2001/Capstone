@@ -38,7 +38,7 @@ const LoginPage = () => {
                 return;
             }
 
-            
+
             if (user.IsLocked) {
                 setError('The account is currently locked.');
                 return;
@@ -65,53 +65,63 @@ const LoginPage = () => {
     };
 
     return (
-        <div className='expr'>
-            <Form onFinish={onFinish} layout="vertical">
-                <div className='logo'>
-                    <img src="/expresswayicon3.png" alt="logo3" style={{ width: '200px' }} />
-                </div>
+        <div className='login-page-wrapper' style={{
+            backgroundImage: "url('/backgroundlogin.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundAttachment: "fixed",
+            width: "100%",
+            minHeight: "100vh"
+        }}>
+            <div className='expr'>
+                <Form onFinish={onFinish} layout="vertical">
+                    <div className='logo'>
+                        <img src="/expresswayicon3.png" alt="logo3" style={{ width: '200px' }} />
+                    </div>
 
-                <h1><b>Log in</b></h1>
+                    <h1><b>Log in</b></h1>
 
-                <Form.Item
-                    label="Username"
-                    name="username"
-                    rules={[{ required: true, message: 'Please enter username' }]}
-                >
-                    <Input placeholder="Nhập username" size="large" />
-                </Form.Item>
-
-                <Form.Item
-                    label="Password"
-                    name="password"
-                    rules={[{ required: true, message: 'Please enter password' }]}
-                >
-                    <Input.Password placeholder="Enter password" size="large" />
-                </Form.Item>
-
-                {error && <div className="login-error" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
-
-                <div className='login'>
-                    <Button type="primary" htmlType="submit" block className='button1' loading={loading}>
-                        Login
-                    </Button>
-
-                    <Button
-                        type="default"
-                        block
-                        className='button2'
-                        onClick={() => router.push('/register')}
+                    <Form.Item
+                        label="Username"
+                        name="username"
+                        rules={[{ required: true, message: 'Please enter username' }]}
                     >
-                        Register
-                    </Button>
-                </div>
+                        <Input placeholder="Nhập username" size="large" />
+                    </Form.Item>
 
-                <div className="footer-links" style={{ textAlign: 'center', marginTop: '15px' }}>
-                    <Link href="/forgot-password" style={{ color: '#1890ff', fontSize: '14px' }}>
-                        Forgot password?
-                    </Link>
-                </div>
-            </Form>
+                    <Form.Item
+                        label="Password"
+                        name="password"
+                        rules={[{ required: true, message: 'Please enter password' }]}
+                    >
+                        <Input.Password placeholder="Enter password" size="large" />
+                    </Form.Item>
+
+                    {error && <div className="login-error" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+
+                    <div className='login'>
+                        <Button type="primary" htmlType="submit" block className='button1' loading={loading}>
+                            Login
+                        </Button>
+
+                        <Button
+                            type="default"
+                            block
+                            className='button2'
+                            onClick={() => router.push('/register')}
+                        >
+                            Register
+                        </Button>
+                    </div>
+
+                    <div className="footer-links" style={{ textAlign: 'center', marginTop: '15px' }}>
+                        <Link href="/forgot-password" style={{ color: '#1890ff', fontSize: '14px' }}>
+                            Forgot password?
+                        </Link>
+                    </div>
+                </Form>
+            </div>
         </div>
     );
 };
