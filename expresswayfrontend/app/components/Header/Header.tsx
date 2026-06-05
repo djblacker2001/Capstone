@@ -5,22 +5,32 @@ import { LogoutOutlined, MenuOutlined, SettingOutlined, UserOutlined } from "@an
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useNavigate } from "react-router-dom";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"; // Giữ lại đúng thư viện điều hướng của Next.js
 import axiosClient from "@/api/axiosClient";
-
 
 const { Header } = Layout;
 
+// Định nghĩa Interface rõ ràng cho kiểu dữ liệu User để chuẩn hóa TSX
+interface UserData {
+  username?: string;
+  Username?: string;
+  role?: string;
+  Role?: string;
+  avatar?: string;
+  Avatar?: string;
+}
+
 export default function MainHeader() {
-  const [open, setOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [open, setOpen] = useState<boolean>(false);
+  const [user, setUser] = useState<UserData | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
 
   useEffect(() => {
     const loadUser = () => {
+      if (typeof window === "undefined") return; // Bảo vệ chống lỗi SSR của Next.js
+
       try {
         const savedUser = localStorage.getItem("user");
         if (savedUser && savedUser !== "undefined") {
@@ -30,18 +40,19 @@ export default function MainHeader() {
           setUser(null);
         }
       } catch (error) {
-        console.error("Lỗi parse user:", error);
+        console.error("Lỗi parse user tại Header:", error);
         setUser(null);
       }
     };
 
+    // Chạy nạp dữ liệu lần đầu khi Header hiển thị
     loadUser();
 
-    // 🔥 SỬA TẠI ĐÂY: Thêm một hàm bọc nhỏ để tạo độ trễ an toàn khi có sự kiện update
+    // Lắng nghe sự kiện hệ thống "userUpdate" phát ra từ trang cập nhật thông tin
     const handleUpdateEvent = () => {
       setTimeout(() => {
         loadUser();
-      }, 50); // Chờ 50 mili-giây để dữ liệu localStorage chắc chắn đã được lưu xong
+      }, 50);
     };
 
     window.addEventListener("userUpdate", handleUpdateEvent);
@@ -51,6 +62,7 @@ export default function MainHeader() {
     };
   }, []);
 
+  // Xử lý đóng menu mobile khi click ra ngoài vùng chọn
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -68,12 +80,6 @@ export default function MainHeader() {
     };
   }, [open]);
 
-  // const handleLogout = () => {
-  //   localStorage.removeItem("user");
-  //   setUser(null);
-  //   window.location.href = "/";
-  // };
-
   const handleLogout = async () => {
     try {
       await axiosClient.post('/auth/logout');
@@ -82,17 +88,19 @@ export default function MainHeader() {
     } finally {
       localStorage.removeItem('user');
       localStorage.removeItem('accessToken');
+      setUser(null); // Đưa state về null ngay lập tức để giao diện ẩn vùng avatar đi
       router.push('/');
     }
   };
 
+  // Cấu hình danh mục Menu Navbar chính
   const items = [
     { key: "home", label: <Link href="/home">Home</Link> },
     { key: "bangdieukhien", label: <Link href="/dashboard">Dashboard</Link> },
     { key: "tuyenduong", label: <Link href="/expressway">Expressway</Link> },
     { key: "bienbao", label: <Link href="/sign">Sign</Link> },
 
-    ...(user?.Role === "admin"
+    ...(user?.Role === "admin" || user?.role === "admin"
       ? [
         { key: "manageExpressway", label: <Link href="/manageExpressway">Manage Expressway</Link> },
         { key: "manageUser", label: <Link href="/manageUser">Manage User</Link> },
@@ -101,6 +109,7 @@ export default function MainHeader() {
       : []),
   ];
 
+  // Cấu hình Menu Dropdown khi click vào Avatar góc phải
   const userMenu: MenuProps["items"] = [
     { key: "profile", icon: <UserOutlined />, label: <Link href="/profile">Personal information</Link> },
     { key: "settings", icon: <SettingOutlined />, label: <Link href="/setting">Setting</Link> },
@@ -108,8 +117,18 @@ export default function MainHeader() {
     { key: "logout", icon: <LogoutOutlined />, label: "Log out", onClick: handleLogout },
   ];
 
+  // Logic xử lý đường dẫn ảnh đại diện an toàn
+  const currentAvatar = user?.Avatar || user?.avatar;
+  const avatarSrc = currentAvatar
+    ? currentAvatar.startsWith('http')
+      ? currentAvatar
+      : currentAvatar.includes('uploads/avatars')
+        ? `http://localhost:8080/${currentAvatar}`
+        : `http://localhost:8080/uploads/avatars/${currentAvatar}`
+    : undefined;
+
   return (
-    <header>
+    <header className="warp-header">
       <Header className="mainHeader">
         <div className="left">
           <Button
@@ -128,21 +147,13 @@ export default function MainHeader() {
         <div className="right">
           {user ? (
             <Dropdown menu={{ items: userMenu }} placement="bottomRight">
-              <div className="userBox" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="userBox" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: "white" }}>
                 <Avatar
-                  src={
-                    user?.Avatar || user?.avatar
-                      ? (user.Avatar || user.avatar).startsWith('http')
-                        ? (user.Avatar || user.avatar)
-                        : (user.Avatar || user.avatar).includes('uploads/avatars')
-                          ? `http://localhost:8080/${user.Avatar || user.avatar}`
-                          : `http://localhost:8080/uploads/avatars/${user.Avatar || user.avatar}`
-                      : undefined
-                  }
+                  src={avatarSrc}
                   icon={<UserOutlined />}
                 />
                 <span className="username">
-                  {user.Username || user.username}
+                  {user?.Username || user?.username || "User"}
                 </span>
               </div>
             </Dropdown>
@@ -153,6 +164,8 @@ export default function MainHeader() {
           )}
         </div>
       </Header>
+
+      {/* Mobile Drawer Menu Layer */}
       <div
         ref={menuRef}
         className={`mobileMenu ${open ? "show" : ""}`}

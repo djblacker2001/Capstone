@@ -283,7 +283,6 @@ export class AuthService implements OnModuleInit {
 
   async sendEmailToAdminForApproval(adminEmail: string, newUser: any) {
     const approvalLink = `http://localhost:8080/auth/approve-admin/${newUser.UserId}`;
-    // const approvalLink = `http://localhost:3000/admin/approve-user?id=${newUser.UserId}`;
     await this.transporter.sendMail({
       from: '"Expressway System" <hoangvu222001@gmail.com>',
       to: adminEmail,

@@ -9,12 +9,16 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-users.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('Users')
 @ApiBearerAuth()
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) { }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
@@ -78,7 +82,7 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() file: Express.Multer.File
   ) {
-    const jwtUserId = req.user.userId; 
+    const jwtUserId = req.user.userId;
     if (!jwtUserId) {
       throw new UnauthorizedException('Invalid token payload structure');
     }
@@ -87,6 +91,24 @@ export class UsersController {
       updateUserDto.Avatar = file.filename;
     }
 
-    return await this.usersService.updateProfile(+jwtUserId, updateUserDto);
+    const updatedUser = await this.usersService.updateProfile(+jwtUserId, updateUserDto);
+
+    // Thêm .data vào sau updatedUser và chỉ lấy các trường viết HOA theo đúng Type định nghĩa
+    const payload = {
+      userId: jwtUserId,
+      username: updatedUser?.data?.Username,
+      email: updatedUser?.data?.Email,
+      role: updatedUser?.data?.Role
+    };
+
+    // 3. Ký mã token mới
+    const newToken = this.jwtService.sign(payload);
+
+    // 4. Trả về cho Frontend hứng
+    return {
+      message: 'Update profile successfully',
+      data: updatedUser,
+      accessToken: newToken, // <-- Token mới chứa thông tin vừa đổi nằm ở đây 
+    };
   }
 }

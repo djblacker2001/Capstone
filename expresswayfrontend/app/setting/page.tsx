@@ -5,7 +5,7 @@ import { UserOutlined, MailOutlined, LockOutlined, UploadOutlined, SaveOutlined 
 import { useRouter } from 'next/navigation';
 import "./setting.css";
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
-import MainLayout from '../layout/Layout';
+import Header from "../components/Header/Header";
 
 export default function SettingPage() {
     const router = useRouter();
@@ -81,9 +81,9 @@ export default function SettingPage() {
             const res = await fetch(`http://localhost:8080/users/profile`, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `Bearer ${token}` // Gửi token lên cho JwtAuthGuard của NestJS kiểm tra
+                    'Authorization': `Bearer ${token}`
                 },
-                body: formData, // Trình duyệt tự nhận diện Content-Type, không tự set thủ công
+                body: formData,
             });
 
             if (res.ok) {
@@ -100,20 +100,14 @@ export default function SettingPage() {
                         Role: user?.Role || updatedUserFromBackend.Role || updatedUserFromBackend.role
                     };
 
-                    // 🟢 1. Ghi đè dữ liệu mới chuẩn vào localStorage
                     localStorage.setItem('user', JSON.stringify(mergedUser));
                     setUser(mergedUser);
                 }
 
                 setFileList([]);
-
-                // 🟢 2. Bắn sự kiện đổi ảnh đại diện nhỏ trên Header ngay tức thì
                 window.dispatchEvent(new Event("userUpdate"));
                 message.success('Cập nhật thông tin cá nhân thành công!');
 
-                // 🟢 3. ĐIỀU HƯỚNG AN TOÀN: Dùng window.location.href bọc trong setTimeout ngắn (500ms)
-                // Cách này giúp Header kịp nhận ảnh mới ngay tại chỗ, đồng thời tải lại trang chủ sạch sẽ,
-                // đảm bảo hiển thị đầy đủ hình nền cao tốc và giữ nguyên 3 mục quản lý Admin cố định!
                 setTimeout(() => {
                     window.location.href = '/';
                 }, 500);
@@ -129,7 +123,6 @@ export default function SettingPage() {
         }
     };
 
-    // 4. API xử lý Đổi mật khẩu
     const onChangePassword = async (values: any) => {
         setLoadingPassword(true);
         try {
@@ -166,14 +159,12 @@ export default function SettingPage() {
 
     if (!user) return <div style={{ textAlign: 'center', marginTop: 100 }}>Đang tải...</div>;
 
-    // Cấu trúc danh mục tab Ant Design
     const tabItems = [
         {
             key: '1',
             label: 'Thông tin cá nhân',
             children: (
                 <Form form={formInfo} layout="vertical" onFinish={onUpdateInfo}>
-                    {/* Khu vực hiển thị ảnh đại diện tròn */}
                     <div style={{ textAlign: 'center', marginBottom: 25 }}>
                         <Avatar
                             size={100}
@@ -270,16 +261,15 @@ export default function SettingPage() {
 
     return (
         <ProtectedRoute>
-            <MainLayout>
-                <div className="expr">
-                    <div className="form" style={{ maxWidth: 500, margin: '0 auto' }}>
-                        <h2 style={{ textAlign: 'center', marginBottom: 10 }}>Cài đặt tài khoản</h2>
-                        <Divider style={{ margin: '12px 0' }} />
+            <Header />
+            <div className="expr">
+                <div className="form" style={{ maxWidth: 500, margin: '0 auto' }}>
+                    <h2 style={{ textAlign: 'center', marginBottom: 10 }}>Cài đặt tài khoản</h2>
+                    <Divider style={{ margin: '12px 0' }} />
 
-                        <Tabs defaultActiveKey="1" items={tabItems} centered />
-                    </div>
+                    <Tabs defaultActiveKey="1" items={tabItems} centered />
                 </div>
-            </MainLayout>
+            </div>
         </ProtectedRoute>
     );
 }

@@ -48,14 +48,6 @@
     align-items: center;
 }
 
-.userBox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    color: white;
-}
-
 .userBox:hover {
     opacity: 0.8;
 }

@@ -26,20 +26,18 @@ const Footer: React.FC = () => {
                         <Col xs={24} md={6}>
                             <h3>Khám phá</h3>
                             <ul className="footer-list">
-                                <li><Link href="/introduce">Introduce</Link></li>
                                 <li><Link href="/expressway">Expressway</Link></li>
                                 <li><Link href="/map">Map</Link></li>
                                 <li><Link href="/sign">Sign</Link></li>
-                                <li><Link href="/news">News</Link></li>
                             </ul>
                         </Col>
                         <Col xs={24} md={6}>
                             <h3>Thông tin</h3>
                             <ul className="footer-list">
-                                <li><Link href="/quy-hoach">Quy hoạch</Link></li>
-                                <li><Link href="/tien-do">Tiến độ</Link></li>
-                                <li><Link href="/thong-ke">Thống kê</Link></li>
-                                <li><Link href="/du-lieu">Dữ liệu</Link></li>
+                                <li><Link href="/dashboard">Quy hoạch</Link></li>
+                                <li><Link href="/dashboard">Tiến độ</Link></li>
+                                <li><Link href="/dashboard">Thống kê</Link></li>
+                                <li><Link href="/dashboard">Dữ liệu</Link></li>
                             </ul>
                         </Col>
                         <Col xs={24} md={6}>
