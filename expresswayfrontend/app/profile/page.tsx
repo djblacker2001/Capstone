@@ -1,16 +1,23 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { Input, Divider, Avatar } from 'antd';
-import { UserOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+
+import React, { useState, useEffect } from 'react';
+import { Input, Divider, Avatar, message } from 'antd';
+import { UserOutlined, SafetyCertificateOutlined, MailOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
-import "./profile.css"
+import "./profile.css";
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
-import MainLayout from '../layout/Layout';
 import Header from "../components/Header/Header";
+
+interface UserProfile {
+    Username?: string;
+    Email?: string;
+    Role?: string;
+    Avatar?: string;
+}
 
 export default function ProfilePage() {
     const router = useRouter();
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -33,17 +40,96 @@ export default function ProfilePage() {
                 loadUserFromStorage();
             }, 50);
         };
-
         window.addEventListener("userUpdate", handleProfileUpdateEvent);
-
-        // Hủy lắng nghe khi rời trang để tránh rò rỉ bộ nhớ (Memory Leak)
         return () => {
             window.removeEventListener("userUpdate", handleProfileUpdateEvent);
         };
     }, []);
 
-    if (!user) return <div style={{ textAlign: 'center', marginTop: 100 }}>Loading...</div>;
-    const currentAvatar = user.Avatar || user.avatar;
+    useEffect(() => {
+        const verifyAndLoadUser = async () => {
+            if (typeof window === "undefined") return;
+
+            const savedUser = localStorage.getItem('user');
+            const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+            if (!savedUser || savedUser === "undefined" || !token || token === "undefined") {
+                localStorage.removeItem('user');
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('token');
+                setUser(null);
+                setLoading(false);
+                router.push('/login');
+                return;
+            }
+
+            try {
+                const res = await fetch(`http://localhost:8080/users/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (res.ok) {
+                    const responseJson = await res.json();
+                    const freshUser = responseJson.data;
+
+                    if (freshUser) {
+                        localStorage.setItem('user', JSON.stringify(freshUser));
+                        setUser(freshUser);
+                    } else {
+                        setUser(JSON.parse(savedUser));
+                    }
+                } else if (res.status === 401 || res.status === 403) {
+                    message.error("Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại!");
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('token');
+                    setUser(null);
+                    window.dispatchEvent(new Event("userUpdate"));
+                    router.push('/login');
+                    return;
+                } else {
+                    setUser(JSON.parse(savedUser));
+                }
+            } catch (error) {
+                console.error("Lỗi kết nối xác thực phiên đăng nhập:", error);
+                setUser(JSON.parse(savedUser));
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        verifyAndLoadUser();
+
+        const handleProfileUpdateEvent = () => {
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+                setUser(JSON.parse(savedUser));
+            }
+        };
+
+        window.addEventListener("userUpdate", handleProfileUpdateEvent);
+        return () => {
+            window.removeEventListener("userUpdate", handleProfileUpdateEvent);
+        };
+    }, [router]);
+
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+                <div style={{ fontFamily: 'sans-serif', fontSize: '16px', color: '#1890ff', fontWeight: 500 }}>
+                    Đang xác thực tài khoản...
+                </div>
+            </div>
+        );
+    }
+
+    if (!user) return null;
+
+    // Logic xử lý hiển thị Avatar an toàn
+    const currentAvatar = user.Avatar;
     const avatarSrc = currentAvatar
         ? currentAvatar.startsWith('http')
             ? currentAvatar
@@ -62,13 +148,17 @@ export default function ProfilePage() {
                 backgroundRepeat: "no-repeat",
                 backgroundAttachment: "fixed",
                 width: "100%",
-                minHeight: "calc(100vh - 58px)",
-                overflowY: "hidden"
+                minHeight: "calc(100vh - 64px)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
             }}>
-                <div className="expr">
+                <div className="expr" style={{ width: "100%" }}>
                     <div className="form">
-                        <h2 style={{ textAlign: 'center', marginBottom: 20 }}>Personal profile</h2>
+                        <h2 style={{ textAlign: 'center', marginBottom: 20, fontWeight: 700, color: '#1f1f1f' }}>Personal Profile</h2>
                         <Divider />
+
+                        {/* Avatar display */}
                         <div style={{ textAlign: 'center', marginBottom: 30 }}>
                             <div style={{ display: 'inline-block' }}>
                                 <Avatar
@@ -84,21 +174,35 @@ export default function ProfilePage() {
                                 />
                             </div>
                         </div>
+
                         <div style={{ marginBottom: 20 }}>
-                            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Username</label>
-                            <Input value={user.Username || user.username} disabled prefix={<UserOutlined style={{ color: 'black' }} />} />
-                        </div>
-                        <div style={{ marginBottom: 20 }}>
-                            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Email</label>
-                            <Input value={user.Email || user.email} disabled />
-                        </div>
-                        <div style={{ marginBottom: 30 }}>
-                            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Role</label>
+                            <label style={{ fontWeight: 600, display: 'block', marginBottom: 8, color: '#434343' }}>Username</label>
                             <Input
-                                value={user.Role || user.role || 'Admin'}
+                                value={user.Username}
+                                disabled
+                                prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
+                                size="large"
+                            />
+                        </div>
+
+                        <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: 'block', marginBottom: 8, color: '#434343' }}>Email Address</label>
+                            <Input
+                                value={user.Email}
+                                disabled
+                                prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
+                                size="large"
+                            />
+                        </div>
+
+                        <div style={{ marginBottom: 10 }}>
+                            <label style={{ fontWeight: 600, display: 'block', marginBottom: 8, color: '#434343' }}>System Role</label>
+                            <Input
+                                value={user.Role}
                                 disabled
                                 prefix={<SafetyCertificateOutlined style={{ color: '#52c41a' }} />}
-                                style={{ fontWeight: 'bold', color: '#2e7d32' }}
+                                size="large"
+                                style={{ fontWeight: 'bold' }}
                             />
                         </div>
                     </div>

@@ -28,41 +28,37 @@ export default function MainHeader() {
   const router = useRouter();
 
   useEffect(() => {
-    const loadUser = () => {
-      if (typeof window === "undefined") return; // Bảo vệ chống lỗi SSR của Next.js
-
-      try {
-        const savedUser = localStorage.getItem("user");
-        if (savedUser && savedUser !== "undefined") {
-          const parsed = JSON.parse(savedUser);
-          setUser(parsed);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error("Lỗi parse user tại Header:", error);
+  const loadUser = () => {
+    if (typeof window === "undefined") return;
+    
+    try {
+      const savedUser = localStorage.getItem("user");
+      const token = localStorage.getItem("accessToken") || localStorage.getItem("token");
+      if (savedUser && savedUser !== "undefined" && token && token !== "undefined") {
+        const parsed = JSON.parse(savedUser);
+        setUser(parsed);
+      } else {
+        localStorage.removeItem("user");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("token");
         setUser(null);
       }
-    };
+    } catch (error) {
+      console.error("Lỗi parse user tại Header:", error);
+      setUser(null);
+    }
+  };
 
-    // Chạy nạp dữ liệu lần đầu khi Header hiển thị
-    loadUser();
+  loadUser();
 
-    // Lắng nghe sự kiện hệ thống "userUpdate" phát ra từ trang cập nhật thông tin
-    const handleUpdateEvent = () => {
-      setTimeout(() => {
-        loadUser();
-      }, 50);
-    };
+  const handleUpdateEvent = () => {
+    setTimeout(() => { loadUser(); }, 50);
+  };
 
-    window.addEventListener("userUpdate", handleUpdateEvent);
+  window.addEventListener("userUpdate", handleUpdateEvent);
+  return () => { window.removeEventListener("userUpdate", handleUpdateEvent); };
+}, []);
 
-    return () => {
-      window.removeEventListener("userUpdate", handleUpdateEvent);
-    };
-  }, []);
-
-  // Xử lý đóng menu mobile khi click ra ngoài vùng chọn
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (

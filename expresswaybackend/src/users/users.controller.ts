@@ -101,14 +101,16 @@ export class UsersController {
       role: updatedUser?.data?.Role
     };
 
-    // 3. Ký mã token mới
     const newToken = this.jwtService.sign(payload);
 
     // 4. Trả về cho Frontend hứng
     return {
       message: 'Update profile successfully',
-      data: updatedUser,
-      accessToken: newToken, // <-- Token mới chứa thông tin vừa đổi nằm ở đây 
+      Username: updatedUser?.data?.Username,
+      Email: updatedUser?.data?.Email,
+      Avatar: updatedUser?.data?.Avatar,
+      Role: updatedUser?.data?.Role,
+      accessToken: newToken,
     };
   }
 }

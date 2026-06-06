@@ -88,28 +88,36 @@ export default function SettingPage() {
 
             if (res.ok) {
                 const responseJson = await res.json();
-                const updatedUserFromBackend = responseJson.data;
+                const newToken = responseJson.accessToken;
 
-                if (updatedUserFromBackend) {
-                    const mergedUser = {
-                        ...user,
-                        ...updatedUserFromBackend,
-                        Username: updatedUserFromBackend.Username || updatedUserFromBackend.username || user?.Username,
-                        Email: updatedUserFromBackend.Email || updatedUserFromBackend.email || user?.Email,
-                        Avatar: updatedUserFromBackend.Avatar || updatedUserFromBackend.avatar || user?.Avatar,
-                        Role: user?.Role || updatedUserFromBackend.Role || updatedUserFromBackend.role
-                    };
-
-                    localStorage.setItem('user', JSON.stringify(mergedUser));
-                    setUser(mergedUser);
+                // 1. Ghi đè Token mới tinh vào localStorage
+                if (newToken) {
+                    localStorage.setItem('accessToken', newToken);
+                    localStorage.setItem('access_token', newToken);
+                    localStorage.setItem('token', newToken);
                 }
 
+                // 2. Trộn dữ liệu mới (chữ HOA hoàn toàn theo log console)
+                const mergedUser = {
+                    ...user,
+                    Username: responseJson.Username || user?.Username,
+                    Email: responseJson.Email || user?.Email,
+                    Avatar: responseJson.Avatar || user?.Avatar,
+                    Role: responseJson.Role || user?.Role
+                };
+
+                localStorage.setItem('user', JSON.stringify(mergedUser));
+                setUser(mergedUser);
                 setFileList([]);
-                window.dispatchEvent(new Event("userUpdate"));
+
+                if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new Event("userUpdate"));
+                }
                 message.success('Cập nhật thông tin cá nhân thành công!');
 
+                // 3. Sử dụng giải pháp dứt điểm cưỡng bức làm mới Header
                 setTimeout(() => {
-                    window.location.href = '/';
+                    router.push('/profile');
                 }, 500);
             } else {
                 const errorData = await res.json().catch(() => ({}));
