@@ -11,18 +11,18 @@ export class DashboardService {
 
     async getMonthlyAnalyticsStats(lang: string): Promise<any[]> {
         const statsConfig = [
-            { key: 'JANUARY', vehicleCount: 95000, revenue: 2900000000 },
-            { key: 'FEBRUARY', vehicleCount: 105000, revenue: 3200000000 },
-            { key: 'MARCH', vehicleCount: 128000, revenue: 3900000000 },
-            { key: 'APRIL', vehicleCount: 165000, revenue: 5000000000 },
-            { key: 'MAY', vehicleCount: 195000, revenue: 5900000000 },
-            { key: 'JUNE', vehicleCount: 225000, revenue: 6800000000 },
-            { key: 'JULY', vehicleCount: 245000, revenue: 7400000000 },
-            { key: 'AUGUST', vehicleCount: 240000, revenue: 7300000000 },
-            { key: 'SEPTEMBER', vehicleCount: 218000, revenue: 6600000000 },
-            { key: 'OCTOBER', vehicleCount: 182000, revenue: 5500000000 },
-            { key: 'NOVEMBER', vehicleCount: 152000, revenue: 4500000000 },
-            { key: 'DECEMBER', vehicleCount: 115000, revenue: 3500000000 }
+            { key: 'JANUARY', vehicleCount: 19891000, revenue: 1144900000000 },
+            { key: 'FEBRUARY', vehicleCount: 19891000, revenue: 1144900000000 },
+            { key: 'MARCH', vehicleCount: 20569472, revenue: 1313400000000 },
+            { key: 'APRIL', vehicleCount: 21122545, revenue: 1372400000000 },
+            { key: 'MAY', vehicleCount: 22250000, revenue: 1578500000000 },
+            { key: 'JUNE', vehicleCount: 21962949, revenue: 1558100000000 },
+            { key: 'JULY', vehicleCount: 21962949, revenue: 1558100000000 },
+            { key: 'AUGUST', vehicleCount: 18720000, revenue: 1289500000000 },
+            { key: 'SEPTEMBER', vehicleCount: 18720000, revenue: 1289500000000 },
+            { key: 'OCTOBER', vehicleCount: 19557018, revenue: 1484800000000 },
+            { key: 'NOVEMBER', vehicleCount: 19834072, revenue: 1291800000000 },
+            { key: 'DECEMBER', vehicleCount: 22066669, revenue: 1439600000000 }
         ];
 
         return Promise.all(

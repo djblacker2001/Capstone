@@ -10,13 +10,9 @@ import axiosClient from "@/api/axiosClient";
 
 const { Header } = Layout;
 
-// Định nghĩa Interface rõ ràng cho kiểu dữ liệu User để chuẩn hóa TSX
 interface UserData {
-  username?: string;
   Username?: string;
-  role?: string;
   Role?: string;
-  avatar?: string;
   Avatar?: string;
 }
 
@@ -26,38 +22,48 @@ export default function MainHeader() {
   const menuRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
-
-  useEffect(() => {
-  const loadUser = () => {
-    if (typeof window === "undefined") return;
-    
+  const isTokenExpired = (token: string | null) => {
+    if (!token || token === "undefined") return true;
     try {
-      const savedUser = localStorage.getItem("user");
-      const token = localStorage.getItem("accessToken") || localStorage.getItem("token");
-      if (savedUser && savedUser !== "undefined" && token && token !== "undefined") {
-        const parsed = JSON.parse(savedUser);
-        setUser(parsed);
-      } else {
-        localStorage.removeItem("user");
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("token");
-        setUser(null);
-      }
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        window.atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const { exp } = JSON.parse(jsonPayload);
+      return Date.now() >= exp * 1000;
     } catch (error) {
-      console.error("Lỗi parse user tại Header:", error);
-      setUser(null);
+      return true;
     }
   };
 
-  loadUser();
+  useEffect(() => {
+    const loadUser = () => {
+      const raw = localStorage.getItem('user');
+      const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token') || localStorage.getItem('token');
+      if (!raw || isTokenExpired(token)) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('token');
 
-  const handleUpdateEvent = () => {
-    setTimeout(() => { loadUser(); }, 50);
-  };
+        setUser(null);
+      } else {
+        setUser(JSON.parse(raw));
+      }
+    };
 
-  window.addEventListener("userUpdate", handleUpdateEvent);
-  return () => { window.removeEventListener("userUpdate", handleUpdateEvent); };
-}, []);
+    loadUser();
+
+    // Lắng nghe sự kiện từ trang Setting hoặc ProtectedRoute để cập nhật realtime
+    window.addEventListener('userUpdate', loadUser);
+    return () => {
+      window.removeEventListener('userUpdate', loadUser);
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -84,7 +90,7 @@ export default function MainHeader() {
     } finally {
       localStorage.removeItem('user');
       localStorage.removeItem('accessToken');
-      setUser(null); // Đưa state về null ngay lập tức để giao diện ẩn vùng avatar đi
+      setUser(null);
       router.push('/');
     }
   };
@@ -96,7 +102,7 @@ export default function MainHeader() {
     { key: "tuyenduong", label: <Link href="/expressway">Expressway</Link> },
     { key: "bienbao", label: <Link href="/sign">Sign</Link> },
 
-    ...(user?.Role === "admin" || user?.role === "admin"
+    ...(user?.Role === "admin"
       ? [
         { key: "manageExpressway", label: <Link href="/manageExpressway">Manage Expressway</Link> },
         { key: "manageUser", label: <Link href="/manageUser">Manage User</Link> },
@@ -114,7 +120,7 @@ export default function MainHeader() {
   ];
 
   // Logic xử lý đường dẫn ảnh đại diện an toàn
-  const currentAvatar = user?.Avatar || user?.avatar;
+  const currentAvatar = user?.Avatar
   const avatarSrc = currentAvatar
     ? currentAvatar.startsWith('http')
       ? currentAvatar
@@ -149,7 +155,7 @@ export default function MainHeader() {
                   icon={<UserOutlined />}
                 />
                 <span className="username">
-                  {user?.Username || user?.username || "User"}
+                  {user?.Username}
                 </span>
               </div>
             </Dropdown>

@@ -5,49 +5,25 @@ import { Column } from '@ant-design/plots';
 import { Card, Spin, message } from 'antd';
 
 interface ChartDataItem {
-    month: string;
+    month: string; 
     vehicleCount: number;
     revenue: number;
 }
 
-const RevenueChart = () => {
+const VehicleTrafficChart = () => {
     const [data, setData] = useState<ChartDataItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [isAdmin, setIsAdmin] = useState<boolean>(false); // State để kiểm tra quyền Admin
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
-
-        // 1. Lấy thông tin user và token từ localStorage
-        const savedUser = localStorage.getItem('user');
         const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
 
-        if (!savedUser || !token || token === "undefined") {
-            setIsAdmin(false);
+        if (!token || token === "undefined") {
+            console.error('No authorization token found in localStorage.');
             setLoading(false);
             return;
         }
 
-        try {
-            const parsedUser = JSON.parse(savedUser);
-            const userRole = parsedUser?.Role || parsedUser?.role;
-
-            // 2. ĐIỀU KIỆN CHẶN: Chỉ cho phép Admin xem dữ liệu
-            if (userRole === 'admin') {
-                setIsAdmin(true);
-            } else {
-                setIsAdmin(false);
-                setLoading(false);
-                return; // Nếu không phải admin thì dừng lại luôn, không gọi API phí tài nguyên
-            }
-        } catch (error) {
-            console.error("Lỗi parse thông tin user:", error);
-            setIsAdmin(false);
-            setLoading(false);
-            return;
-        }
-
-        // 3. Gọi API lấy dữ liệu doanh thu (Chỉ chạy khi là Admin)
         fetch('http://localhost:8080/dashboard/revenue', {
             method: 'GET',
             headers: {
@@ -71,36 +47,25 @@ const RevenueChart = () => {
             })
             .catch((err) => {
                 console.error('Fetch operation failed:', err);
-                message.error('Không thể kết nối đến máy chủ để lấy dữ liệu biểu đồ');
+                message.error('Không thể kết nối đến máy chủ để lấy dữ liệu lưu lượng xe');
             })
             .finally(() => {
                 setLoading(false);
             });
     }, []);
 
-    // BƯỚC QUAN TRỌNG NHẤT: Nếu đang loading thì hiện Spin chờ, 
-    // còn nếu đã load xong mà KHÔNG PHẢI ADMIN thì trả về null (ẨN HOÀN TOÀN CARD)
-    if (loading) {
-        return (
-            <Card bordered={false} style={{ width: '100%', borderRadius: '12px', textAlign: 'center', padding: '40px' }}>
-                <Spin tip="Loading analytics chart data..." />
-            </Card>
-        );
-    }
-
-    if (!isAdmin) {
-        return null; // Trả về null nghĩa là component bốc hơi hoàn toàn khỏi giao diện
-    }
-
-    // Cấu hình biểu đồ (Giữ nguyên cấu hình cũ của bạn)
+    // Cấu hình hiển thị biểu đồ lưu lượng xe
     const config = {
         data,
-        xField: 'month',
-        yField: 'revenue',
+        xField: 'month', 
+        yField: 'vehicleCount', 
+        
         label: {
             text: (d: ChartDataItem) => {
-                const billionValue = d.revenue / 1000000000;
-                return billionValue.toFixed(1);
+                if (d.vehicleCount >= 1000000) {
+                    return `${(d.vehicleCount / 1000000).toFixed(1)}M`;
+                }
+                return `${(d.vehicleCount / 1000).toFixed(0)}k`;
             },
             position: 'element-top',
             style: {
@@ -110,33 +75,31 @@ const RevenueChart = () => {
                 fontWeight: 'bold',
             },
         },
+
         style: {
-            fill: '#3B71CA',
+            fill: '#E67E22', // Màu cam hổ phách phân biệt với biểu đồ doanh thu
             radiusTopLeft: 4,
             radiusTopRight: 4,
             maxWidth: 45,
         },
+
         axis: {
             y: {
-                title: 'Billion VND',
-                labelFormatter: (v: number) => `${v / 1000000000}`,
+                title: 'Vehicles',
+                labelFormatter: (v: number) => `${v.toLocaleString()}`, 
             },
             x: {
                 title: null,
             }
         },
+
         tooltip: {
             items: [
                 {
                     channel: 'y',
-                    name: 'Revenue',
-                    valueFormatter: (v: number) => `${(v / 1000000000).toFixed(2)} Billion VND`
-                },
-                {
                     name: 'Traffic Volume',
-                    field: 'vehicleCount',
                     valueFormatter: (v: number) => `${v.toLocaleString()} vehicles`
-                }
+                },
             ],
         },
     };
@@ -148,7 +111,7 @@ const RevenueChart = () => {
                 width: '100%',
                 borderRadius: '12px',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-                padding: '12px'
+                padding: '12px', 
             }}
         >
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
@@ -159,15 +122,25 @@ const RevenueChart = () => {
                     color: '#000',
                     margin: 0
                 }}>
-                    Expressway Toll Collection Revenue Metrics
+                    Expressway Annual Traffic Volume Metrics
                 </h2>
             </div>
 
-            <div style={{ height: '450px' }}>
-                {data.length > 0 ? <Column {...config} /> : <div style={{ textAlign: 'center', paddingTop: '200px', color: '#999' }}>Không có dữ liệu hiển thị</div>}
-            </div>
+            <Spin spinning={loading} tip="Loading traffic analytics data...">
+                <div style={{ height: '450px' }}>
+                    {data.length > 0 ? (
+                        <Column {...config} />
+                    ) : (
+                        !loading && (
+                            <div style={{ textAlign: 'center', paddingTop: '200px', color: '#999' }}>
+                                Không có dữ liệu lưu lượng xe hiển thị
+                            </div>
+                        )
+                    )}
+                </div>
+            </Spin>
         </Card>
     );
 };
 
-export default RevenueChart;
+export default VehicleTrafficChart;
