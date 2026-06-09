@@ -97,7 +97,6 @@ export class ExpresswaysService {
   async findAll() {
     return await this.expresswayRepository.find({
       relations: this.commonRelations,
-      order: { ExpresswayId: 'ASC' }
     });
   }
 

@@ -161,7 +161,7 @@ export default function MainHeader() {
             </Dropdown>
           ) : (
             <Link href="/login">
-              <Button type="primary">Đăng nhập</Button>
+              <Button type="primary">Login</Button>
             </Link>
           )}
         </div>

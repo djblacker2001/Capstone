@@ -11,100 +11,59 @@ email: zelovu235698@gmail.com
 pass: hoang
 
 
-CẤU TRÚC SLIDE BÁO CÁO CAPSTONE 1: HỆ THỐNG QUẢN LÝ ĐƯỜNG CAO TỐC
-PHẦN 1: MỞ ĐẦU & TỔNG QUAN (Slide 1 - 4)
-Slide 1: Trang bìa (Title Slide)
-Nội dung: Tên đề tài (Ví dụ: Hệ thống Quản lý và Thống kê Dữ liệu Tuyến Cao tốc Quốc gia), Tên mã môn học (Capstone Project 1), Tên Thầy/Cô hướng dẫn, và danh sách các thành viên trong nhóm kèm MSSV.
 
-Visual: Logo trường, hình ảnh minh họa đường cao tốc (nếu có, để chế độ mờ làm nền).
+PHẦN 1: TỔNG QUAN & LÝ DO CHỌN ĐỀ TÀI
+Slide 1: Tiêu đề
 
-Slide 2: Đặt vấn đề & Tính cấp thiết (Problem Statement)
-Nội dung: * Sự phát triển chóng mặt của hạ tầng cao tốc nhưng quản lý thông tin (chặng đường, nút giao ranh giới, trạm dừng nghỉ) còn rời rạc, thủ công.
+Tên dự án: Hệ thống quản lý cao tốc thông minh (Smart Expressway Management System - EMS).
+Thành viên thực hiện & Giảng viên hướng dẫn.
+Slide 2: Bối cảnh & Sự cần thiết (Problem Statement)
 
-Hội đồng quản trị/Admin thiếu một công cụ trực quan hóa (Dashboard) để theo dõi doanh thu hàng năm, lưu lượng xe và các sự cố theo thời gian thực.
+Thực trạng: Hệ thống cao tốc Việt Nam đang phát triển nóng nhưng quản lý còn thủ công.
+Vấn đề: Thất thoát doanh thu phí, phản ứng chậm với sự cố, dữ liệu biển báo rời rạc.
+Key Message: Cần một hệ thống số hóa tập trung để tối ưu vận hành.
+Slide 3: Mục tiêu dự án (Project Objectives)
 
-Keywords: Khó quản lý, Thiếu trực quan, Dữ liệu phân mảnh.
+Xây dựng nền tảng quản lý tập trung (Centralized Management).
+Số hóa dữ liệu hạ tầng (Tuyến đường, Biển báo, Nút giao).
+Theo dõi biến động doanh thu và lưu lượng xe thời gian thực (giả lập).
+PHẦN 2: PHÂN TÍCH YÊU CẦU (REQUIREMENTS)
+Slide 4: Đối tượng sử dụng & Phân quyền (User Roles)
+Admin: Quản lý toàn bộ hệ thống, cấu trúc dữ liệu, nhân sự.
+Operator (Nhân viên vận hành): Cập nhật tình trạng tuyến đường, báo cáo sự cố.
+User (Người dân): Xem thông tin an toàn, tra cứu biển báo, theo dõi lưu lượng xe.
+Slide 5: Các phân hệ chức năng chính (Functional Modules)
+Quản lý Tuyến đường (Expressway Management).
+Quản lý Hạ tầng (Sign, Interchange, Rest Stop).
+Dashboard & Analytics (Thống kê doanh thu & Lưu lượng).
+Hệ thống xác thực (Authentication & Authorization).
+PHẦN 3: THIẾT KẾ KỸ THUẬT (TECHNICAL DESIGN)
+(Đây là phần quan trọng nhất của Capstone 1)
+Slide 6: Kiến trúc hệ thống (System Architecture)
+Mô hình: Client-Server.
+Backend: NestJS (Node.js) - Giải thích lý do: Modular, hiệu năng cao, dễ mở rộng.
+Database: SQL Server/PostgreSQL - Đảm bảo tính toàn vẹn dữ liệu giao dịch (Toll data).
+Slide 7: Thiết kế cơ sở dữ liệu (Database Schema/ERD)
 
-Slide 3: Mục tiêu của dự án (Project Objectives)
-Nội dung:
+(Trưng bày sơ đồ ERD của bạn).
+Giải thích các bảng chính: Expressway, Signs, Revenue, Users, Vehicles.
+Nhấn mạnh tính chuẩn hóa (Normalization) để tránh trùng lặp dữ liệu.
+Slide 8: Logic nghiệp vụ đặc trưng (Business Logic)
 
-Xây dựng hệ thống quản lý tập trung thông tin các tuyến cao tốc.
+Quy trình tính toán doanh thu phí (Toll Calculation).
+Logic cập nhật trạng thái hạ tầng (Active/Maintenance/Incident).
+Cơ chế bảo mật JWT cho các Role khác nhau.
+PHẦN 4: KẾ HOẠCH PHÁT TRÌỂN & KẾT LUẬN
+Slide 9: Giao diện Prototype (Wireframes)
 
-Cung cấp Dashboard phân tích số liệu thông minh (Doanh thu năm, Lưu lượng xe, Sự cố).
+Vì chưa làm Front-end, bạn hãy trình bày các bản vẽ Wireframe (đen trắng) hoặc mockup UI.
+Mô tả luồng trải nghiệm người dùng (UX Flow).
+Slide 10: Kế hoạch thực hiện Capstone 2 (Roadmap)
+Giai đoạn 1: Hoàn thiện API Backend & Unit Test.
+Giai đoạn 2: Phát triển Front-end (Next.js/React).
+Giai đoạn 3: Tích hợp, Kiểm thử (UAT) và Triển khai.
+Slide 11: Kết luận & Câu hỏi (Q&A)
 
-Hỗ trợ đa ngôn ngữ (i18n) hướng tới tiêu chuẩn quốc tế và quản lý tệp tin (hình ảnh hiện trạng) đồng bộ.
-
-PHẦN 2: PHÂN TÍCH & THIẾT KẾ HỆ THỐNG (Slide 5 - 9)
-Slide 4: Sơ đồ ca sử dụng (Use Case Diagram)
-Nội dung: Phân quyền hệ thống rõ ràng:
-
-Guest/Public User: Xem dữ liệu lưu lượng xe, thông tin chặng đường công khai.
-
-Admin: Quản lý tuyến đường, quản lý file media, xem Dashboard Analytics nâng cao (Doanh thu, Người dùng, Sự cố).
-
-Visual: Biểu đồ Use Case vẽ sạch sẽ.
-
-Slide 5: Kiến trúc công nghệ (Tech Stack & Architecture)
-Nội dung: * Backend: NestJS (Framework mạnh mẽ, cấu trúc Module sạch sẽ), TypeORM (Quản lý và tương tác Database).
-
-Database: PostgreSQL / SQL Server / MySQL (Tùy DB bạn dùng).
-
-Thư viện bổ sung: nestjs-i18n (Đa ngôn ngữ Backend), Swagger (Tự động hóa tài liệu API).
-
-Frontend: React / Vue.
-
-Slide 6: Thiết kế cơ sở dữ liệu (ERD - Entity Relationship Diagram)
-Nội dung: Giải thích mối quan hệ giữa các bảng. Đặc biệt nhấn mạnh logic thực tế đã giải quyết:
-
-Một Tuyến (Expressway) có nhiều Chặng (Section).
-
-Một Chặng có nhiều Trạm dừng nghỉ (RestStop) - nằm độc lập cố định.
-
-Một Chặng có nhiều Nút giao (Interchange) - có các nút giao nằm ở ranh giới giữa 2 chặng.
-
-Visual: Ảnh chụp sơ đồ ERD từ Database.
-
-PHẦN 3: KẾT QUẢ TRIỂN KHAI & ĐIỂM SÁNG KỸ THUẬT (Slide 10 - 15)
-(Đây là phần ăn điểm nặng nhất vì chứa các thuật toán/logic bạn vừa tối ưu)
-
-Slide 7: Giải quyết bài toán Tích vô hướng (Cartesian Product) trong Thống kê
-Nội dung: Khoe giải pháp kỹ thuật cực hay của nhóm:
-
-Vấn đề: Khi leftJoin đồng thời chặng đường với cả nút giao và trạm dừng nghỉ, dữ liệu chiều dài hệ thống bị nhân bản sai lệch (vọt lên hơn 8000km thay vì ~1600km thực tế).
-
-Giải pháp: Tách làm 2 Query độc lập. Query 1 tính toán Chặng & Trạm dừng nghỉ độc lập (đếm theo ID). Query 2 xử lý Nút giao ranh giới trùng lặp bằng cách lọc trùng thông minh (DISTINCT CONCAT). Sau đó gộp kết quả ở tầng Service.
-
-Slide 8: Dashboard Doanh thu năm & Cơ chế Tính toán thời gian thực
-Nội dung: * Biểu đồ doanh thu 12 tháng (Annual Revenue) được gán dữ liệu cố định có tính logic nghiệp vụ cao (mùa du lịch, cuối năm vận tải tăng vọt).
-
-Cơ chế tự động: Doanh thu hôm nay (todayRevenueAmount) được tính toán đàng hoàng bằng cách lấy doanh thu của tháng hiện tại chia đều cho 30 ngày.
-
-Áp dụng hàm .reduce() để tính tổng doanh thu năm toàn hệ thống trực tiếp từ mảng dữ liệu.
-
-Slide 9: Hiện thực hóa Đa ngôn ngữ (i18n) tại Backend
-Nội dung: * Hệ thống xử lý đa ngôn ngữ triệt để ngay từ Backend thay vì chỉ dịch tĩnh ở Frontend.
-
-Sử dụng @I18nLang() ở Controller để bắt tự động ngôn ngữ client yêu cầu qua Header Accept-Language.
-
-Hàm this.i18n.t() tự động ánh xạ sang các file JSON cấu hình (vi/dashboard.json, en/dashboard.json) để trả về chuỗi tên tháng dịch sẵn (Tháng 1 / Jan).
-
-Slide 10: Quản lý File Media & Bảo mật hệ thống
-Nội dung: * Quản lý file: Hoàn thiện luồng API quét thư mục vật lý để in ra danh sách file upload, xem file ảnh trực tiếp thông qua luồng stream res.sendFile() của Express, và xóa file vật lý đồng bộ khi xóa dữ liệu.
-
-Bảo mật: Tích hợp JwtAuthGuard và @ApiBearerAuth() để khóa các API nhạy cảm (Dashboard Admin, Danh sách file), ngăn chặn truy cập trái phép từ bên ngoài (Lỗi 401).
-
-PHẦN 4: DEMO & KẾT LUẬN (Slide 16 - 18)
-Slide 11: Tài liệu hóa API với Swagger UI (Demo Backend)
-Nội dung: Trực quan hóa toàn bộ hệ thống API thông qua giao diện Swagger UI sạch sẽ, có phân nhóm danh mục (Dashboard, Uploads, Expressways) và có ô khóa nhập Token JWT để kiểm thử trực tiếp trước Hội đồng.
-
-Visual: Ảnh chụp màn hình giao diện Swagger của dự án.
-
-Slide 12: Kết luận & Hướng phát triển (Conclusion & Future Work)
-Kết quả đạt được: Hệ thống Backend chạy ổn định, giải quyết được bài toán sai số trong thống kê, hỗ trợ đa ngôn ngữ chuẩn quốc tế và quản lý file tốt.
-
-Hướng phát triển (Cho Capstone 2): * Tích hợp bản đồ số GIS để vẽ trực quan các tuyến cao tốc trên bản đồ.
-
-Kết nối dữ liệu camera AI thực tế để tự động đếm lưu lượng xe thay vì mock data.
-
-Slide 13: Lời cảm ơn (Q&A Slide)
-Nội dung: "Cảm ơn Thầy/Cô và các bạn đã lắng nghe. Nhóm xin phép nhận câu hỏi từ Hội đồng."
+Tóm tắt lại giá trị của hệ thống.
+Mời hội đồng đặt câu hỏi.
+mình tóm gọn lại như thế này để việc thuyết trình không quá lâu

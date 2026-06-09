@@ -85,7 +85,7 @@ export class SectionsService {
                     EndKm: MoreThanOrEqual(km),
                 }
             ],
-            relations: ['expressway'],
+            relations: ["province", "bridge", "restStop", "tunnel", "interchange"]
         });
 
         if (!section) {
