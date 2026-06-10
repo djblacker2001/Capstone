@@ -7,7 +7,6 @@ import { Card, Spin, message } from 'antd';
 interface ChartDataItem {
     month: string; 
     vehicleCount: number;
-    revenue: number;
 }
 
 const VehicleTrafficChart = () => {
@@ -24,7 +23,8 @@ const VehicleTrafficChart = () => {
             return;
         }
 
-        fetch('http://localhost:8080/dashboard/revenue', {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+        fetch(`${baseUrl}/dashboard/traffic`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -33,16 +33,15 @@ const VehicleTrafficChart = () => {
             }
         })
             .then((res) => {
-                if (!res.ok) {
-                    throw new Error(`HTTP Error! Status: ${res.status}`);
-                }
+                if (!res.ok) throw new Error(`HTTP Error! Status: ${res.status}`);
                 return res.json();
             })
             .then((resBody) => {
-                if (resBody.success && resBody.data && resBody.data.analyticsChart) {
-                    setData(resBody.data.analyticsChart);
+                console.log("API Response:", resBody);
+                if (resBody.success && Array.isArray(resBody.data)) {
+                    setData(resBody.data);
                 } else {
-                    console.warn('API respond structure mismatch:', resBody);
+                    console.warn('API response structure mismatch. Expected an array in resBody.data:', resBody);
                 }
             })
             .catch((err) => {
@@ -54,12 +53,10 @@ const VehicleTrafficChart = () => {
             });
     }, []);
 
-    // Cấu hình hiển thị biểu đồ lưu lượng xe
     const config = {
         data,
         xField: 'month', 
         yField: 'vehicleCount', 
-        
         label: {
             text: (d: ChartDataItem) => {
                 if (d.vehicleCount >= 1000000) {
@@ -67,17 +64,17 @@ const VehicleTrafficChart = () => {
                 }
                 return `${(d.vehicleCount / 1000).toFixed(0)}k`;
             },
-            position: 'element-top',
+            position: 'top',
             style: {
                 fill: '#000000',
                 opacity: 0.6,
-                fontSize: 12,
+                fontSize: 0,
                 fontWeight: 'bold',
             },
         },
 
         style: {
-            fill: '#E67E22', // Màu cam hổ phách phân biệt với biểu đồ doanh thu
+            fill: '#E67E22',
             radiusTopLeft: 4,
             radiusTopRight: 4,
             maxWidth: 45,

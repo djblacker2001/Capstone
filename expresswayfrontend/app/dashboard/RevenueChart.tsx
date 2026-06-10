@@ -13,12 +13,10 @@ interface ChartDataItem {
 const RevenueChart = () => {
     const [data, setData] = useState<ChartDataItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [isAdmin, setIsAdmin] = useState<boolean>(false); // State để kiểm tra quyền Admin
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
-
-        // 1. Lấy thông tin user và token từ localStorage
         const savedUser = localStorage.getItem('user');
         const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
 
@@ -31,14 +29,12 @@ const RevenueChart = () => {
         try {
             const parsedUser = JSON.parse(savedUser);
             const userRole = parsedUser?.Role || parsedUser?.role;
-
-            // 2. ĐIỀU KIỆN CHẶN: Chỉ cho phép Admin xem dữ liệu
             if (userRole === 'admin') {
                 setIsAdmin(true);
             } else {
                 setIsAdmin(false);
                 setLoading(false);
-                return; // Nếu không phải admin thì dừng lại luôn, không gọi API phí tài nguyên
+                return;
             }
         } catch (error) {
             console.error("Lỗi parse thông tin user:", error);
@@ -47,8 +43,8 @@ const RevenueChart = () => {
             return;
         }
 
-        // 3. Gọi API lấy dữ liệu doanh thu (Chỉ chạy khi là Admin)
-        fetch('http://localhost:8080/dashboard/revenue', {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+        fetch(`${baseUrl}/dashboard/revenue`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -77,9 +73,6 @@ const RevenueChart = () => {
                 setLoading(false);
             });
     }, []);
-
-    // BƯỚC QUAN TRỌNG NHẤT: Nếu đang loading thì hiện Spin chờ, 
-    // còn nếu đã load xong mà KHÔNG PHẢI ADMIN thì trả về null (ẨN HOÀN TOÀN CARD)
     if (loading) {
         return (
             <Card bordered={false} style={{ width: '100%', borderRadius: '12px', textAlign: 'center', padding: '40px' }}>
@@ -89,10 +82,9 @@ const RevenueChart = () => {
     }
 
     if (!isAdmin) {
-        return null; // Trả về null nghĩa là component bốc hơi hoàn toàn khỏi giao diện
+        return null;
     }
 
-    // Cấu hình biểu đồ (Giữ nguyên cấu hình cũ của bạn)
     const config = {
         data,
         xField: 'month',

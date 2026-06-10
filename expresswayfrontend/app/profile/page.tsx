@@ -127,8 +127,6 @@ export default function ProfilePage() {
     }
 
     if (!user) return null;
-
-    // Logic xử lý hiển thị Avatar an toàn
     const currentAvatar = user.Avatar;
     const avatarSrc = currentAvatar
         ? currentAvatar.startsWith('http')
@@ -157,8 +155,6 @@ export default function ProfilePage() {
                     <div className="form">
                         <h2 style={{ textAlign: 'center', marginBottom: 20, fontWeight: 700, color: '#1f1f1f' }}>Personal Profile</h2>
                         <Divider />
-
-                        {/* Avatar display */}
                         <div style={{ textAlign: 'center', marginBottom: 30 }}>
                             <div style={{ display: 'inline-block' }}>
                                 <Avatar
