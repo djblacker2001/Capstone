@@ -5,7 +5,7 @@ import { LogoutOutlined, MenuOutlined, SettingOutlined, UserOutlined } from "@an
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // Giữ lại đúng thư viện điều hướng của Next.js
+import { useRouter } from "next/navigation";
 import axiosClient from "@/api/axiosClient";
 
 const { Header } = Layout;
@@ -57,8 +57,6 @@ export default function MainHeader() {
     };
 
     loadUser();
-
-    // Lắng nghe sự kiện từ trang Setting hoặc ProtectedRoute để cập nhật realtime
     window.addEventListener('userUpdate', loadUser);
     return () => {
       window.removeEventListener('userUpdate', loadUser);
@@ -95,7 +93,6 @@ export default function MainHeader() {
     }
   };
 
-  // Cấu hình danh mục Menu Navbar chính
   const items = [
     { key: "home", label: <Link href="/home">Home</Link> },
     { key: "bangdieukhien", label: <Link href="/dashboard">Dashboard</Link> },
@@ -111,7 +108,6 @@ export default function MainHeader() {
       : []),
   ];
 
-  // Cấu hình Menu Dropdown khi click vào Avatar góc phải
   const userMenu: MenuProps["items"] = [
     { key: "profile", icon: <UserOutlined />, label: <Link href="/profile">Personal information</Link> },
     { key: "settings", icon: <SettingOutlined />, label: <Link href="/setting">Setting</Link> },
@@ -119,7 +115,6 @@ export default function MainHeader() {
     { key: "logout", icon: <LogoutOutlined />, label: "Log out", onClick: handleLogout },
   ];
 
-  // Logic xử lý đường dẫn ảnh đại diện an toàn
   const currentAvatar = user?.Avatar
   const avatarSrc = currentAvatar
     ? currentAvatar.startsWith('http')
@@ -167,7 +162,6 @@ export default function MainHeader() {
         </div>
       </Header>
 
-      {/* Mobile Drawer Menu Layer */}
       <div
         ref={menuRef}
         className={`mobileMenu ${open ? "show" : ""}`}

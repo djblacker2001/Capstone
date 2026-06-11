@@ -36,7 +36,6 @@ const RegisterPage = () => {
                 return;
             }
 
-            // Để thời gian hiển thị thông báo lâu hơn một chút giúp người dùng đọc kỹ yêu cầu kích hoạt email
             message.success('Registration successful! Please check your email to activate your account.', 6);
             router.push('/login');
 
@@ -49,9 +48,6 @@ const RegisterPage = () => {
     };
 
     return (
-        /* 🟢 THAY ĐỔI QUYẾT ĐỊNH: Bọc class cha 'register-page-wrapper' và đưa ảnh nền vào style trực tiếp.
-           Khi người dùng chuyển sang trang login hoặc quay lại trang chủ, khung này bị hủy, 
-           ảnh nền cao tốc sẽ tự gỡ khỏi DOM 100% không lo bị lỗi giao diện! */
         <div className='register-page-wrapper' style={{
             backgroundImage: "url('/backgroundlogin.png')",
             backgroundSize: "cover",

@@ -81,3 +81,9 @@ footer {
     color: #fff;
     margin-top: 40px;
 }
+
+@media (max-width: 768px) {
+    footer {
+        background-image: url(footermobile.png);
+    }
+}
