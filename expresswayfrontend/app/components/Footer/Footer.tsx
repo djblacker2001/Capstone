@@ -24,7 +24,7 @@ const Footer: React.FC = () => {
                             <p>The website provides information about the North-South expressway system, including maps, routes, and construction progress.</p>
                         </Col>
                         <Col xs={24} md={6}>
-                            <h3>Khám phá</h3>
+                            <h3>Discover</h3>
                             <ul className="footer-list">
                                 <li><Link href="/expressway">Expressway</Link></li>
                                 <li><Link href="/map">Map</Link></li>
@@ -32,16 +32,16 @@ const Footer: React.FC = () => {
                             </ul>
                         </Col>
                         <Col xs={24} md={6}>
-                            <h3>Thông tin</h3>
+                            <h3>Information</h3>
                             <ul className="footer-list">
-                                <li><Link href="/dashboard">Quy hoạch</Link></li>
-                                <li><Link href="/dashboard">Tiến độ</Link></li>
-                                <li><Link href="/dashboard">Thống kê</Link></li>
-                                <li><Link href="/dashboard">Dữ liệu</Link></li>
+                                <li><Link href="/dashboard">Planning</Link></li>
+                                <li><Link href="/dashboard">Progress</Link></li>
+                                <li><Link href="/dashboard">Statistical</Link></li>
+                                <li><Link href="/dashboard">Data</Link></li>
                             </ul>
                         </Col>
                         <Col xs={24} md={6}>
-                            <h3>Liên hệ</h3>
+                            <h3>Contact</h3>
                             <ul className="footer-list">
                                 <li>Student: Vũ Lê Hoàng</li>
                                 <li>IRN: 2331200226</li>

@@ -13,11 +13,15 @@ import { UpdateInterchangeDto } from './dto/update-interchanges.dto';
 export class InterchangesController {
   constructor(private readonly interchangesService: InterchangesService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('user')
   @Get()
   findAll() {
     return this.interchangesService.findAll();
   }
-
+  
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('user')
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.interchangesService.findOne(id);

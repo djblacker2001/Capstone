@@ -1,6 +1,11 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
+const ROLES_PERMISSIONS: Record<string, string[]> = {
+  admin: ['admin', 'user'],
+  user: ['user']
+};
+
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
@@ -13,14 +18,15 @@ export class RolesGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const user = request.user;
+    const {user} = request;
 
     if (!user) {
       return false;
     }
+
     const requiredRoles = roles.map(role => role.toLowerCase());
     const userRole = user.Role ? user.Role.toLowerCase() : '';
-
-    return requiredRoles.includes(userRole);
+    const permissions = ROLES_PERMISSIONS[userRole] || [];
+    return requiredRoles.some(role => permissions.includes(role));
   }
 }

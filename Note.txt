@@ -65,3 +65,19 @@ Slide 11: Kết luận & Câu hỏi (Q&A)
 Tóm tắt lại giá trị của hệ thống.
 Mời hội đồng đặt câu hỏi.
 mình tóm gọn lại như thế này để việc thuyết trình không quá lâu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sửa Active diagram
+Logout không cần database, 

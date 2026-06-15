@@ -38,7 +38,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async removeAvatar(@Req() req: any) {
-    const userId = req.user.userId;
+    const {userId} = req.user;
     return await this.usersService.removeAvatar(+userId);
   }
 
