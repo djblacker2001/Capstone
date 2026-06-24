@@ -65,7 +65,6 @@ const ExpresswayPage = () => {
         mapData: '{"type": "Feature","geometry": {"type": "LineString","coordinates": [[105.8492795, 20.9656187],[105.918852, 20.70399]]}}'
     };
 
-    // Hàm helper để hiển thị Badge trạng thái trực quan
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'Complete':
