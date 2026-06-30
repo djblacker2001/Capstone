@@ -20,7 +20,9 @@ export class UsersService {
   }
 
   async findByActiveCode(code: string): Promise<User | null> {
-    return await this.userRepository.findOne({ where: { ActiveCode: code } });
+    return await this.userRepository.findOne({ 
+      where: { ActiveCode: code },
+    });
   }
 
   async save(user: User) {
@@ -28,7 +30,8 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userRepository.find({
+    });
   }
 
   async findByUsername(username: string) {
@@ -40,6 +43,7 @@ export class UsersService {
   async findOne(id: number): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { UserId: id },
+      relations: ['role']
     });
     if (!user) {
       throw new NotFoundException(
@@ -51,19 +55,22 @@ export class UsersService {
 
   async create(data: Partial<User>): Promise<User> {
     const newUser = this.userRepository.create(data);
-    return this.userRepository.save(newUser);
+    const savedUser = await this.userRepository.save(newUser);
+    return this.findOne(savedUser.UserId);
   }
 
   async remove(id: number): Promise<any> {
-    const userToDelete = await this.userRepository.findOne({ where: { UserId: id } });
+    const userToDelete = await this.userRepository.findOne({ 
+      where: { UserId: id } 
+    });
 
     if (!userToDelete) {
       throw new NotFoundException(
         this.i18n.t('user.NOT_FOUND', { lang: this.lang, args: { id } })
       );
     }
-
-    if (userToDelete.Role === 'admin') {
+    
+    if (userToDelete.RoleId === 1) { 
       throw new BadRequestException(
         this.i18n.t('user.ADMIN_DELETE_DENIED', { lang: this.lang })
       );
@@ -78,11 +85,16 @@ export class UsersService {
   }
 
   async findByEmail(email: string) {
-    return await this.userRepository.findOneBy({ Email: email });
+    return await this.userRepository.findOne({ 
+      where: { Email: email }, 
+      relations: ['role']
+    });
   }
 
   async findByResetToken(token: string) {
-    return await this.userRepository.findOneBy({ ResetToken: token });
+    return await this.userRepository.findOne({ 
+      where: { ResetToken: token }, 
+    });
   }
 
   async updatePassword(userId: number, newHashedPassword: string): Promise<void> {
@@ -98,21 +110,25 @@ export class UsersService {
   }
 
   async changeUserRole(userId: number, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOne({ where: { UserId: userId } });
+    const user = await this.userRepository.findOne({ 
+      where: { UserId: userId },
+    });
     if (!user) {
       throw new NotFoundException(
         this.i18n.t('user.NOT_FOUND', { lang: this.lang, args: { id: userId } })
       );
     }
 
-    if (updateUserDto.RoleId && ![1, 2, 3].includes(updateUserDto.RoleId)) {
+    if (updateUserDto.RoleId && ![1, 2].includes(updateUserDto.RoleId)) {
       throw new BadRequestException(
         this.i18n.t('user.ROLE_INVALID', { lang: this.lang })
       );
     }
 
     Object.assign(user, updateUserDto);
-    const updatedUser = await this.userRepository.save(user);
+    await this.userRepository.save(user);
+
+    const updatedUser = await this.findOne(userId);
     const { Password, ...userWithoutPassword } = updatedUser;
 
     return {
@@ -122,7 +138,9 @@ export class UsersService {
   }
 
   async updateProfile(userId: number, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOne({ where: { UserId: userId } });
+    const user = await this.userRepository.findOne({ 
+      where: { UserId: userId },
+    });
     if (!user) {
       throw new NotFoundException(
         this.i18n.t('user.ACCOUNT_NOT_FOUND', { lang: this.lang })
@@ -165,22 +183,21 @@ export class UsersService {
       user.Avatar = inputData.Avatar || inputData.avatar;
     }
 
-    // 1. Lưu user xuống Database
-    const updatedUser = await this.userRepository.save(user);
-
-    // 2. Loại bỏ các trường nhạy cảm, giữ lại toàn bộ các trường khác (Bao gồm cả Role/Role, UserId, v.v...)
+    await this.userRepository.save(user);
+    const updatedUser = await this.findOne(userId);
     const { Password, ResetToken, ActiveCode, ...result } = updatedUser;
 
-    // 3. Trả về đúng cấu trúc cũ của bạn nhưng data đã chắc chắn chứa đầy đủ quyền hạn
     return {
       success: true,
       message: this.i18n.t('user.PROFILE_UPDATE_SUCCESS', { lang: this.lang }),
-      data: result, // Trả về cục user sạch ở đây
+      data: result,
     };
   }
 
   async removeAvatar(userId: number) {
-    const user = await this.userRepository.findOne({ where: { UserId: userId } });
+    const user = await this.userRepository.findOne({ 
+      where: { UserId: userId },
+    });
     if (!user) {
       throw new NotFoundException(
         this.i18n.t('user.ACCOUNT_NOT_FOUND', { lang: this.lang })
@@ -202,7 +219,9 @@ export class UsersService {
     }
 
     user.Avatar = null;
-    const updatedUser = await this.userRepository.save(user);
+    await this.userRepository.save(user);
+    
+    const updatedUser = await this.findOne(userId);
     const { Password, ResetToken, ActiveCode, ...result } = updatedUser;
     return {
       success: true,
@@ -212,25 +231,16 @@ export class UsersService {
     };
   }
 
-  // Trong file users.service.ts
-
-  /**
-   * 1. Hàm đếm tổng số lượng người dùng đang hoạt động trong hệ thống
-   */
   async countAllActiveUsers(): Promise<number> {
-    // Thay 'userRepository' bằng tên biến Repository bảng User trong file của bạn
     return await this.userRepository.count({
       where: { IsActive: true }
     });
   }
 
-  /**
-   * 2. Hàm thống kê số lượng người dùng đăng ký theo từng tháng (Phục vụ vẽ biểu đồ)
-   */
   async countUsersByMonth(): Promise<any[]> {
     const rawData = await this.userRepository
       .createQueryBuilder('user')
-      .select("FORMAT(user.CreatedAt, 'yyyy-MM')", 'month') // Dành cho SQL Server. Nếu dùng MySQL/Postgres thì đổi thành: DATE_FORMAT(user.CreatedAt, '%Y-%m') hoặc TO_CHAR
+      .select("FORMAT(user.CreatedAt, 'yyyy-MM')", 'month')
       .addSelect('COUNT(user.UserId)', 'newUsers')
       .groupBy("FORMAT(user.CreatedAt, 'yyyy-MM')")
       .orderBy('month', 'ASC')

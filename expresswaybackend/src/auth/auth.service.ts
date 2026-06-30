@@ -59,7 +59,9 @@ export class AuthService implements OnModuleInit {
     }
 
     if (isMatch) {
-      const { Password, ...result } = user;
+      const plainUser = Object.assign({}, user);
+      const { Password, ...result } = plainUser;
+      
       return result;
     }
     return null;
@@ -69,7 +71,8 @@ export class AuthService implements OnModuleInit {
     const inputUsername = data.Username || data.username;
     const inputEmail = data.Email || data.email;
     const inputPassword = data.Password || data.password;
-    const inputRole = data.Role || data.role || 'user';
+    const inputRole = data.Role || data.role || 'user'; // Mặc định là 'user'
+
     const existUsername = await this.usersService.findByUsername(inputUsername);
     if (existUsername) {
       throw new BadRequestException(this.i18n.t('auth.USERNAME_EXIST', { lang: this.lang }));
@@ -94,7 +97,6 @@ export class AuthService implements OnModuleInit {
       Email: inputEmail,
       Password: hashedPassword,
       RoleId: roleId,
-      Role: inputRole,
       IsActive: isAdminRequest ? false : true,
       IsLocked: false,
       ActiveCode: activeCode,
@@ -133,7 +135,11 @@ export class AuthService implements OnModuleInit {
     user.IsActive = true;
     user.ActiveCode = null;
     await this.usersService.save(user);
-    const payload = { sub: user.UserId, username: user.Username, role: user.Role };
+
+    // CHỈNH SỬA: Chỉ check mã RoleId của admin, còn lại mặc định là user
+    const userRoleName = user.RoleId === 1 ? 'admin' : 'user';
+
+    const payload = { sub: user.UserId, username: user.Username, role: userRoleName };
     const accessToken = this.jwtService.sign(payload);
 
     return {
@@ -177,11 +183,14 @@ export class AuthService implements OnModuleInit {
   }
 
   async login(user: any) {
+    const userRoleName = user.RoleId === 1 ? 'admin' : 'user';
+
     const payload = {
       sub: user.UserId,
       username: user.Username,
-      role: user.Role,
+      role: userRoleName,
     };
+
     return {
       message: this.i18n.t('auth.LOGIN_SUCCESS', { lang: this.lang }),
       accessToken: this.jwtService.sign(payload),

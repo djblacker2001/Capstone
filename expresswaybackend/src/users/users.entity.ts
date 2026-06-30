@@ -19,9 +19,6 @@ export class User {
   @Column({ name: 'Password', type: 'nvarchar', length: 'MAX' })
   Password!: string;
 
-  @Column({ name: 'Role', type: 'nvarchar', length: 20, default: 'user' })
-  Role!: string;
-
   @Column({ name: 'IsActive', type: 'bit', default: false })
   IsActive!: boolean;
 

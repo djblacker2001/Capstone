@@ -92,24 +92,22 @@ export class UsersController {
     }
 
     const updatedUser = await this.usersService.updateProfile(+jwtUserId, updateUserDto);
-
-    // Thêm .data vào sau updatedUser và chỉ lấy các trường viết HOA theo đúng Type định nghĩa
+    const currentRoleId = updatedUser?.data?.RoleId || req.user.roleId;
+    const userRoleName = currentRoleId === 1 ? 'admin' : 'user';
     const payload = {
       userId: jwtUserId,
       username: updatedUser?.data?.Username,
       email: updatedUser?.data?.Email,
-      role: updatedUser?.data?.Role
+      role: userRoleName
     };
 
     const newToken = this.jwtService.sign(payload);
-
-    // 4. Trả về cho Frontend hứng
     return {
       message: 'Update profile successfully',
       Username: updatedUser?.data?.Username,
       Email: updatedUser?.data?.Email,
       Avatar: updatedUser?.data?.Avatar,
-      Role: updatedUser?.data?.Role,
+      Role: userRoleName, 
       accessToken: newToken,
     };
   }
