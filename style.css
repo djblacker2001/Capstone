@@ -1,0 +1,262 @@
+/* --- CSS CHO PHẦN LANDING BODY --- */
+.landing-body {
+    min-height: 60vh;
+    padding-bottom: 60px;
+    background-color: #fafafa; /* Nền xám trắng nhẹ để làm nổi bật Header/Footer tối */
+    color: #1e293b;
+}
+
+/* 1. HERO TEXT */
+.hero-text-center {
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 20px 40px 20px;
+}
+
+.hero-text-center h1 {
+    font-size: 38px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.3;
+    margin-bottom: 20px;
+}
+
+.hero-text-center .text-emerald {
+    color: #00a859; /* Khớp màu xanh lục thương hiệu của bạn */
+}
+
+.hero-text-center p {
+    font-size: 16px;
+    color: #64748b;
+    line-height: 1.6;
+    max-width: 700px;
+    margin: 0 auto 35px auto;
+}
+
+.hero-action-btns {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.btn-main {
+    padding: 12px 26px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+.btn-filled {
+    background-color: #00a859;
+    color: white;
+}
+
+.btn-filled:hover {
+    background-color: #008744;
+    box-shadow: 0 4px 12px rgba(0, 168, 89, 0.2);
+}
+
+.btn-outlined {
+    border: 1px solid #cbd5e1;
+    color: #475569;
+}
+
+.btn-outlined:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+/* 2. STATS LAYER */
+.stats-layer {
+    max-width: 1100px;
+    margin: 0 auto 60px auto;
+    padding: 0 20px;
+}
+
+.stats-wrapper {
+    display: grid;
+    grid-template-cols: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.stat-node {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.node-icon {
+    font-size: 28px;
+    color: #00a859;
+    background: rgba(0, 168, 89, 0.08);
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.node-data h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.node-data p {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* 3. INTERACTIVE GIS SECTION */
+.gis-preview-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.block-heading {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.block-heading h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.block-heading p {
+    color: #64748b;
+    font-size: 14px;
+    margin-top: 6px;
+}
+
+.gis-layout-grid {
+    display: grid;
+    grid-template-cols: 1fr 2fr;
+    gap: 25px;
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 768px) {
+    .gis-layout-grid {
+        grid-template-cols: 1fr;
+    }
+}
+
+.gis-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.gis-route-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.gis-route-card:hover, .gis-route-card.active {
+    background: white;
+    border-color: #00a859;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.gis-route-card h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.gis-route-card p {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+.route-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* KHUNG BẢN ĐỒ GIẢ LẬP */
+.gis-map-canvas {
+    background-color: #0f172a; /* Nền tối đặc trưng bản đồ ban đêm */
+    border-radius: 8px;
+    height: 380px;
+    position: relative;
+    overflow: hidden;
+}
+
+.gis-mockup-layer {
+    width: 100%;
+    height: 100%;
+    /* Tạo lưới chấm giả tọa độ vệ tinh */
+    background-image: radial-gradient(#334155 1px, transparent 1px);
+    background-size: 20px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gis-caption {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(15, 23, 42, 0.8);
+    color: #00a859;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 168, 89, 0.3);
+}
+
+/* ĐỊNH VỊ RADAR MARKER */
+.gis-radar-marker {
+    position: relative;
+    font-size: 32px;
+    color: #ef4444;
+    z-index: 5;
+}
+
+.radar-ping {
+    position: absolute;
+    top: 25%;
+    left: -25%;
+    width: 50px;
+    height: 50px;
+    background: rgba(239, 68, 68, 0.4);
+    border-radius: 50%;
+    animation: pingEffect 1.8s infinite ease-out;
+    z-index: -1;
+}
+
+@keyframes pingEffect {
+    0% { transform: scale(0.2); opacity: 1; }
+    100% { transform: scale(1.4); opacity: 0; }
+}

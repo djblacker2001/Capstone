@@ -89,15 +89,12 @@ export default function SettingPage() {
             if (res.ok) {
                 const responseJson = await res.json();
                 const newToken = responseJson.accessToken;
-
-                // 1. Ghi đè Token mới tinh vào localStorage
                 if (newToken) {
                     localStorage.setItem('accessToken', newToken);
                     localStorage.setItem('access_token', newToken);
                     localStorage.setItem('token', newToken);
                 }
 
-                // 2. Trộn dữ liệu mới (chữ HOA hoàn toàn theo log console)
                 const mergedUser = {
                     ...user,
                     Username: responseJson.Username || user?.Username,
@@ -114,8 +111,6 @@ export default function SettingPage() {
                     window.dispatchEvent(new Event("userUpdate"));
                 }
                 message.success('Cập nhật thông tin cá nhân thành công!');
-
-                // 3. Sử dụng giải pháp dứt điểm cưỡng bức làm mới Header
                 setTimeout(() => {
                     router.push('/profile');
                 }, 500);

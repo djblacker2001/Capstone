@@ -1,3 +1,222 @@
-.landing {
-    font-size: 50px;
+.landing-body-container {
+  background-color: #fafafa;
+  padding-bottom: 80px;
+}
+
+.leaflet-routing-container {
+    display: none !important;
+}
+
+.hero-text-section {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 60px 20px 40px 20px;
+}
+
+.hero-title {
+  font-weight: 800 !important;
+}
+
+.text-emerald {
+  color: #00a859;
+}
+
+.hero-desc {
+  font-size: 16px !important;
+  color: #64748b !important;
+  line-height: 1.6;
+}
+
+.hero-btns-group {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.btn-emerald {
+  background-color: #00a859 !important;
+  border-color: #00a859 !important;
+}
+
+/* STATISTIC CARDS */
+.stats-cards-section {
+  max-width: 1100px;
+  margin: 0 auto 60px auto;
+  padding: 0 20px;
+}
+
+.antd-stat-card {
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.icon-emerald {
+  color: #00a859;
+  font-size: 24px;
+  margin-right: 8px;
+}
+
+/* GIS GRID SECTION */
+.gis-preview-section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.gis-layout-grid {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.route-list-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 6px;
+  padding: 16px !important;
+  margin-bottom: 12px;
+  cursor: pointer;
+  border-left: 4px solid transparent !important;
+  transition: all 0.2s ease;
+}
+
+.route-list-item:hover, .route-list-item.item-active {
+  background: white;
+  border-color: #00a859 !important;
+  border-left-color: #00a859 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* CẤU HÌNH ĐỘ RỘNG BẢN ĐỒ */
+.map-container-holder {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+}
+
+/* Trạng thái bình thường */
+.map-small {
+  height: 380px;
+  width: 100%;
+  position: relative;
+}
+
+/* SỬA: Trạng thái phóng to toàn màn hình (Full screen) đè lên tất cả thành phần khác */
+.map-expanded {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important; /* Đảm bảo nổi lên trên Header và Footer */
+  background-color: #0f172a;
+  padding: 10px;
+}
+
+/* NÚT FULLSCREEN TRÊN BẢN ĐỒ */
+.leaflet-fullscreen-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 1000; /* Nổi lên trên lớp layer của Leaflet */
+  background-color: rgba(15, 23, 42, 0.85) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(4px);
+}
+.leaflet-fullscreen-btn:hover {
+  background-color: #00a859 !important;
+  border-color: #00a859 !important;
+}
+
+/* CAPTION */
+.gis-caption-layer {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.85);
+  color: #00a859;
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 168, 89, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.dot-green {
+  width: 6px;
+  height: 6px;
+  background-color: #00a859;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Thêm đoạn này vào file style.css của bạn */
+
+.map-container-holder {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.map-small {
+  height: 420px;
+  width: 100%;
+}
+
+.map-expanded {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  background-color: #ffffff;
+  padding: 0;
+}
+
+/* ĐỔI: CSS TÁCH BIỆT NÚT FULL SCREEN ĐẸP MẮT THEO MẪU */
+.custom-map-fullscreen-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1000; /* Đảm bảo nằm trên lớp bản đồ layer */
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #1f2937 !important;
+  border: 1px solid #d1d5db !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  font-weight: 500;
+  border-radius: 4px !important;
+}
+
+.custom-map-fullscreen-btn:hover {
+  border-color: #00a859 !important;
+  color: #00a859 !important;
+}
+
+.gis-caption-layer {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.9);
+  color: #00a859;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 168, 89, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }

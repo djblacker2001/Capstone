@@ -10,74 +10,7 @@ tk: hoangvu222001
 email: zelovu235698@gmail.com
 pass: hoang
 
-PHẦN 1: TỔNG QUAN & LÝ DO CHỌN ĐỀ TÀI
-Slide 1: Tiêu đề
 
-Tên dự án: Hệ thống quản lý cao tốc thông minh (Smart Expressway Management System - EMS).
-Thành viên thực hiện & Giảng viên hướng dẫn.
-Slide 2: Bối cảnh & Sự cần thiết (Problem Statement)
-
-Thực trạng: Hệ thống cao tốc Việt Nam đang phát triển nóng nhưng quản lý còn thủ công.
-Vấn đề: Thất thoát doanh thu phí, phản ứng chậm với sự cố, dữ liệu biển báo rời rạc.
-Key Message: Cần một hệ thống số hóa tập trung để tối ưu vận hành.
-Slide 3: Mục tiêu dự án (Project Objectives)
-
-Xây dựng nền tảng quản lý tập trung (Centralized Management).
-Số hóa dữ liệu hạ tầng (Tuyến đường, Biển báo, Nút giao).
-Theo dõi biến động doanh thu và lưu lượng xe thời gian thực (giả lập).
-PHẦN 2: PHÂN TÍCH YÊU CẦU (REQUIREMENTS)
-Slide 4: Đối tượng sử dụng & Phân quyền (User Roles)
-Admin: Quản lý toàn bộ hệ thống, cấu trúc dữ liệu, nhân sự.
-Operator (Nhân viên vận hành): Cập nhật tình trạng tuyến đường, báo cáo sự cố.
-User (Người dân): Xem thông tin an toàn, tra cứu biển báo, theo dõi lưu lượng xe.
-Slide 5: Các phân hệ chức năng chính (Functional Modules)
-Quản lý Tuyến đường (Expressway Management).
-Quản lý Hạ tầng (Sign, Interchange, Rest Stop).
-Dashboard & Analytics (Thống kê doanh thu & Lưu lượng).
-Hệ thống xác thực (Authentication & Authorization).
-PHẦN 3: THIẾT KẾ KỸ THUẬT (TECHNICAL DESIGN)
-(Đây là phần quan trọng nhất của Capstone 1)
-Slide 6: Kiến trúc hệ thống (System Architecture)
-Mô hình: Client-Server.
-Backend: NestJS (Node.js) - Giải thích lý do: Modular, hiệu năng cao, dễ mở rộng.
-Database: SQL Server/PostgreSQL - Đảm bảo tính toàn vẹn dữ liệu giao dịch (Toll data).
-Slide 7: Thiết kế cơ sở dữ liệu (Database Schema/ERD)
-
-(Trưng bày sơ đồ ERD của bạn).
-Giải thích các bảng chính: Expressway, Signs, Revenue, Users, Vehicles.
-Nhấn mạnh tính chuẩn hóa (Normalization) để tránh trùng lặp dữ liệu.
-Slide 8: Logic nghiệp vụ đặc trưng (Business Logic)
-
-Quy trình tính toán doanh thu phí (Toll Calculation).
-Logic cập nhật trạng thái hạ tầng (Active/Maintenance/Incident).
-Cơ chế bảo mật JWT cho các Role khác nhau.
-PHẦN 4: KẾ HOẠCH PHÁT TRÌỂN & KẾT LUẬN
-Slide 9: Giao diện Prototype (Wireframes)
-
-Vì chưa làm Front-end, bạn hãy trình bày các bản vẽ Wireframe (đen trắng) hoặc mockup UI.
-Mô tả luồng trải nghiệm người dùng (UX Flow).
-Slide 10: Kế hoạch thực hiện Capstone 2 (Roadmap)
-Giai đoạn 1: Hoàn thiện API Backend & Unit Test.
-Giai đoạn 2: Phát triển Front-end (Next.js/React).
-Giai đoạn 3: Tích hợp, Kiểm thử (UAT) và Triển khai.
-Slide 11: Kết luận & Câu hỏi (Q&A)
-
-Tóm tắt lại giá trị của hệ thống.
-Mời hội đồng đặt câu hỏi.
-mình tóm gọn lại như thế này để việc thuyết trình không quá lâu
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Sửa Active diagram
-Logout không cần database, 
+username: hoangvu
+email: hoang.vu.cit23@eiu.edu.vn
+pass: hoang123456
