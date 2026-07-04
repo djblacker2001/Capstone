@@ -4,7 +4,7 @@ import MainLayout from "../layout/Layout";
 
 const ManageSignPage = () => {
     return (
-        <ProtectedRoute role="admin">
+        <ProtectedRoute role={1}>
             <MainLayout>
                 Manage Sign
             </MainLayout>

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './style.css';
 
@@ -19,90 +19,22 @@ function MapController({
     geojsonData: any;
 }) {
     const map = useMap();
-    const routingRef = useRef<any>(null);
 
+    // Tự động căn màn hình (fitBounds) ôm trọn tuyến đường dựa trên tọa độ thực tế
     useEffect(() => {
-        if (typeof window === 'undefined' || !map) return;
-
-        const L = require('leaflet');
-        (window as any).L = L;
-        require('leaflet-routing-machine');
-
-        routingRef.current = (L as any).Routing.control({
-            waypoints: [],
-            routeWhileDragging: false,
-            show: false,
-            addWaypoints: false,
-            draggableWaypoints: false,
-            fitSelectedRoutes: false,
-
-            createMarker: () => null,
-
-            lineOptions: {
-                styles: [
-                    {
-                        color: '#059731',
-                        opacity: 0.8,
-                        weight: 6,
-                    },
-                ],
-                extendToWaypoints: true,
-                missingRouteTolerance: 100,
-            },
-        }).addTo(map);
-
-        routingRef.current.on('routesfound', (e: any) => {
-            if (!e.routes?.length) return;
-
-            const bounds = L.latLngBounds(
-                e.routes[0].coordinates
-            );
-
-            map.fitBounds(bounds, {
-                padding: [20, 20],
-            });
-        });
-
-        return () => {
-            try {
-                routingRef.current?.off();
-                routingRef.current?.remove();
-                routingRef.current = null;
-            } catch (err) {
-                console.error('Routing cleanup error:', err);
-            }
-        };
-    }, [map]);
-
-    useEffect(() => {
-        if (!routingRef.current || !geojsonData) return;
-
+        if (!map || !geojsonData) return;
         try {
             const L = require('leaflet');
-
-            const coords = geojsonData?.geometry?.coordinates;
-
-            if (!coords || coords.length < 2) return;
-
-            const startPoint = L.latLng(
-                coords[0][1],
-                coords[0][0]
-            );
-
-            const endPoint = L.latLng(
-                coords[coords.length - 1][1],
-                coords[coords.length - 1][0]
-            );
-
-            routingRef.current.setWaypoints([
-                startPoint,
-                endPoint,
-            ]);
+            const layer = L.geoJSON(geojsonData);
+            map.fitBounds(layer.getBounds(), {
+                padding: [40, 40],
+            });
         } catch (err) {
-            console.error('Update route error:', err);
+            console.error('Fit bounds error:', err);
         }
-    }, [geojsonData]);
+    }, [geojsonData, map]);
 
+    // Fix lỗi hiển thị khi bật/tắt Fullscreen
     useEffect(() => {
         const timer = setTimeout(() => {
             map.invalidateSize();
@@ -129,10 +61,7 @@ export default function MapComponent({
         window.addEventListener('keydown', handleKeyDown);
 
         return () => {
-            window.removeEventListener(
-                'keydown',
-                handleKeyDown
-            );
+            window.removeEventListener('keydown', handleKeyDown);
         };
     }, [isFullscreen, setIsFullscreen]);
 
@@ -150,6 +79,21 @@ export default function MapComponent({
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+
+            {/* THAY ĐỔI CHÍNH: Vẽ trực tiếp GeoJSON, chấm đâu dây nằm đó, ôm khít theo làn đường bạn chọn */}
+            {geojsonData && (
+                <GeoJSON
+                    key={JSON.stringify(geojsonData)} // Ép render lại khi dữ liệu tọa độ thay đổi
+                    data={geojsonData}
+                    style={{
+                        color: '#059731', // Màu xanh lá của bạn
+                        opacity: 0.8,
+                        weight: 6,
+                        lineCap: 'round',  // Bo tròn đầu đoạn thẳng
+                        lineJoin: 'round'  // Bo tròn các góc bẻ khúc
+                    }}
+                />
+            )}
 
             <MapController
                 isFullscreen={isFullscreen}

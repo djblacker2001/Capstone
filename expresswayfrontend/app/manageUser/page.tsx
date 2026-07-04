@@ -4,7 +4,7 @@ import MainLayout from "../layout/Layout";
 
 const ManageUserPage = () => {
     return (
-        <ProtectedRoute role="admin">
+        <ProtectedRoute role={1}>
             <MainLayout>
                 Manage User
             </MainLayout>

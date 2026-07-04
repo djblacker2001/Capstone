@@ -93,7 +93,7 @@ const ManageExpresswayPage = () => {
     ];
 
     return (
-        <ProtectedRoute role="admin">
+        <ProtectedRoute role={1}>
             <MainLayout>
                 <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
                     <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>

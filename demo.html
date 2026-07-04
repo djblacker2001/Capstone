@@ -1,113 +1,81 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Quản Lý Cao Tốc - EMS</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Công cụ đảo tọa độ Lat-Long</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f4f6f9;
+        }
+        h2 { color: #333; text-align: center; }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+            font-family: monospace;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 15px 0;
+        }
+        button:hover { background-color: #0056b3; }
+        .label { font-weight: bold; margin-bottom: 5px; display: block; }
+    </style>
 </head>
-
 <body>
 
-    <header class="navbar">
-        <div class="logo">
-            <i class="fa-solid fa-road text-emerald"></i> EMS <span>Management</span>
-        </div>
-        <nav class="nav-links">
-            <a href="#" class="active">Trang Chủ</a>
-            <a href="#">Tuyến Đường</a>
-            <a href="#">Hạ Tầng</a>
-            <a href="#">Tài Liệu</a>
-        </nav>
-        <div class="nav-auth">
-            <button class="btn-login">Đăng Nhập</button>
-        </div>
-    </header>
+    <h2>🔄 Công cụ đảo vị trí Tọa độ</h2>
+    
+    <span class="label">Nhập tọa độ (Dạng: Lat, Long - Mỗi cặp 1 dòng):</span>
+    <textarea id="inputCoords" placeholder="20.745496, 105.920432&#10;21.028511, 105.804817"></textarea>
 
-    <main class="landing-body">
+    <button onclick="swapCoordinates()">Đảo vị trí (Long, Lat)</button>
 
-        <section class="hero-text-center">
-            <h1>Hệ Thống Quản Lý Dữ Liệu Không Gian<br><span class="text-emerald">Hạ Tầng Đường Cao Tốc Việt Nam</span>
-            </h1>
-            <p>Hệ thống hỗ trợ số hóa, tra cứu tọa độ lý trình, theo dõi tiến độ thi công và quản lý các lớp tài sản hạ
-                tầng kỹ thuật trực quan trên nền tảng bản đồ GIS.</p>
-            <div class="hero-action-btns">
-                <a href="/map" class="btn-main btn-filled"><i class="fa-solid fa-map-location-dot"></i> Truy Cập Bản
-                    Đồ</a>
-                <a href="#discover" class="btn-main btn-outlined">Tìm Hiểu Thêm</a>
-            </div>
-        </section>
+    <span class="label">Kết quả:</span>
+    <textarea id="outputCoords" readonly placeholder="Kết quả sẽ hiển thị ở đây..."></textarea>
 
-        <section class="stats-layer">
-            <div class="stats-wrapper">
-                <div class="stat-node">
-                    <div class="node-icon"><i class="fa-solid fa-road"></i></div>
-                    <div class="node-data">
-                        <h3>1,245+ KM</h3>
-                        <p>Tuyến Cao Tốc Số Hóa</p>
-                    </div>
-                </div>
-                <div class="stat-node">
-                    <div class="node-icon"><i class="fa-solid fa-circle-info"></i></div>
-                    <div class="node-data">
-                        <h3>482+ Điểm</h3>
-                        <p>Hạ Tầng Kỹ Thuật (Cầu, Hầm...)</p>
-                    </div>
-                </div>
-                <div class="stat-node">
-                    <div class="node-icon"><i class="fa-solid fa-chart-simple"></i></div>
-                    <div class="node-data">
-                        <h3>99.9%</h3>
-                        <p>Uptime Hệ Thống GIS</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <script>
+        function swapCoordinates() {
+            const input = document.getElementById('inputCoords').value;
+            if (!input.trim()) {
+                alert('Vui lòng nhập tọa độ!');
+                return;
+            }
 
-        <section id="discover" class="gis-preview-section">
-            <div class="block-heading">
-                <h2>Hệ Thống Bản Đồ Trực Quan</h2>
-                <p>Chọn một tuyến cao tốc bất kỳ để trải nghiệm tính năng định vị không gian</p>
-            </div>
+            // Tách thành từng dòng
+            const lines = input.split('\n');
+            const result = lines.map(line => {
+                if (!line.trim()) return ''; // Bỏ qua dòng trống
+                
+                // Tách bằng dấu phẩy
+                const parts = line.split(',');
+                if (parts.length === 2) {
+                    return `${parts[1].trim()}, ${parts[0].trim()}`;
+                }
+                return `Dòng lỗi: ${line}`; // Báo lỗi nếu dòng không đúng định dạng
+            });
 
-            <div class="gis-layout-grid">
-                <div class="gis-sidebar">
-                    <div class="gis-route-card active">
-                        <h4>Cao tốc Bắc – Nam (Phía Đông)</h4>
-                        <p>Quy mô: Tuyến xương sống quốc gia</p>
-                        <span class="route-badge">Trọng điểm</span>
-                    </div>
-                    <div class="gis-route-card">
-                        <h4>Cao tốc Hà Nội – Hải Phòng (CT.04)</h4>
-                        <p>Chiều dài: 105.5 KM - 6 làn xe</p>
-                    </div>
-                    <div class="gis-route-card">
-                        <h4>Cao tốc TP.HCM – Long Thành</h4>
-                        <p>Kết nối hạ tầng hàng không tương lai</p>
-                    </div>
-                </div>
-
-                <div class="gis-map-canvas">
-                    <div class="gis-mockup-layer">
-                        <div class="gis-radar-marker">
-                            <i class="fa-solid fa-location-dot"></i>
-                            <span class="radar-ping"></span>
-                        </div>
-                        <span class="gis-caption"><i class="fa-solid fa-circle-dot"></i> Chế độ xem trước (GIS
-                            Read-only)</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="footer">
-        <p>&copy; 2026 Expressway Management System (EMS). Đồ án tốt nghiệp Capstone I.</p>
-    </footer>
+            // Hiển thị kết quả, nối lại bằng dấu xuống dòng
+            document.getElementById('outputCoords').value = result.join('\n');
+        }
+    </script>
 
 </body>
-
 </html>

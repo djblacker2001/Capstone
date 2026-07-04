@@ -10,9 +10,10 @@ import axiosClient from "@/api/axiosClient";
 
 const { Header } = Layout;
 
+// CẬP NHẬT: Thay đổi thuộc tính từ Role thành RoleId (number)
 interface UserData {
   Username?: string;
-  Role?: string;
+  RoleId?: number; // 1: admin, 2: user
   Avatar?: string;
 }
 
@@ -22,6 +23,7 @@ export default function MainHeader() {
   const menuRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
+
   const isTokenExpired = (token: string | null) => {
     if (!token || token === "undefined") return true;
     try {
@@ -99,7 +101,7 @@ export default function MainHeader() {
     { key: "tuyenduong", label: <Link href="/expressway">Expressway</Link> },
     { key: "bienbao", label: <Link href="/sign">Sign</Link> },
 
-    ...(user?.Role === "admin"
+    ...(user?.RoleId === 1
       ? [
         { key: "manageExpressway", label: <Link href="/manageExpressway">Manage Expressway</Link> },
         { key: "manageUser", label: <Link href="/manageUser">Manage User</Link> },
@@ -115,7 +117,7 @@ export default function MainHeader() {
     { key: "logout", icon: <LogoutOutlined />, label: "Log out", onClick: handleLogout },
   ];
 
-  const currentAvatar = user?.Avatar
+  const currentAvatar = user?.Avatar;
   const avatarSrc = currentAvatar
     ? currentAvatar.startsWith('http')
       ? currentAvatar
