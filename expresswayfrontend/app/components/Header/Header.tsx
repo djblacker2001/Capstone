@@ -1,19 +1,19 @@
 "use client";
 import "./header.css";
-import { Layout, Menu, Button, Avatar, Dropdown, MenuProps } from "antd";
-import { LogoutOutlined, MenuOutlined, SettingOutlined, UserOutlined } from "@ant-design/icons";
+import { Layout, Menu, Button, Avatar, Dropdown, MenuProps, Space } from "antd";
+import { DownOutlined, GlobalOutlined, LogoutOutlined, MenuOutlined, SettingOutlined, UserOutlined } from "@ant-design/icons";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axiosClient from "@/api/axiosClient";
+import { i18n } from "i18next";
+import { useTranslation } from "react-i18next";
 
 const { Header } = Layout;
-
-// CẬP NHẬT: Thay đổi thuộc tính từ Role thành RoleId (number)
 interface UserData {
   Username?: string;
-  RoleId?: number; // 1: admin, 2: user
+  RoleId?: number;
   Avatar?: string;
 }
 
@@ -23,6 +23,24 @@ export default function MainHeader() {
   const menuRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
+  const { t, i18n } = useTranslation();
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+  const languageItems: MenuProps['items'] = [
+    {
+      key: 'en',
+      label: 'English',
+      disabled: i18n.language === 'en', // Vô hiệu hóa nếu đang chọn
+      onClick: () => changeLanguage('en'),
+    },
+    {
+      key: 'vi',
+      label: 'Tiếng Việt',
+      disabled: i18n.language === 'vi',
+      onClick: () => changeLanguage('vi'),
+    },
+  ];
 
   const isTokenExpired = (token: string | null) => {
     if (!token || token === "undefined") return true;
@@ -96,16 +114,16 @@ export default function MainHeader() {
   };
 
   const items = [
-    { key: "home", label: <Link href="/home">Home</Link> },
-    { key: "bangdieukhien", label: <Link href="/dashboard">Dashboard</Link> },
-    { key: "tuyenduong", label: <Link href="/expressway">Expressway</Link> },
-    { key: "bienbao", label: <Link href="/sign">Sign</Link> },
+    { key: "home", label: <Link href="/home">{t("header.homepage")}</Link> },
+    { key: "bangdieukhien", label: <Link href="/dashboard">{t("header.dashboard")}</Link> },
+    { key: "tuyenduong", label: <Link href="/expressway">{t("header.expressway")}</Link> },
+    { key: "bienbao", label: <Link href="/sign">{t("header.sign")}</Link> },
 
     ...(user?.RoleId === 1
       ? [
-        { key: "manageExpressway", label: <Link href="/manageExpressway">Manage Expressway</Link> },
-        { key: "manageUser", label: <Link href="/manageUser">Manage User</Link> },
-        { key: "manageSign", label: <Link href="/manageSign">Manage Sign</Link> },
+        { key: "manageExpressway", label: <Link href="/manageExpressway">{t("header.manageExpressway")}</Link> },
+        { key: "manageUser", label: <Link href="/manageUser">{t("header.manageUser")}</Link> },
+        { key: "manageSign", label: <Link href="/manageSign">{t("header.manageSign")}</Link> },
       ]
       : []),
   ];
@@ -144,6 +162,15 @@ export default function MainHeader() {
         <Menu mode="horizontal" items={items} className="desktopMenu" />
 
         <div className="right">
+          <Dropdown menu={{ items: languageItems }} placement="bottomRight">
+            <a onClick={(e) => e.preventDefault()} className="languages">
+              <Space>
+                <GlobalOutlined />
+                {i18n.language === 'vi' ? 'Tiếng Việt' : 'English'}
+                <DownOutlined />
+              </Space>
+            </a>
+          </Dropdown>
           {user ? (
             <Dropdown menu={{ items: userMenu }} placement="bottomRight">
               <div className="userBox" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: "white" }}>

@@ -1,12 +1,38 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, Put, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, Put, Delete, Query, UseGuards, UploadedFile, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { SectionsService } from './sections.service';
-import { Section } from './sections.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiQuery } from '@nestjs/swagger';
 import { CreateSectionDto } from './dto/create-sections.dto';
 import { UpdateSectionDto } from './dto/update-sections.dto';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { FileFieldsInterceptor} from '@nestjs/platform-express';
+import * as fs from 'fs';
+
+const sectionMulterStorage = diskStorage({
+  destination: (req, file, cb) => {
+    const isJson = extname(file.originalname).toLowerCase() === '.json';
+    const folderPath = isJson ? './uploads/maps' : './uploads/ways';
+    
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
+    cb(null, folderPath);
+  },
+
+  filename: (req, file, cb) => {
+    const isJson = extname(file.originalname).toLowerCase() === '.json';
+    
+    if (isJson) {
+      cb(null, file.originalname);
+    } else {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      cb(null, `img-${uniqueSuffix}${extname(file.originalname)}`);
+    }
+  },
+});
 
 @ApiBearerAuth()
 @Controller('sections')
@@ -19,9 +45,9 @@ export class SectionsController {
   }
 
   @Get('search')
-  @ApiQuery({ name: 'name', required: false, type: String,})
-  @ApiQuery({ name: 'status', required: false, type: String,})
-  @ApiQuery({ name: 'provinceName', required: false, type: String,})
+  @ApiQuery({ name: 'name', required: false, type: String, })
+  @ApiQuery({ name: 'status', required: false, type: String, })
+  @ApiQuery({ name: 'provinceName', required: false, type: String, })
   async getAllSections(
     @Query('name') name?: string,
     @Query('status') status?: string,
@@ -56,20 +82,52 @@ export class SectionsController {
     return await this.sectionsService.findOneSection(id);
   }
 
-  
-
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post()
-  async createSection(@Body() sectionCreateDto: CreateSectionDto) {
-    return await this.sectionsService.create(sectionCreateDto);
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'imageFile', maxCount: 1 },
+      { name: 'mapFile', maxCount: 1 },
+    ], { storage: sectionMulterStorage })
+  )
+  async create(
+    @Body() createSectionDto: CreateSectionDto,
+    @UploadedFiles() files: { imageFile?: Express.Multer.File[]; mapFile?: Express.Multer.File[] }
+  ) {
+    const imagePath = files?.imageFile?.[0] ? files.imageFile[0].path.replace(/\\/g, '/') : undefined;
+    const mapPath = files?.mapFile?.[0] ? files.mapFile[0].path.replace(/\\/g, '/') : undefined;
+
+    const dataPayload = {
+      ...createSectionDto,
+      Image: imagePath,
+      MapData: mapPath, // Gán đường dẫn file JSON bản đồ vào payload
+    };
+
+    return this.sectionsService.create(dataPayload);
   }
 
+  // ✏️ [PUT] CẬP NHẬT SECTION (Sửa text, đổi ảnh, đổi file JSON, hoặc chỉ đổi 1 trong các thứ trên)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateSectionDto: UpdateSectionDto) {
-    return await this.sectionsService.update(+id, updateSectionDto);
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'imageFile', maxCount: 1 },
+      { name: 'mapFile', maxCount: 1 },
+    ], { storage: sectionMulterStorage })
+  )
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateSectionDto: UpdateSectionDto,
+    @UploadedFiles() files: { imageFile?: Express.Multer.File[]; mapFile?: Express.Multer.File[] }
+  ) {
+    const newImagePath = files?.imageFile?.[0] ? files.imageFile[0].path.replace(/\\/g, '/') : undefined;
+    const newMapPath = files?.mapFile?.[0] ? files.mapFile[0].path.replace(/\\/g, '/') : undefined;
+
+    return this.sectionsService.updateSectionWithFileAndMap(id, updateSectionDto, newImagePath, newMapPath);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -78,4 +136,4 @@ export class SectionsController {
   async remove(@Param('id') id: string) {
     return this.sectionsService.remove(+id);
   }
-}
+} 

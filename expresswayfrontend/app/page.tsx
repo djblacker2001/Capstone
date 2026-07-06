@@ -7,6 +7,7 @@ import Layout from "./layout/Layout";
 import "./style.css";
 import dynamic from "next/dynamic";
 import expresswayGeoData from "./expressway-data.json";
+import { useTranslation } from "react-i18next";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -22,8 +23,8 @@ const DynamicMapContainer = dynamic(() => import('./MapComponent'), {
 export default function Home() {
   const [activeRoute, setActiveRoute] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const { t } = useTranslation();
 
-  // ĐỔI: Tọa độ thực tế theo đường đi gấp khúc (chứ không phải đường thẳng)
 
   const routesData = [
     { id: 1, name: 'Cao tốc Bắc – Nam (Phía Đông)', desc: 'Quy mô: Tuyến xương sống quốc gia', tag: 'Trọng điểm' },
@@ -38,7 +39,8 @@ export default function Home() {
           <section className="hero-text-section">
             <Typography>
               <Title level={1} className="hero-title">
-                Hệ Thống Quản Lý Dữ Liệu Không Gian<br />
+                {t("landing.title1")}<br />
+                
                 <span className="text-emerald">Hạ Tầng Đường Cao Tốc Việt Nam</span>
               </Title>
               <Paragraph className="hero-desc">

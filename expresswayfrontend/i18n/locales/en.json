@@ -1,0 +1,14 @@
+{
+  "header": {
+    "homepage": "Home",
+    "dashboard": "Dashboard",
+    "expressway": "Expressway",
+    "sign": "Sign",
+    "manageExpressway": "Manage Expressway",
+    "manageUser": "Manage User",
+    "manageSign": "Manage Sign"
+  },
+  "landing": {
+    "title1": "Spatial Data Management System"
+  }
+}

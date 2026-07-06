@@ -1,0 +1,14 @@
+{
+    "header": {
+        "homepage": "Trang chủ",
+        "dashboard": "Bảng điều khiển",
+        "expressway": "Tuyến đường",
+        "sign": "Biển báo",
+        "manageExpressway": "Quản lý tuyến đường",
+        "manageUser": "Quản lý người dùng",
+        "manageSign": "Quản lý biển báo"
+    },
+    "landing": {
+        "title1": "Hệ Thống Quản Lý Dữ Liệu Không Gian"
+    }
+}

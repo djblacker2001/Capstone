@@ -20,7 +20,6 @@ function MapController({
 }) {
     const map = useMap();
 
-    // Tự động căn màn hình (fitBounds) ôm trọn tuyến đường dựa trên tọa độ thực tế
     useEffect(() => {
         if (!map || !geojsonData) return;
         try {
@@ -34,7 +33,6 @@ function MapController({
         }
     }, [geojsonData, map]);
 
-    // Fix lỗi hiển thị khi bật/tắt Fullscreen
     useEffect(() => {
         const timer = setTimeout(() => {
             map.invalidateSize();
@@ -80,17 +78,16 @@ export default function MapComponent({
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            {/* THAY ĐỔI CHÍNH: Vẽ trực tiếp GeoJSON, chấm đâu dây nằm đó, ôm khít theo làn đường bạn chọn */}
             {geojsonData && (
                 <GeoJSON
-                    key={JSON.stringify(geojsonData)} // Ép render lại khi dữ liệu tọa độ thay đổi
+                    key={JSON.stringify(geojsonData)}
                     data={geojsonData}
                     style={{
-                        color: '#059731', // Màu xanh lá của bạn
+                        color: '#059731',
                         opacity: 0.8,
                         weight: 6,
-                        lineCap: 'round',  // Bo tròn đầu đoạn thẳng
-                        lineJoin: 'round'  // Bo tròn các góc bẻ khúc
+                        lineCap: 'round',
+                        lineJoin: 'round'
                     }}
                 />
             )}

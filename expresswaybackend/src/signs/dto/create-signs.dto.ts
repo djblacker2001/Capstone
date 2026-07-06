@@ -7,8 +7,8 @@ export class CreateSignDto {
     @ApiProperty()
     Symbol!: string;
 
-    @ApiProperty()
-    Image?: string;
+    @ApiProperty({ type: 'string', format: 'binary'})
+    file?: any;
 
     @ApiProperty()
     Description?: string;

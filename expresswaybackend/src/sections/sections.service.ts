@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThanOrEqual, LessThanOrEqual, Repository, Like } from 'typeorm';
 import { Section } from './sections.entity';
 import { I18nContext, I18nService } from 'nestjs-i18n';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class SectionsService {
@@ -110,8 +112,58 @@ export class SectionsService {
         return await this.sectionRepository.save(newSection);
     }
 
-    async update(id: number, data: Partial<Section>): Promise<Section> {
-        await this.sectionRepository.update(id, data);
+    async updateSectionWithFileAndMap(
+        id: number,
+        data: any,
+        newImagePath?: string,
+        newMapFilePath?: string
+    ): Promise<Section> {
+        const existingSection = await this.findOneSection(id);
+
+        // 1. Tạo payload cập nhật cơ bản
+        const updatePayload: any = {};
+
+        // Chỉ cập nhật SectionName nếu thực sự có truyền dữ liệu mới lên
+        if (data.SectionName !== undefined && data.SectionName !== '') {
+            updatePayload.SectionName = data.SectionName;
+        }
+
+        // 🎯 FIX LỖI SỐ THỰC: Kiểm tra và ép kiểu dữ liệu Length
+        if (data.Length !== undefined && data.Length !== '') {
+            updatePayload.Length = Number(data.Length); // Ép từ chuỗi "" hoặc "50" về số thực chuẩn
+        }
+
+        // 2. Kiểm tra dọn dẹp và cập nhật cột Ảnh (Image)
+        if (newImagePath) {
+            updatePayload.Image = newImagePath;
+            if (existingSection.Image) {
+                const oldImgPath = path.resolve(process.cwd(), existingSection.Image);
+                try {
+                    if (fs.existsSync(oldImgPath)) fs.unlinkSync(oldImgPath);
+                } catch (err) {
+                    console.error(`[Cleanup Error] Không thể xóa ảnh cũ:`, err);
+                }
+            }
+        }
+
+        // 3. Kiểm tra dọn dẹp và cập nhật cột Bản đồ (MapData)
+        if (newMapFilePath) {
+            updatePayload.MapData = newMapFilePath;
+            if (existingSection.MapData) {
+                const oldMapPath = path.resolve(process.cwd(), existingSection.MapData);
+                try {
+                    if (fs.existsSync(oldMapPath)) fs.unlinkSync(oldMapPath);
+                } catch (err) {
+                    console.error(`[Cleanup Error] Không thể xóa file JSON bản đồ cũ:`, err);
+                }
+            }
+        }
+
+        // 4. Chỉ thực hiện lưu nếu payload thực sự có dữ liệu để update
+        if (Object.keys(updatePayload).length > 0) {
+            await this.sectionRepository.update({ SectionId: id }, updatePayload);
+        }
+
         return this.findOneSection(id);
     }
 
