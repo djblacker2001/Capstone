@@ -15,7 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return {
       userId: payload.sub,
       username: payload.username,
-      role: payload.role // CHỈNH SỬA: Đổi chữ 'Role' viết hoa thành 'role' viết thường
+      role: payload.role
     };
   }
 }

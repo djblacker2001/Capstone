@@ -34,13 +34,13 @@ export class AppController {
   @Roles('admin')
   @Get('images/:filename')
   async viewUploadedFile(
-    @Param('filename') filename: string, 
+    @Param('filename') filename: string,
     @Res() res: any
   ) {
     const filePath = await this.appService.getFile(filename);
     return res.sendFile(filePath);
   }
-  
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post()
@@ -67,8 +67,7 @@ export class AppController {
           cb(null, uploadPath);
         },
         filename: (req, file, cb) => {
-          const uniqueName = Date.now() + '-' + file.originalname;
-          cb(null, uniqueName);
+          cb(null, file.originalname);
         },
       }),
     }),
