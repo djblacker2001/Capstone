@@ -1,0 +1,26 @@
+/* Pie chart */
+.pie-chart-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.chart-loading-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+}
+
+@media (max-width: 768px) {
+    /* Pie chart */
+    .pie-chart-container {
+        height: 300px;
+    }
+
+    .chart-loading-wrapper {
+        height: 300px;
+    }
+}

@@ -9,7 +9,7 @@ interface ChartDataItem {
     vehicleCount: number;
 }
 
-const VehicleTrafficChart = () => {
+export default function VehicleTrafficChart() {
     const [data, setData] = useState<ChartDataItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -119,7 +119,7 @@ const VehicleTrafficChart = () => {
                     color: '#000',
                     margin: 0
                 }}>
-                    Expressway Annual Traffic Volume Metrics
+                    Expressway Annual Traffic Volume Metrics in 2025
                 </h2>
             </div>
 
@@ -139,5 +139,3 @@ const VehicleTrafficChart = () => {
         </Card>
     );
 };
-
-export default VehicleTrafficChart;

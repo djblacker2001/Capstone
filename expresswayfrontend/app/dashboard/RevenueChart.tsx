@@ -10,7 +10,7 @@ interface ChartDataItem {
     revenue: number;
 }
 
-const RevenueChart = () => {
+export default function RevenueChart() {
     const [data, setData] = useState<ChartDataItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -28,8 +28,8 @@ const RevenueChart = () => {
 
         try {
             const parsedUser = JSON.parse(savedUser);
-            const userRole = parsedUser?.Role || parsedUser?.role;
-            if (userRole === 'admin') {
+            const userRoleId = parsedUser?.RoleId || parsedUser?.roleId;
+            if (Number(userRoleId) === 1) {
                 setIsAdmin(true);
             } else {
                 setIsAdmin(false);
@@ -161,5 +161,3 @@ const RevenueChart = () => {
         </Card>
     );
 };
-
-export default RevenueChart;
