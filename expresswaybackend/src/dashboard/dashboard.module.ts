@@ -2,14 +2,13 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DashboardController } from './dashboard.controller';
 import { DashboardService } from './dashboard.service';
+import { Dashboard } from './dashboard.entity';
 import { UsersModule } from '../users/users.module';
-import { Transaction } from 'typeorm';
-import { Expressway } from '../expressways/expressways.entity';
 
 @Module({
   imports: [
-    UsersModule,
-    TypeOrmModule.forFeature([Expressway]),
+    TypeOrmModule.forFeature([Dashboard]), 
+    UsersModule, 
   ],
   controllers: [DashboardController],
   providers: [DashboardService],

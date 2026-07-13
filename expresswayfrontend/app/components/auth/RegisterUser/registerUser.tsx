@@ -1,11 +1,11 @@
 'use client';
 
-import { Form, Input, Button, message, Select } from 'antd';
+import { Form, Input, Button, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import './register.css';
+import './registerUser.css';
 
-const RegisterPage = () => {
+export default function RegisterUserPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
@@ -25,12 +25,11 @@ const RegisterPage = () => {
                     Username: values.Username,
                     Email: values.Email,
                     Password: values.Password,
-                    Role: values.Role,
+                    RoleId: 2,
                 }),
             });
 
             const data = await res.json();
-
             if (!res.ok) {
                 message.error(data.message || 'Registration failed');
                 return;
@@ -38,7 +37,6 @@ const RegisterPage = () => {
 
             message.success('Registration successful! Please check your email to activate your account.', 6);
             router.push('/login');
-
         } catch (err) {
             console.error(err);
             message.error('Server Error');
@@ -48,19 +46,11 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className='register-page-wrapper' style={{
-            backgroundImage: "url('/backgroundlogin.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            backgroundAttachment: "fixed",
-            width: "100%",
-            minHeight: "100vh"
-        }}>
+        <div className='register-user-wrapper'>
             <div className='expr'>
                 <Form onFinish={onFinish} layout="vertical" scrollToFirstError>
                     <div className='logo'>
-                        <img src="/expresswayicon3.png" alt="logo3" style={{ width: '200px' }} />
+                        <img src="/expresswayicon3.png" alt="logo3" />
                     </div>
                     <h1><b>Register</b></h1>
 
@@ -87,27 +77,11 @@ const RegisterPage = () => {
                         <Input.Password size="large" />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Role"
-                        name="Role"
-                        initialValue="user"
-                    >
-                        <Select size="large">
-                            <Select.Option value="user">User</Select.Option>
-                            <Select.Option value="admin">Admin</Select.Option>
-                        </Select>
-                    </Form.Item>
-
                     <div className='login'>
-                        <Button type="primary" htmlType="submit" block className='button1' loading={loading}>
+                        <Button type="primary" htmlType="submit" className='button1' loading={loading}>
                             Register
                         </Button>
-                        <Button
-                            type="default"
-                            block
-                            className='button2'
-                            onClick={() => router.push('/login')}
-                        >
+                        <Button type="default" className='button2' onClick={() => router.push('/login')}>
                             Has Account? Login
                         </Button>
                     </div>
@@ -115,6 +89,4 @@ const RegisterPage = () => {
             </div>
         </div>
     );
-};
-
-export default RegisterPage;
+}

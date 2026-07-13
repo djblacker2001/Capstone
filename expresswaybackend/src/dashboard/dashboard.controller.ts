@@ -20,7 +20,7 @@ export class DashboardController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  @Get('revenue')
+  @Get('dashboard-admin')
   async getAdminAnalytics(@I18nLang() lang: string) {
     return await this.dashboardService.getAdminAnalyticsData(lang);
   }

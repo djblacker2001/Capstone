@@ -1,9 +1,7 @@
-import Register from "@/app/components/auth/Register/register";
+import RegisterUser from "@/app/components/auth/RegisterUser/registerUser";
 
-const RegisterPage = () => {
+export default function RegisterPage() {
     return (
-        <Register/>
+        <RegisterUser/>
     )
 }
-
-export default RegisterPage;

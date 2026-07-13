@@ -15,7 +15,7 @@ export default function ExpresswayStatusChart() {
     const [loading, setLoading] = useState<boolean>(true);
     const [total, setTotal] = useState<number>(0);
     const isMobileSize = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
 
     useEffect(() => {
         fetch(`${backendUrl}/expressways/statistics`)
@@ -92,13 +92,13 @@ export default function ExpresswayStatusChart() {
     };
 
     return (
-        <Card title="Thống Kê Trạng Thái Phân Đoạn Cao Tốc"
+        <Card title="Highway Segment Status Statistics"
             style={{
                 width: '100%',
-                height: '97%',
                 borderRadius: '12px',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-                padding: '12px'
+                padding: '12px',
+                height: "100%"
             }}
         >
             {loading ? (

@@ -1,9 +1,9 @@
-.register-admin-wrapper * {
+.register-user-wrapper * {
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.register-admin-wrapper {
+.register-user-wrapper {
     background-image: url('/backgroundlogin.png');
     background-size: cover;
     background-position: center;
@@ -13,7 +13,7 @@
     min-height: 100vh;
 }
 
-.register-admin-wrapper .expr {
+.register-user-wrapper .expr {
     background-color: rgba(255, 255, 255, 0.1);
     width: 100%;
     min-height: 100vh;
@@ -22,7 +22,7 @@
     align-items: center;
 }
 
-.register-admin-wrapper .ant-form {
+.register-user-wrapper .ant-form {
     background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
@@ -33,7 +33,7 @@
     min-height: 600px;
 }
 
-.register-admin-wrapper .logo {
+.register-user-wrapper .logo {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -42,86 +42,86 @@
     margin-bottom: 20px;
 }
 
-.register-admin-wrapper .logo img {
+.register-user-wrapper .logo img {
     width: 200px;
 }
 
-.register-admin-wrapper h1 {
+.register-user-wrapper h1 {
     text-align: center;
     font-size: 1.8rem;
     margin-bottom: 30px;
     letter-spacing: 1px;
-    color: #d32f2f; /* Màu đỏ Admin */
+    color: #0A9646; /* Màu xanh lá User */
 }
 
-.register-admin-wrapper .ant-form-item-label > label {
+.register-user-wrapper .ant-form-item-label > label {
     font-weight: 600;
     color: #333;
 }
 
-.register-admin-wrapper .ant-input,
-.register-admin-wrapper .ant-input-password {
+.register-user-wrapper .ant-input,
+.register-user-wrapper .ant-input-password {
     border-radius: 8px !important;
 }
 
-.register-admin-wrapper .ant-input:focus,
-.register-admin-wrapper .ant-input-password:focus,
-.register-admin-wrapper .ant-input-focused {
-    border-color: #d32f2f !important;
-    box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.2) !important;
+.register-user-wrapper .ant-input:focus,
+.register-user-wrapper .ant-input-password:focus,
+.register-user-wrapper .ant-input-focused {
+    border-color: #0A9646 !important;
+    box-shadow: 0 0 0 2px rgba(10, 150, 70, 0.2) !important;
 }
 
-.register-admin-wrapper .login {
+.register-user-wrapper .login {
     display: flex;
     justify-content: space-between;
     gap: 15px;
     margin-top: 20px;
 }
 
-.register-admin-wrapper button {
+.register-user-wrapper button {
     height: 40px !important;
     margin-top: 10px;
     border-radius: 8px !important;
     font-weight: 600 !important;
 }
 
-.register-admin-wrapper .button1 {
-    width: 180px !important;
-    background-color: #d32f2f !important;
-    border-color: #d32f2f !important;
+.register-user-wrapper .button1 {
+    width: 160px !important;
+    background-color: #0A9646 !important;
+    border-color: #0A9646 !important;
     color: #ffffff !important;
 }
 
-.register-admin-wrapper .button1:hover {
-    background-color: #b71c1c !important;
-    border-color: #b71c1c !important;
+.register-user-wrapper .button1:hover {
+    background-color: #087537 !important;
+    border-color: #087537 !important;
 }
 
-.register-admin-wrapper .button2 {
-    width: 180px !important;
-    border-color: #d32f2f !important;
-    color: #d32f2f !important;
+.register-user-wrapper .button2 {
+    width: 200px !important;
+    border-color: #0A9646 !important;
+    color: #0A9646 !important;
 }
 
-.register-admin-wrapper .button2:hover {
-    background-color: #d32f2f !important;
-    border-color: #d32f2f !important;
+.register-user-wrapper .button2:hover {
+    background-color: #0A9646 !important;
+    border-color: #0A9646 !important;
     color: #ffffff !important;
 }
 
 @media (max-width: 768px) {
-    .register-admin-wrapper .ant-form {
+    .register-user-wrapper .ant-form {
         width: 90%;
         max-width: 380px;
         padding: 24px 20px;
     }
     
-    .register-admin-wrapper .login {
+    .register-user-wrapper .login {
         flex-direction: column;
         gap: 10px;
     }
 
-    .register-admin-wrapper button {
+    .register-user-wrapper button {
         width: 100% !important;
         margin-top: 0;
     }

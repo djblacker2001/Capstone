@@ -87,7 +87,7 @@ const LoginPage = () => {
                         name="username"
                         rules={[{ required: true, message: 'Please enter username' }]}
                     >
-                        <Input placeholder="Nhập username" size="large" />
+                        <Input placeholder="Enter Username" size="large" />
                     </Form.Item>
 
                     <Form.Item

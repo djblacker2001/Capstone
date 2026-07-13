@@ -1,17 +1,16 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-// 🎯 Đổi Line thành Area để tô phần phía dưới
-import { Area } from '@ant-design/plots';
+// 🎯 Sử dụng Column chart cho dữ liệu thống kê số lượng tuyệt đối
+import { Column } from '@ant-design/plots';
 import { Card, Spin, message } from 'antd';
 
 interface ChartDataItem {
     month: string;
-    vehicleCount: number;
-    revenue: number;
+    violationCount: number;
 }
 
-export default function RevenueChart() {
+export default function ViolationChart() {
     const [data, setData] = useState<ChartDataItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -30,6 +29,8 @@ export default function RevenueChart() {
         try {
             const parsedUser = JSON.parse(savedUser);
             const userRoleId = parsedUser?.RoleId || parsedUser?.roleId;
+            
+            // Bảo mật: Chỉ cho phép Admin (RoleId === 1) tải dữ liệu vi phạm
             if (Number(userRoleId) === 1) {
                 setIsAdmin(true);
             } else {
@@ -38,7 +39,7 @@ export default function RevenueChart() {
                 return;
             }
         } catch (error) {
-            console.error("Lỗi parse thông tin user:", error);
+            console.error("Lỗi xác thực quyền Admin:", error);
             setIsAdmin(false);
             setLoading(false);
             return;
@@ -54,78 +55,58 @@ export default function RevenueChart() {
             }
         })
             .then((res) => {
-                if (!res.ok) {
-                    throw new Error(`HTTP Error! Status: ${res.status}`);
-                }
+                if (!res.ok) throw new Error(`HTTP Error! Status: ${res.status}`);
                 return res.json();
             })
             .then((resBody) => {
                 if (resBody.success && resBody.data && resBody.data.analyticsChart) {
                     setData(resBody.data.analyticsChart);
-                } else {
-                    console.warn('API respond structure mismatch:', resBody);
                 }
             })
             .catch((err) => {
-                console.error('Fetch operation failed:', err);
-                message.error('Không thể kết nối đến máy chủ để lấy dữ liệu biểu đồ');
+                console.error(err);
+                message.error('Không thể kết nối hệ thống để lấy dữ liệu vi phạm');
             })
-            .finally(() => {
-                setLoading(false);
-            });
+            .finally(() => setLoading(false));
     }, []);
 
     if (loading) {
         return (
             <Card bordered={false} style={{ width: '100%', borderRadius: '12px', textAlign: 'center', padding: '40px' }}>
-                <Spin tip="Loading analytics chart data..." />
+                <Spin tip="Loading violation analysis..." />
             </Card>
         );
     }
 
-    if (!isAdmin) {
-        return null;
-    }
+    // Nếu không phải admin, ẩn hoàn toàn component này đi
+    if (!isAdmin) return null;
 
-    // ⚙️ Cấu hình biểu đồ dạng Miền (Area Chart)
+    // ⚙️ Cấu hình cấu trúc biểu đồ cột Ant Design Plots
     const config = {
         data,
         xField: 'month',
-        yField: 'revenue',
-        shapeField: 'smooth', // Giữ đường biên mềm mại
+        yField: 'violationCount',
+        // Hiển thị số ca trực tiếp trên đỉnh mỗi cột để Admin không cần rê chuột vẫn đọc được số liệu
         label: {
-            text: (d: ChartDataItem) => {
-                const billionValue = d.revenue / 1000000000;
-                return billionValue.toFixed(1);
-            },
-            position: 'top',
+            text: (d: ChartDataItem) => `${d.violationCount}`,
+            position: 'element-top',
             style: {
                 fill: '#000000',
                 opacity: 0.7,
                 fontSize: 11,
                 fontWeight: 'bold',
-                dy: -8,
             },
         },
-        point: {
-            shapeField: 'dot',
-            sizeField: 4,
-            style: {
-                stroke: '#003366',
-                lineWidth: 2,
-                fill: '#fff',
-            }
-        },
-        // 🎯 Cấu hình màu sắc tô mảng (Area) và đường biên (Line)
+        // Định dạng hình khối cột
         style: {
-            fill: 'linear-gradient(to bottom, #003366 0%, rgba(0, 51, 102, 0.1) 100%)', // Hiệu ứng mờ dần từ trên xuống dưới cực đẹp
-            stroke: '#003366', // Giữ đường viền nét đậm màu xanh
-            lineWidth: 3,
+            fill: '#E65100', // Màu cam đậm (Cảnh báo vi phạm giao thông)
+            radiusTopLeft: 4,  // Bo tròn nhẹ góc trên bên trái của cột
+            radiusTopRight: 4, // Bo tròn nhẹ góc trên bên phải của cột
+            maxWidth: 40,      // Giới hạn độ rộng tối đa để cột không bị bè ngang
         },
         axis: {
             y: {
-                title: 'Billion VND',
-                labelFormatter: (v: number) => `${v / 1000000000}`,
+                title: 'Cases',
             },
             x: {
                 title: null,
@@ -135,13 +116,8 @@ export default function RevenueChart() {
             items: [
                 {
                     channel: 'y',
-                    name: 'Revenue',
-                    valueFormatter: (v: number) => `${(v / 1000000000).toFixed(2)} Billion VND`
-                },
-                {
-                    name: 'Traffic Volume',
-                    field: 'vehicleCount',
-                    valueFormatter: (v: number) => `${v.toLocaleString()} vehicles`
+                    name: 'Total Violations',
+                    valueFormatter: (v: number) => `${v.toLocaleString()} cases`
                 }
             ],
         },
@@ -155,25 +131,30 @@ export default function RevenueChart() {
                 borderRadius: '12px',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
                 padding: '12px',
-                height: "100%"
+                height: '100%'
             }}
         >
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                 <h2 style={{
                     fontFamily: '"Times New Roman", Times, serif',
                     fontWeight: 'bold',
-                    fontSize: '28px',
-                    color: '#000',
+                    fontSize: '26px',
+                    color: '#E65100', // Tiêu đề đồng bộ màu cam cảnh báo
                     margin: 0
                 }}>
-                    Expressway Toll Collection Revenue Metrics
+                    Monthly Traffic Violation Analytics
                 </h2>
             </div>
 
             <div style={{ height: '450px' }}>
-                {/* 🎯 Thay thế thẻ Line thành thẻ Area */}
-                {data.length > 0 ? <Area {...config} /> : <div style={{ textAlign: 'center', paddingTop: '200px', color: '#999' }}>Không có dữ liệu hiển thị</div>}
+                {data.length > 0 ? (
+                    <Column {...config} />
+                ) : (
+                    <div style={{ textAlign: 'center', paddingTop: '200px', color: '#999' }}>
+                        Không có dữ liệu vi phạm nào được ghi nhận
+                    </div>
+                )}
             </div>
         </Card>
     );
-};
+}

@@ -109,6 +109,7 @@ export default function VehicleTrafficChart() {
                 borderRadius: '12px',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
                 padding: '12px', 
+                height: "100%"
             }}
         >
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
