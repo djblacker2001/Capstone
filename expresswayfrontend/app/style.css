@@ -220,3 +220,38 @@
   gap: 6px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
+
+/* Hiệu ứng nhấp nháy cho điểm định vị */
+.user-location-marker {
+  width: 16px;
+  height: 16px;
+  background-color: #2196F3; /* Màu xanh nước biển */
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.user-location-marker::after {
+  content: '';
+  width: 32px;
+  height: 32px;
+  border: 3px solid #2196F3;
+  border-radius: 50%;
+  position: absolute;
+  top: -11px;
+  left: -11px;
+  animation: ripple 1.6s infinite ease-out;
+  opacity: 0;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}

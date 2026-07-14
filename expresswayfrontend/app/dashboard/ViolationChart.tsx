@@ -46,7 +46,7 @@ export default function ViolationChart() {
         }
 
         const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-        fetch(`${baseUrl}/dashboard/revenue`, {
+        fetch(`${baseUrl}/dashboard/dashboard-admin`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,

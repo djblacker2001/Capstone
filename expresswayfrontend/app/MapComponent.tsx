@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './style.css';
+import UserLocationControl from './UserLocationControl';
 
 interface MapProps {
     isFullscreen: boolean;
@@ -76,6 +77,7 @@ export default function MapComponent({
         >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
 
             {geojsonData && (
@@ -117,6 +119,7 @@ export default function MapComponent({
                     ESC
                 </button>
             )}
+            <UserLocationControl />
         </MapContainer>
     );
 }

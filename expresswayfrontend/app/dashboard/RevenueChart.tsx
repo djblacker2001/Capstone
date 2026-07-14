@@ -45,7 +45,7 @@ export default function RevenueChart() {
         }
 
         const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-        fetch(`${baseUrl}/dashboard/revenue`, {
+        fetch(`${baseUrl}/dashboard/dashboard-admin`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -87,12 +87,11 @@ export default function RevenueChart() {
         return null;
     }
 
-    // ⚙️ Cấu hình biểu đồ dạng Miền (Area Chart)
     const config = {
         data,
         xField: 'month',
         yField: 'revenue',
-        shapeField: 'smooth', // Giữ đường biên mềm mại
+        shapeField: 'smooth',
         label: {
             text: (d: ChartDataItem) => {
                 const billionValue = d.revenue / 1000000000;
