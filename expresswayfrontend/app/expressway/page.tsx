@@ -65,6 +65,7 @@ const ExpresswayPage = () => {
     const handleSetData = (rawData: any) => {
         console.log("Dữ liệu gốc từ API gửi về:", rawData);
 
+<<<<<<< Updated upstream
         let extractedArray: any[] = [];
 
         // 1. Trích xuất mảng từ các lớp bọc của API
@@ -179,6 +180,9 @@ const ExpresswayPage = () => {
                 return { text: status || 'Chưa xác định', color: 'default' };
         }
     };
+=======
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+>>>>>>> Stashed changes
 
     return (
         <ProtectedRoute>
@@ -218,6 +222,7 @@ const ExpresswayPage = () => {
                                     onChange={(value) => setFilterStatus(value)}
                                     allowClear
                                 >
+<<<<<<< Updated upstream
                                     <Option value="Complete">Đang hoạt động</Option>
                                     <Option value="Under construction">Đang thi công</Option>
                                     <Option value="Extend under construction">Đang thi công mở rộng</Option>
@@ -270,6 +275,32 @@ const ExpresswayPage = () => {
                                         Reset
                                     </Button>
                                 </Space>
+=======
+                                    <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#1f1f1f' }}>
+                                        {section.NameSection}
+                                    </h3>
+
+                                    <div style={{ marginBottom: '12px' }}>
+                                        <Tag color="green">Chiều dài: {section.Length} km</Tag>
+                                    </div>
+
+                                    <div style={{ color: '#595959', fontSize: '13px', marginBottom: '12px' }}>
+                                        <p style={{ margin: '4px 0' }}>
+                                            <EnvironmentOutlined style={{ color: '#52c41a' }} /> <strong>Đầu:</strong> {section.StartLocation} (Km {section.StartKm})
+                                        </p>
+                                        <p style={{ margin: '4px 0' }}>
+                                            <EnvironmentOutlined style={{ color: '#f5222d' }} /> <strong>Cuối:</strong> {section.EndLocation} (Km {section.EndKm})
+                                        </p>
+                                    </div>
+
+                                    <hr style={{ border: 'none', borderTop: '1px solid #f0f0f0', margin: '12px 0' }} />
+
+                                    <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '16px' }}>
+                                        <div>🔘 Số nút giao: <strong>{section.interchange?.length || 0}</strong></div>
+                                        <div>🏪 Trạm dừng nghỉ: <strong>{section.restStop ? 'Có trạm dừng' : 'Chưa có'}</strong></div>
+                                    </div>
+                                </Card>
+>>>>>>> Stashed changes
                             </Col>
                         </Row>
                     </Card>
