@@ -31,7 +31,7 @@ export default function MainHeader() {
     {
       key: 'en',
       label: 'English',
-      disabled: i18n.language === 'en', // Vô hiệu hóa nếu đang chọn
+      disabled: i18n.language === 'en',
       onClick: () => changeLanguage('en'),
     },
     {
@@ -185,7 +185,7 @@ export default function MainHeader() {
             </Dropdown>
           ) : (
             <Link href="/login">
-              <Button type="primary">Login</Button>
+              <Button type="primary">{t("header.login")}</Button>
             </Link>
           )}
         </div>

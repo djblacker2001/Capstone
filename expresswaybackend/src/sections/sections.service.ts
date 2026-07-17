@@ -19,7 +19,7 @@ export class SectionsService {
 
     async findAll() {
         return this.sectionRepository.find({
-            relations: ["province", "bridge", "restStop", "tunnel", "interchange"]
+            relations: ["province", "bridge", "restStop", "tunnel", "interchange"],
         });
     }
 
@@ -146,7 +146,6 @@ export class SectionsService {
             }
         }
 
-        // 3. Kiểm tra dọn dẹp và cập nhật cột Bản đồ (MapData)
         if (newMapFilePath) {
             updatePayload.MapData = newMapFilePath;
             if (existingSection.MapData) {
@@ -159,7 +158,6 @@ export class SectionsService {
             }
         }
 
-        // 4. Chỉ thực hiện lưu nếu payload thực sự có dữ liệu để update
         if (Object.keys(updatePayload).length > 0) {
             await this.sectionRepository.update({ SectionId: id }, updatePayload);
         }

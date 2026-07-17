@@ -34,19 +34,14 @@ export default function Home() {
     <>
       <Layout>
         <main className="landing-body-container">
-
-          {/* 1. HERO TEXT SECTION */}
           <section className="hero-text-section">
             <Typography>
               <Title level={1} className="hero-title">
                 {t("landing.title1")}<br />
                 
-                <span className="text-emerald">Hạ Tầng Đường Cao Tốc Việt Nam</span>
+                <span className="text-emerald">{t("landing.title2")}</span>
               </Title>
-              <Paragraph className="hero-desc">
-                Hệ thống hỗ trợ số hóa, tra cứu tọa độ lý trình, theo dõi tiến độ thi công và
-                quản lý các lớp tài sản hạ tầng kỹ thuật trực quan trên nền tảng bản đồ GIS.
-              </Paragraph>
+              <Paragraph className="hero-desc">{t("landing.text1")}</Paragraph>
             </Typography>
             <div className="hero-btns-group">
               <Button type="primary" size="large" icon={<CompassOutlined />} href="/map" className="btn-emerald">
@@ -57,8 +52,6 @@ export default function Home() {
               </Button>
             </div>
           </section>
-
-          {/* 2. REAL-TIME STATS CARDS */}
           <section className="stats-cards-section">
             <Row gutter={[24, 24]} justify="center">
               <Col xs={24} sm={12} md={8}>
@@ -93,8 +86,6 @@ export default function Home() {
               </Col>
             </Row>
           </section>
-
-          {/* 3. INTERACTIVE GIS PREVIEW SECTION */}
           <section id="discover" className="gis-preview-section">
             <div className="section-header">
               <Title level={2}>Hệ Thống Bản Đồ Trực Quan</Title>

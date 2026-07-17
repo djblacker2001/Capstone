@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-// 🎯 Đổi Line thành Area để tô phần phía dưới
 import { Area } from '@ant-design/plots';
 import { Card, Spin, message } from 'antd';
 
@@ -10,6 +9,7 @@ interface ChartDataItem {
     vehicleCount: number;
     revenue: number;
 }
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function RevenueChart() {
     const [data, setData] = useState<ChartDataItem[]>([]);
@@ -44,7 +44,7 @@ export default function RevenueChart() {
             return;
         }
 
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+        
         fetch(`${baseUrl}/dashboard/dashboard-admin`, {
             method: 'GET',
             headers: {

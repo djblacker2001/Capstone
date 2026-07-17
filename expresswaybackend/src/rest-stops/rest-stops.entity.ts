@@ -15,6 +15,12 @@ export class RestStop {
   @Column({ name: 'Location', type: 'nvarchar', length: 100, nullable: true })
   Location?: string;
 
+  @Column({ name: 'Longitude', type: 'float' })
+  Longitude?: number;
+
+  @Column({ name: 'Latitude', type: 'float' })
+  Latitude?: number;
+
   @Column({ name: 'HasPetrol', type: 'bit' })
   HasPetrol!: boolean;
 
@@ -27,7 +33,7 @@ export class RestStop {
   @Column({ name: 'Status', type: 'nvarchar', length: 50, nullable: true })
   Status?: string;
 
-  @OneToOne(() => Section, (section) => section.restStop)
+  @ManyToOne(() => Section, (section) => section.restStop)
   @JoinColumn({ name: 'SectionId' })
   section!: Section;
 }

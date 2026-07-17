@@ -14,6 +14,12 @@ export class CreateRestStopDto {
     Location?: string;
 
     @ApiProperty()
+    Longitude?: number;
+
+    @ApiProperty()
+    Latitude?: number;
+
+    @ApiProperty()
     HasPetrol!: boolean;
 
     @ApiProperty()

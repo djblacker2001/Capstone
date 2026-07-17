@@ -8,7 +8,7 @@ interface ChartDataItem {
     month: string; 
     vehicleCount: number;
 }
-
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 export default function VehicleTrafficChart() {
     const [data, setData] = useState<ChartDataItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -23,7 +23,7 @@ export default function VehicleTrafficChart() {
             return;
         }
 
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+        
         fetch(`${baseUrl}/dashboard/traffic`, {
             method: 'GET',
             headers: {

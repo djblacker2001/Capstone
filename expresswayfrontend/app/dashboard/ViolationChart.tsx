@@ -139,7 +139,7 @@ export default function ViolationChart() {
                     fontFamily: '"Times New Roman", Times, serif',
                     fontWeight: 'bold',
                     fontSize: '26px',
-                    color: '#E65100', // Tiêu đề đồng bộ màu cam cảnh báo
+                    color: '#E65100',
                     margin: 0
                 }}>
                     Monthly Traffic Violation Analytics

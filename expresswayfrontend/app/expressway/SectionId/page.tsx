@@ -8,6 +8,7 @@ import { CompassOutlined, DashboardOutlined, SafetyCertificateOutlined, InfoCirc
 import MainLayout from '@/app/layout/Layout';
 import ProtectedRoute from '@/app/components/ProtectedRoute/ProtectedRoute';
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 const DynamicMapContainer = dynamic(() => import('./MapComponent'), {
     ssr: false,
     loading: () => (

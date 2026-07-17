@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Expressway } from "./expressways.entity";
 import { I18nContext, I18nService } from 'nestjs-i18n';
+import { Sign } from "../signs/signs.entity";
 
 @Injectable()
 export class ExpresswaysService {
@@ -12,6 +13,8 @@ export class ExpresswaysService {
     private readonly i18n: I18nService,
   ) { }
 
+  @InjectRepository(Sign)
+  private readonly signRepository!: Repository<Sign>;
   private readonly commonRelations = [
     'section',
     'section.bridge',
@@ -57,6 +60,19 @@ export class ExpresswaysService {
       ])
       .getRawOne();
 
+    const bridgeAndTunnelQuery = await this.expresswayRepository
+      .createQueryBuilder('expressway')
+      .leftJoin('expressway.section', 'section')
+      .leftJoin('section.bridge', 'bridge')
+      .leftJoin('section.tunnel', 'tunnel')
+      .select([
+        'COUNT(DISTINCT bridge.BridgeId) AS totalBridges',
+        'COUNT(DISTINCT tunnel.TunnelId) AS totalTunnels'
+      ])
+      .getRawOne();
+
+    const trafficSignCount = await this.signRepository.count();
+
     return {
       totalExpressways: parseInt(sectionAndRestStopQuery.totalExpressways) || 0,
       totalSections: parseInt(sectionAndRestStopQuery.totalSections) || 0,
@@ -74,6 +90,10 @@ export class ExpresswaysService {
       interchangeUnderConstruction: parseInt(interchangeQuery.interchangeUnderConstruction) || 0,
       interchangeNotYetConstruction: parseInt(interchangeQuery.interchangeNotYetConstruction) || 0,
       interchangeComplete: parseInt(interchangeQuery.interchangeComplete) || 0,
+
+      totalBridges: parseInt(bridgeAndTunnelQuery.totalBridges) || 0,
+      totalTunnels: parseInt(bridgeAndTunnelQuery.totalTunnels) || 0,
+      totalSigns: trafficSignCount || 0,
     };
   }
 

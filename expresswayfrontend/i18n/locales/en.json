@@ -6,9 +6,19 @@
     "sign": "Sign",
     "manageExpressway": "Manage Expressway",
     "manageUser": "Manage User",
-    "manageSign": "Manage Sign"
+    "manageSign": "Manage Sign",
+    "login": "Login"
   },
   "landing": {
-    "title1": "Spatial Data Management System"
+    "title1": "Spatial Data Management System",
+    "title2": "Vietnam's Expressway Infrastructure",
+    "text1": "The system supports digitalization, coordinate lookup, construction progress tracking, and visual management of infrastructure assets on a GIS map platform."
+  },
+  "home": {},
+  "dashboard": {},
+  "expressway": {},
+  "sign": {},
+  "footer": {
+    "bottom": "Expressway Management System in Vietnam"
   }
 }

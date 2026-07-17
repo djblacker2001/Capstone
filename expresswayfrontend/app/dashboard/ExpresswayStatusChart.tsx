@@ -9,16 +9,15 @@ interface ChartDataItem {
     type: string;
     value: number;
 }
-
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 export default function ExpresswayStatusChart() {
     const [chartData, setChartData] = useState<ChartDataItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [total, setTotal] = useState<number>(0);
     const isMobileSize = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
 
     useEffect(() => {
-        fetch(`${backendUrl}/expressways/statistics`)
+        fetch(`${baseUrl}/expressways/statistics`)
             .then((res) => {
                 if (!res.ok) throw new Error('Không thể lấy dữ liệu thống kê');
                 return res.json();
@@ -45,7 +44,7 @@ export default function ExpresswayStatusChart() {
                 message.error(err.message || 'Lỗi tải dữ liệu biểu đồ');
                 setLoading(false);
             });
-    }, [backendUrl]);
+    }, [baseUrl]);
 
     const config = {
         data: chartData,

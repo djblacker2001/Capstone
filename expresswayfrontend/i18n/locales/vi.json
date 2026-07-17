@@ -6,9 +6,19 @@
         "sign": "Biển báo",
         "manageExpressway": "Quản lý tuyến đường",
         "manageUser": "Quản lý người dùng",
-        "manageSign": "Quản lý biển báo"
+        "manageSign": "Quản lý biển báo",
+        "login": "Đăng nhập"
     },
     "landing": {
-        "title1": "Hệ Thống Quản Lý Dữ Liệu Không Gian"
+        "title1": "Hệ Thống Quản Lý Dữ Liệu Không Gian",
+        "title2": "Hạ Tầng Đường Cao Tốc Việt Nam",
+        "text1": "Hệ thống hỗ trợ số hóa, tra cứu tọa độ lý trình, theo dõi tiến độ thi công và quản lý các lớp tài sản hạ tầng kỹ thuật trực quan trên nền tảng bản đồ GIS."
+    },
+    "home": {},
+    "dashboard": {},
+    "expressway": {},
+    "sign": {},
+    "footer": {
+        "bottom": "Hệ thống quản lý đường cao tốc tại Việt Nam"
     }
 }

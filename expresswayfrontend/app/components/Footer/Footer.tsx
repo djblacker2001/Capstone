@@ -1,9 +1,11 @@
 import "./footer.css";
 import Link from "next/link";
 import { Row, Col } from "antd";
+import { useTranslation } from "react-i18next";
 
-const Footer: React.FC = () => {
+export default function Footer() {
     const currentYear = new Date().getFullYear();
+    const { t } = useTranslation();
 
     return (
         <footer>
@@ -54,11 +56,9 @@ const Footer: React.FC = () => {
                 </div>
 
                 <div className="footer-bottom">
-                    © {currentYear} Expressway Management System in Vietnam
+                    &copy; {currentYear} Expressway Management System in Vietnam {t("fotter.bottom")}
                 </div>
             </div>
         </footer>
     );
 };
-
-export default Footer;

@@ -10,10 +10,11 @@ import { Province } from '../provinces/provinces.entity';
 import { RestStop } from '../rest-stops/rest-stops.entity';
 import { Tunnel } from '../tunnels/tunnels.entity';
 import { AuthModule } from '../auth/auth.module';
+import { Sign } from '../signs/signs.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Expressway, Section, RestStop, Bridge, Interchange, Tunnel, Province]),
+    TypeOrmModule.forFeature([Expressway, Section, RestStop, Bridge, Interchange, Tunnel, Province, Sign]),
     AuthModule,
   ],
   controllers: [ExpresswaysController],

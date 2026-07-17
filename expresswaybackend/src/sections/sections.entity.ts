@@ -54,14 +54,18 @@ export class Section {
   @JoinColumn({ name: 'ExpresswayId' })
   expressway!: Expressway;
 
-  @OneToMany(() => Bridge, (bridge) => bridge.section)
-  bridge!: Bridge[];
-  @OneToOne(() => RestStop, (restStop) => restStop.section)
-  restStop!: RestStop;
+  @OneToMany(() => RestStop, (restStop) => restStop.section)
+  restStop!: RestStop[];
+
   @OneToMany(() => Interchange, (interchange) => interchange.section)
   interchange!: Interchange[];
+
+  @OneToMany(() => Bridge, (bridge) => bridge.section)
+  bridge!: Bridge[];
+
   @OneToMany(() => Tunnel, (tunnel) => tunnel.section)
   tunnel!: Interchange[];
+  
   @ManyToMany(() => Province, (province) => province.section)
   @JoinTable({
     name: 'SectionProvince',

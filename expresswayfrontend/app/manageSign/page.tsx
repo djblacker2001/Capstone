@@ -18,29 +18,19 @@ export default function ManageSignPage() {
     const [loading, setLoading] = useState<boolean>(false);
     const [signs, setSigns] = useState<SignDataType[]>([]);
     const [searchText, setSearchText] = useState<string>("");
-
-    // State xử lý Modal (Thêm / Sửa)
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [editingSign, setEditingSign] = useState<SignDataType | null>(null);
     const [form] = Form.useForm();
 
-    // 1. [GET /signs] Lấy danh sách biển báo (Không cần Token)
-    // 1. [GET /signs] Lấy danh sách biển báo
     const fetchSigns = async () => {
         setLoading(true);
         try {
-            // ĐỔI THÀNH ĐƯỜNG DẪN TƯƠNG ĐỐI: Bỏ localhost:8080 đi để axiosClient tự nhận base
             const response = await axiosClient.get("/signs");
-
-            // Log ra console để bạn xem cấu trúc thực tế trả về là gì khi F12
             console.log("Dữ liệu API Signs trả về:", response.data);
-
-            // Kiểm tra dữ liệu linh hoạt (đề phòng Back-end chỉ trả về mảng trực tiếp thay vì success: true)
             if (response.data) {
                 if (response.data.success && response.data.data) {
                     setSigns(response.data.data);
                 } else if (Array.isArray(response.data)) {
-                    // Nếu Back-end trả thẳng về một mảng [{}, {}]
                     setSigns(response.data);
                 } else if (Array.isArray(response.data.data)) {
                     setSigns(response.data.data);
@@ -51,7 +41,6 @@ export default function ManageSignPage() {
         } catch (error: any) {
             console.error("Lỗi chi tiết khi gọi API signs:", error);
 
-            // Hiển thị mã status lỗi cụ thể lên màn hình để dễ bắt bệnh
             const statusCode = error.response?.status;
             message.error(`Không thể kết nối đến server! (Mã lỗi: ${statusCode || "Đứt kết nối"})`);
         } finally {
@@ -78,24 +67,21 @@ export default function ManageSignPage() {
         setIsModalOpen(true);
     };
 
-    // 2. [POST /signs] & [PUT /signs/{id}] Xử lý Thêm / Sửa
     const handleFormSubmit = async () => {
         try {
             const values = await form.validateFields();
             setLoading(true);
 
             if (editingSign) {
-                // METHOD PUT: Gửi lên đường dẫn /signs/{id} dựa vào SignId của dữ liệu
                 await axiosClient.put(`http://localhost:8080/signs/${editingSign.SignId}`, values);
                 message.success("Cập nhật thông tin biển báo thành công!");
             } else {
-                // METHOD POST: Thêm mới vào /signs
                 await axiosClient.post("http://localhost:8080/signs", values);
                 message.success("Thêm biển báo mới thành công!");
             }
 
             setIsModalOpen(false);
-            fetchSigns(); // Reload lại bảng
+            fetchSigns();
         } catch (error) {
             console.error("Lỗi lưu dữ liệu:", error);
             message.error("Thao tác thất bại, vui lòng kiểm tra dữ liệu đầu vào!");
@@ -104,14 +90,12 @@ export default function ManageSignPage() {
         }
     };
 
-    // 3. [DELETE /signs/{id}] Xử lý Xóa biển báo
     const handleDeleteSign = async (signId: number) => {
         try {
             setLoading(true);
-            // METHOD DELETE: Gọi chuẩn theo id truyền vào endpoint
             await axiosClient.delete(`http://localhost:8080/signs/${signId}`);
             message.success("Đã xóa biển báo thành công khỏi hệ thống!");
-            fetchSigns(); // Reload lại bảng
+            fetchSigns();
         } catch (error) {
             console.error("Lỗi xóa biển báo:", error);
             message.error("Không thể xóa biển báo này!");
@@ -120,7 +104,6 @@ export default function ManageSignPage() {
         }
     };
 
-    // Cấu hình các cột hiển thị trong Bảng
     const columns = [
         {
             title: "Mã số (SignId)",
@@ -137,7 +120,7 @@ export default function ManageSignPage() {
             align: "center" as const,
             render: (imgStr: string) => {
                 const srcUrl = imgStr?.startsWith("http") ? imgStr : `http://localhost:8080/${imgStr}`;
-                const AntdImage = require("antd").Image; // Sử dụng require để ép kiểu chống lỗi compile Next.js
+                const AntdImage = require("antd").Image;
                 return (
                     <AntdImage
                         src={srcUrl}
