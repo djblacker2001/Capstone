@@ -22,10 +22,7 @@ export default function ManageSignPage() {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [editingSign, setEditingSign] = useState<SignDataType | null>(null);
     const [form] = Form.useForm();
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
     const fetchSigns = async () => {
         setLoading(true);
         try {
@@ -44,10 +41,6 @@ export default function ManageSignPage() {
             }
         } catch (error: any) {
             console.error("Lỗi chi tiết khi gọi API signs:", error);
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
             const statusCode = error.response?.status;
             message.error(`Không thể kết nối đến server! (Mã lỗi: ${statusCode || "Đứt kết nối"})`);
         } finally {
@@ -79,17 +72,12 @@ export default function ManageSignPage() {
             setLoading(true);
 
             if (editingSign) {
-<<<<<<< Updated upstream
-                await axiosClient.put(`http://localhost:8080/signs/${editingSign.SignId}`, values);
-                message.success("Cập nhật thông tin biển báo thành công!");
-            } else {
-                await axiosClient.post("http://localhost:8080/signs", values);
-=======
+
                 await axiosClient.put(`${baseUrl}/signs/${editingSign.SignId}`, values);
                 message.success("Cập nhật thông tin biển báo thành công!");
             } else {
                 await axiosClient.post(`${baseUrl}/signs`, values);
->>>>>>> Stashed changes
+
                 message.success("Thêm biển báo mới thành công!");
             }
 
@@ -106,12 +94,7 @@ export default function ManageSignPage() {
     const handleDeleteSign = async (signId: number) => {
         try {
             setLoading(true);
-<<<<<<< Updated upstream
-            await axiosClient.delete(`http://localhost:8080/signs/${signId}`);
-=======
-            // METHOD DELETE: Gọi chuẩn theo id truyền vào endpoint
             await axiosClient.delete(`${baseUrl}/signs/${signId}`);
->>>>>>> Stashed changes
             message.success("Đã xóa biển báo thành công khỏi hệ thống!");
             fetchSigns();
         } catch (error) {
@@ -137,13 +120,8 @@ export default function ManageSignPage() {
             width: 120,
             align: "center" as const,
             render: (imgStr: string) => {
-<<<<<<< Updated upstream
-                const srcUrl = imgStr?.startsWith("http") ? imgStr : `http://localhost:8080/${imgStr}`;
-                const AntdImage = require("antd").Image;
-=======
                 const srcUrl = imgStr?.startsWith("http") ? imgStr : `${baseUrl}/${imgStr}`;
-                const AntdImage = require("antd").Image; // Sử dụng require để ép kiểu chống lỗi compile Next.js
->>>>>>> Stashed changes
+                const AntdImage = require("antd").Image;
                 return (
                     <AntdImage
                         src={srcUrl}

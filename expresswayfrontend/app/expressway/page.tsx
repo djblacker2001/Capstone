@@ -1,11 +1,11 @@
 'use client';
 
-import { Card, Row, Col, Typography, Badge, Descriptions, Space, Button, message, Spin, Tag, Empty, Input, Select, Tooltip } from 'antd';
+import { Card, Row, Col, Typography, Space, Button, message, Spin, Tag, Empty, Input, Select, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import MainLayout from '../layout/Layout';
 import "./style.css";
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
-import { CompassOutlined, DashboardOutlined, SafetyCertificateOutlined, InfoCircleOutlined, EnvironmentOutlined, CarOutlined, SearchOutlined, UndoOutlined } from '@ant-design/icons';
+import { CompassOutlined, InfoCircleOutlined, EnvironmentOutlined, CarOutlined, SearchOutlined, UndoOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 const { Title, Text } = Typography;
@@ -33,11 +33,14 @@ interface Section {
     EndLocation: string;
     EndKm?: number;
     Status?: string;
+    restStops?: RestStop[];
     restStop?: RestStop[];
     interchange?: Interchange[];
+    interchangeCount?: number;
+    restStopCount?: number;
 }
 
-const ExpresswayPage = () => {
+export default function ExpresswayPage() {
     const [sections, setSections] = useState<Section[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [filterName, setFilterName] = useState<string>('');
@@ -48,8 +51,16 @@ const ExpresswayPage = () => {
     const fetchAllSections = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${baseUrl}/sections`);
-            handleSetData(res.data);
+            // Gọi song song danh sách sections và api thống kê
+            const [sectionsRes, statsRes] = await Promise.all([
+                axios.get(`${baseUrl}/sections`),
+                axios.get(`${baseUrl}/sections/statistics`).catch(err => {
+                    console.error("Lỗi lấy dữ liệu API thống kê:", err);
+                    return { data: [] };
+                })
+            ]);
+
+            handleSetData(sectionsRes.data, statsRes.data);
         } catch (err) {
             console.error('Lỗi lấy danh sách đoạn đường:', err);
             setSections([]);
@@ -62,13 +73,11 @@ const ExpresswayPage = () => {
         fetchAllSections();
     }, []);
 
-    const handleSetData = (rawData: any) => {
+    const handleSetData = (rawData: any, statsData?: any[]) => {
         console.log("Dữ liệu gốc từ API gửi về:", rawData);
+        console.log("Dữ liệu thống kê nhận được để so khớp:", statsData);
 
-<<<<<<< Updated upstream
         let extractedArray: any[] = [];
-
-        // 1. Trích xuất mảng từ các lớp bọc của API
         if (!rawData) {
             setSections([]);
             return;
@@ -85,10 +94,14 @@ const ExpresswayPage = () => {
             extractedArray = [rawData];
         }
 
-        // 2. 🎯 CHUẨN HÓA DỮ LIỆU (Đồng bộ chữ HOA / chữ thường của các Key)
         const normalizedArray = extractedArray.map((item: any) => {
+            const sectionId = item.SectionId ?? item.sectionId ?? item.id;
+            const sectionStats = Array.isArray(statsData) 
+                ? statsData.find((stat: any) => String(stat.id) === String(sectionId)) 
+                : null;
+
             return {
-                SectionId: item.SectionId ?? item.sectionId ?? item.id,
+                SectionId: Number(sectionId),
                 NameSection: item.NameSection ?? item.Namesection ?? item.nameSection ?? item.name ?? 'Không có tên',
                 Image: item.Image ?? item.image,
                 Length: item.Length ?? item.length ?? 0,
@@ -98,11 +111,19 @@ const ExpresswayPage = () => {
                 EndKm: item.EndKm ?? item.endKm,
                 Status: item.Status ?? item.status,
                 restStops: item.restStops ?? item.restStop ?? item.RestStops ?? [],
-                interchange: item.interchange ?? item.interchanges ?? item.Interchange ?? []
+                interchange: item.interchange ?? item.interchanges ?? item.Interchange ?? [],
+                
+                // Gán trực tiếp số lượng thống kê từ API, nếu không có mới đếm độ dài mảng quan hệ
+                interchangeCount: sectionStats?.interchangeCount !== undefined 
+                    ? Number(sectionStats.interchangeCount) 
+                    : undefined,
+                restStopCount: sectionStats?.restStopCount !== undefined 
+                    ? Number(sectionStats.restStopCount) 
+                    : undefined
             };
         });
 
-        console.log("Dữ liệu sau khi đã chuẩn hóa chuẩn chỉ:", normalizedArray);
+        console.log("Dữ liệu sau khi đã chuẩn hóa thành công:", normalizedArray);
         setSections(normalizedArray);
     };
 
@@ -110,12 +131,14 @@ const ExpresswayPage = () => {
         setLoading(true);
         try {
             const headers = { 'accept-language': 'vi' };
+            const statsRes = await axios.get(`${baseUrl}/sections/statistics`).catch(() => ({ data: [] }));
+
             if (filterKm.trim() !== '') {
                 const res = await axios.get(`${baseUrl}/sections/kilometre`, {
                     params: { km: filterKm.trim() },
                     headers,
                 });
-                handleSetData(res.data);
+                handleSetData(res.data, statsRes.data);
                 message.success(`Đã tìm thấy các phân đoạn đi qua Km ${filterKm}`);
             }
 
@@ -129,7 +152,7 @@ const ExpresswayPage = () => {
                     params,
                     headers,
                 });
-                handleSetData(res.data);
+                handleSetData(res.data, statsRes.data);
             }
 
             else {
@@ -180,14 +203,11 @@ const ExpresswayPage = () => {
                 return { text: status || 'Chưa xác định', color: 'default' };
         }
     };
-=======
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
->>>>>>> Stashed changes
 
     return (
         <ProtectedRoute>
             <MainLayout>
-                <div style={{ padding: '24px', maxWidth: '1500px', margin: '0 auto', minHeight: '100vh', background: '#f8f9fa' }}>
+                <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', minHeight: '100vh', background: '#f8f9fa' }}>
                     <div style={{ marginBottom: '32px', textAlign: 'center' }}>
                         <Title level={2} style={{ fontWeight: 700, margin: 0 }}>
                             🗺️ Danh Sách Phân Đoạn Cao Tốc
@@ -197,7 +217,6 @@ const ExpresswayPage = () => {
                         </Text>
                     </div>
 
-                    {/* 🎯 PANEL TÌM KIẾM 4 SELECT / INPUT CHUYÊN NGHIỆP */}
                     <Card style={{ marginBottom: '32px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
                         <Row gutter={[16, 16]} align="bottom">
                             <Col xs={24} sm={12} md={6}>
@@ -211,7 +230,6 @@ const ExpresswayPage = () => {
                                 />
                             </Col>
 
-                            {/* 2. Lọc theo 5 trạng thái */}
                             <Col xs={24} sm={12} md={5}>
                                 <div style={{ marginBottom: '6px', fontWeight: 600, color: '#434343' }}>Trạng thái:</div>
                                 <Select
@@ -222,7 +240,6 @@ const ExpresswayPage = () => {
                                     onChange={(value) => setFilterStatus(value)}
                                     allowClear
                                 >
-<<<<<<< Updated upstream
                                     <Option value="Complete">Đang hoạt động</Option>
                                     <Option value="Under construction">Đang thi công</Option>
                                     <Option value="Extend under construction">Đang thi công mở rộng</Option>
@@ -231,7 +248,6 @@ const ExpresswayPage = () => {
                                 </Select>
                             </Col>
 
-                            {/* 3. Tìm theo Tỉnh thành */}
                             <Col xs={24} sm={12} md={5}>
                                 <div style={{ marginBottom: '6px', fontWeight: 600, color: '#434343' }}>Đi qua tỉnh/thành:</div>
                                 <Input
@@ -243,7 +259,6 @@ const ExpresswayPage = () => {
                                 />
                             </Col>
 
-                            {/* 4. Tìm theo định vị Số Km */}
                             <Col xs={24} sm={12} md={4}>
                                 <div style={{ marginBottom: '6px', fontWeight: 600, color: '#434343', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                     Tìm theo số Km:
@@ -275,32 +290,6 @@ const ExpresswayPage = () => {
                                         Reset
                                     </Button>
                                 </Space>
-=======
-                                    <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#1f1f1f' }}>
-                                        {section.NameSection}
-                                    </h3>
-
-                                    <div style={{ marginBottom: '12px' }}>
-                                        <Tag color="green">Chiều dài: {section.Length} km</Tag>
-                                    </div>
-
-                                    <div style={{ color: '#595959', fontSize: '13px', marginBottom: '12px' }}>
-                                        <p style={{ margin: '4px 0' }}>
-                                            <EnvironmentOutlined style={{ color: '#52c41a' }} /> <strong>Đầu:</strong> {section.StartLocation} (Km {section.StartKm})
-                                        </p>
-                                        <p style={{ margin: '4px 0' }}>
-                                            <EnvironmentOutlined style={{ color: '#f5222d' }} /> <strong>Cuối:</strong> {section.EndLocation} (Km {section.EndKm})
-                                        </p>
-                                    </div>
-
-                                    <hr style={{ border: 'none', borderTop: '1px solid #f0f0f0', margin: '12px 0' }} />
-
-                                    <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '16px' }}>
-                                        <div>🔘 Số nút giao: <strong>{section.interchange?.length || 0}</strong></div>
-                                        <div>🏪 Trạm dừng nghỉ: <strong>{section.restStop ? 'Có trạm dừng' : 'Chưa có'}</strong></div>
-                                    </div>
-                                </Card>
->>>>>>> Stashed changes
                             </Col>
                         </Row>
                     </Card>
@@ -314,7 +303,16 @@ const ExpresswayPage = () => {
                             {sections.map((section) => {
                                 const fullImageUrl = section.Image && section.Image.startsWith('http')
                                     ? section.Image
-                                    : `http://localhost:8080/${section.Image}`;
+                                    : `${baseUrl}/${section.Image}`;
+
+                                // Logic tính toán số lượng an toàn cho nút giao & trạm dừng
+                                const displayInterchanges = section.interchangeCount !== undefined
+                                    ? section.interchangeCount
+                                    : (section.interchange?.length || 0);
+
+                                const displayRestStops = section.restStopCount !== undefined
+                                    ? section.restStopCount
+                                    : (section.restStops?.length || section.restStop?.length || 0);
 
                                 return (
                                     <Col xs={24} sm={12} md={8} lg={6} key={section.SectionId}>
@@ -332,7 +330,7 @@ const ExpresswayPage = () => {
                                             bodyStyle={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}
                                             cover={
                                                 <div style={{
-                                                    height: '160px',
+                                                    height: '100%',
                                                     width: '100%',
                                                     background: '#004f9f',
                                                     position: 'relative',
@@ -365,7 +363,6 @@ const ExpresswayPage = () => {
                                                 <Title level={5} style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#1a3353', flex: 1 }}>
                                                     Đường cao tốc {section.NameSection}
                                                 </Title>
-
                                             </div>
 
                                             <div style={{ marginBottom: '16px' }}>
@@ -390,12 +387,12 @@ const ExpresswayPage = () => {
                                                 <div>
                                                     <CompassOutlined style={{ color: '#1890ff', marginRight: '6px' }} />
                                                     <Text type="secondary">Số nút giao: </Text>
-                                                    <Text strong>{section.interchange?.length || 0}</Text>
+                                                    <Text strong>{displayInterchanges}</Text>
                                                 </div>
                                                 <div>
                                                     <CarOutlined style={{ color: '#595959', marginRight: '6px' }} />
                                                     <Text type="secondary">Trạm dừng nghỉ: </Text>
-                                                    <Text strong>{section.restStop?.length || 0}</Text>
+                                                    <Text strong>{displayRestStops}</Text>
                                                 </div>
                                                 <Tag
                                                     color={getSectionStatusProps(section.Status).color}
@@ -416,6 +413,4 @@ const ExpresswayPage = () => {
             </MainLayout>
         </ProtectedRoute>
     );
-};
-
-export default ExpresswayPage;
+}

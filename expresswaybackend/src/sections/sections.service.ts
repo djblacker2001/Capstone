@@ -119,21 +119,15 @@ export class SectionsService {
         newMapFilePath?: string
     ): Promise<Section> {
         const existingSection = await this.findOneSection(id);
-
-        // 1. Tạo payload cập nhật cơ bản
         const updatePayload: any = {};
-
-        // Chỉ cập nhật SectionName nếu thực sự có truyền dữ liệu mới lên
         if (data.SectionName !== undefined && data.SectionName !== '') {
             updatePayload.SectionName = data.SectionName;
         }
 
-        // 🎯 FIX LỖI SỐ THỰC: Kiểm tra và ép kiểu dữ liệu Length
         if (data.Length !== undefined && data.Length !== '') {
-            updatePayload.Length = Number(data.Length); // Ép từ chuỗi "" hoặc "50" về số thực chuẩn
+            updatePayload.Length = Number(data.Length);
         }
 
-        // 2. Kiểm tra dọn dẹp và cập nhật cột Ảnh (Image)
         if (newImagePath) {
             updatePayload.Image = newImagePath;
             if (existingSection.Image) {
@@ -178,6 +172,7 @@ export class SectionsService {
             .leftJoin('section.tunnel', 'tunnel')
             .leftJoin('section.interchange', 'interchange')
             .leftJoin('section.province', 'province')
+            .leftJoin('section.restStop', 'restStop')
             .select([
                 'section.SectionId AS id',
                 'section.NameSection AS sectionName',
@@ -189,9 +184,15 @@ export class SectionsService {
             .addSelect('COUNT(DISTINCT interchange.InterchangeId)', 'interchangeCount')
             .addSelect('COUNT(DISTINCT province.ProvinceId)', 'provinceCount')
 
-            .addSelect("SUM(CASE WHEN interchange.status = 'Complete' THEN 1 ELSE 0 END)", 'interchangeCompleteCount')
-            .addSelect("SUM(CASE WHEN interchange.status = 'Under construction' THEN 1 ELSE 0 END)", 'interchangeUnderConstructionCount')
-            .addSelect("SUM(CASE WHEN interchange.status = 'Not yet construction' THEN 1 ELSE 0 END)", 'interchangeNotYetConstructionCount')
+            .addSelect("COUNT(DISTINCT CASE WHEN interchange.status = 'Complete' THEN interchange.InterchangeId END)", 'interchangeCompleteCount')
+            .addSelect("COUNT(DISTINCT CASE WHEN interchange.status = 'Under construction' THEN interchange.InterchangeId END)", 'interchangeUnderConstructionCount')
+            .addSelect("COUNT(DISTINCT CASE WHEN interchange.status = 'Not yet construction' THEN interchange.InterchangeId END)", 'interchangeNotYetConstructionCount')
+
+            // 🎯 SỬA LẠI THỐNG KÊ TRẠM DỪNG NGHỈ (Sử dụng COUNT DISTINCT kèm CASE WHEN)
+            .addSelect('COUNT(DISTINCT restStop.RestStopId)', 'restStopCount')
+            .addSelect("COUNT(DISTINCT CASE WHEN restStop.status = 'Operating' THEN restStop.RestStopId END)", 'restStopOperatingCount')
+            .addSelect("COUNT(DISTINCT CASE WHEN restStop.status = 'Under construction' THEN restStop.RestStopId END)", 'restStopUnderConstructionCount')
+            .addSelect("COUNT(DISTINCT CASE WHEN restStop.status = 'Not yet under construction' THEN restStop.RestStopId END)", 'restStopNotYetConstructionCount')
 
             .groupBy('section.SectionId')
             .addGroupBy('section.NameSection')
@@ -212,6 +213,11 @@ export class SectionsService {
             interchangeCompleteCount: parseInt(item.interchangeCompleteCount) || 0,
             interchangeUnderConstructionCount: parseInt(item.interchangeUnderConstructionCount) || 0,
             interchangeNotYetConstructionCount: parseInt(item.interchangeNotYetConstructionCount) || 0,
+
+            restStopCount: parseInt(item.restStopCount) || 0,
+            restStopOperatingCount: parseInt(item.restStopOperatingCount) || 0,
+            restStopUnderConstructionCount: parseInt(item.restStopUnderConstructionCount) || 0,
+            restStopNotYetConstructionCount: parseInt(item.restStopNotYetConstructionCount) || 0,
         }));
     }
 }

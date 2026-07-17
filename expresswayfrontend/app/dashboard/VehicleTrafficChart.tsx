@@ -9,10 +9,6 @@ interface ChartDataItem {
     vehicleCount: number;
 }
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 export default function VehicleTrafficChart() {
     const [data, setData] = useState<ChartDataItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
