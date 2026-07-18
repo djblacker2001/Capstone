@@ -112,8 +112,6 @@ export default function ExpresswayPage() {
                 Status: item.Status ?? item.status,
                 restStops: item.restStops ?? item.restStop ?? item.RestStops ?? [],
                 interchange: item.interchange ?? item.interchanges ?? item.Interchange ?? [],
-                
-                // Gán trực tiếp số lượng thống kê từ API, nếu không có mới đếm độ dài mảng quan hệ
                 interchangeCount: sectionStats?.interchangeCount !== undefined 
                     ? Number(sectionStats.interchangeCount) 
                     : undefined,
@@ -305,7 +303,6 @@ export default function ExpresswayPage() {
                                     ? section.Image
                                     : `${baseUrl}/${section.Image}`;
 
-                                // Logic tính toán số lượng an toàn cho nút giao & trạm dừng
                                 const displayInterchanges = section.interchangeCount !== undefined
                                     ? section.interchangeCount
                                     : (section.interchange?.length || 0);
