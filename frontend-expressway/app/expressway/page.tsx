@@ -51,7 +51,6 @@ export default function ExpresswayPage() {
     const fetchAllSections = async () => {
         setLoading(true);
         try {
-            // Gọi song song danh sách sections và api thống kê
             const [sectionsRes, statsRes] = await Promise.all([
                 axios.get(`${baseUrl}/sections`),
                 axios.get(`${baseUrl}/sections/statistics`).catch(err => {
@@ -75,29 +74,31 @@ export default function ExpresswayPage() {
 
     const handleSetData = (rawData: any, statsData?: any[]) => {
         console.log("Dữ liệu gốc từ API gửi về:", rawData);
-        console.log("Dữ liệu thống kê nhận được để so khớp:", statsData);
 
         let extractedArray: any[] = [];
         if (!rawData) {
             setSections([]);
             return;
         }
-        if (Array.isArray(rawData)) {
-            extractedArray = rawData;
-        } else if (rawData.data && rawData.data.data && Array.isArray(rawData.data.data)) {
-            extractedArray = rawData.data.data;
+
+        if (rawData.data && rawData.data.data) {
+            if (Array.isArray(rawData.data.data)) {
+                extractedArray = rawData.data.data;
+            } else if (typeof rawData.data.data === 'object' && rawData.data.data !== null) {
+                extractedArray = [rawData.data.data];
+            }
         } else if (rawData.data && Array.isArray(rawData.data)) {
             extractedArray = rawData.data;
+        } else if (Array.isArray(rawData)) {
+            extractedArray = rawData;
         } else if (rawData.result && Array.isArray(rawData.result)) {
             extractedArray = rawData.result;
-        } else if (typeof rawData === 'object' && rawData !== null && (rawData.SectionId || rawData.id)) {
-            extractedArray = [rawData];
         }
 
         const normalizedArray = extractedArray.map((item: any) => {
             const sectionId = item.SectionId ?? item.sectionId ?? item.id;
-            const sectionStats = Array.isArray(statsData) 
-                ? statsData.find((stat: any) => String(stat.id) === String(sectionId)) 
+            const sectionStats = Array.isArray(statsData)
+                ? statsData.find((stat: any) => String(stat.id) === String(sectionId))
                 : null;
 
             return {
@@ -112,16 +113,12 @@ export default function ExpresswayPage() {
                 Status: item.Status ?? item.status,
                 restStops: item.restStops ?? item.restStop ?? item.RestStops ?? [],
                 interchange: item.interchange ?? item.interchanges ?? item.Interchange ?? [],
-                interchangeCount: sectionStats?.interchangeCount !== undefined 
-                    ? Number(sectionStats.interchangeCount) 
-                    : undefined,
-                restStopCount: sectionStats?.restStopCount !== undefined 
-                    ? Number(sectionStats.restStopCount) 
-                    : undefined
+                interchangeCount: sectionStats?.interchangeCount !== undefined ? Number(sectionStats.interchangeCount) : undefined,
+                restStopCount: sectionStats?.restStopCount !== undefined ? Number(sectionStats.restStopCount) : undefined
             };
         });
 
-        console.log("Dữ liệu sau khi đã chuẩn hóa thành công:", normalizedArray);
+        console.log("Dữ liệu sau khi chuẩn hóa:", normalizedArray);
         setSections(normalizedArray);
     };
 

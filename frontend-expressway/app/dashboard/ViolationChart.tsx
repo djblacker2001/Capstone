@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-// 🎯 Sử dụng Column chart cho dữ liệu thống kê số lượng tuyệt đối
 import { Column } from '@ant-design/plots';
 import { Card, Spin, message } from 'antd';
 
