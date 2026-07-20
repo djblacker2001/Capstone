@@ -2,7 +2,7 @@ footer {
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
-    background-image: url(footerimg.png);
+    background-image: url('/footerimg.png');
     color: #fff;
     position: relative;
     font-family: "Segoe UI", sans-serif;
@@ -84,6 +84,6 @@ footer {
 
 @media (max-width: 768px) {
     footer {
-        background-image: url(footermobile.png);
+        background-image: url('/footermobile.png');
     }
 }
