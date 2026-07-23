@@ -16,7 +16,7 @@ export default function Footer() {
                             <div className="footer-brand">
                                 <Row>
                                     <Col span={6}>
-                                        <img src="expresswayicon2.png" style={{ width: 60 }} alt="logo" />
+                                        <img src="/expresswayicon2.png" style={{ width: 60 }} alt="logo" />
                                     </Col>
                                     <Col span={18}>
                                         <h3>Expressway Management System</h3>

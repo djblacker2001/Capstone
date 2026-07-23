@@ -8,14 +8,14 @@ import { CreateSectionDto } from './dto/create-sections.dto';
 import { UpdateSectionDto } from './dto/update-sections.dto';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { FileFieldsInterceptor} from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
 
 const sectionMulterStorage = diskStorage({
   destination: (req, file, cb) => {
     const isJson = extname(file.originalname).toLowerCase() === '.json';
     const folderPath = isJson ? './uploads/maps' : './uploads/ways';
-    
+
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
     }
@@ -24,7 +24,7 @@ const sectionMulterStorage = diskStorage({
 
   filename: (req, file, cb) => {
     const isJson = extname(file.originalname).toLowerCase() === '.json';
-    
+
     if (isJson) {
       cb(null, file.originalname);
     } else {
@@ -115,19 +115,31 @@ export class SectionsController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileFieldsInterceptor([
-      { name: 'imageFile', maxCount: 1 },
-      { name: 'mapFile', maxCount: 1 },
+      { name: 'Image', maxCount: 1 },
+      { name: 'SpeedSign', maxCount: 1 },
+      { name: 'MapData', maxCount: 1 },
     ], { storage: sectionMulterStorage })
   )
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateSectionDto: UpdateSectionDto,
-    @UploadedFiles() files: { imageFile?: Express.Multer.File[]; mapFile?: Express.Multer.File[] }
+    @UploadedFiles() files: {
+      Image?: Express.Multer.File[];
+      SpeedSign?: Express.Multer.File[];
+      MapData?: Express.Multer.File[];
+    }
   ) {
-    const newImagePath = files?.imageFile?.[0] ? files.imageFile[0].path.replace(/\\/g, '/') : undefined;
-    const newMapPath = files?.mapFile?.[0] ? files.mapFile[0].path.replace(/\\/g, '/') : undefined;
+    const newImagePath = files?.Image?.[0] ? files.Image[0].path.replace(/\\/g, '/') : undefined;
+    const newSpeedSignPath = files?.SpeedSign?.[0] ? files.SpeedSign[0].path.replace(/\\/g, '/') : undefined;
+    const newMapPath = files?.MapData?.[0] ? files.MapData[0].path.replace(/\\/g, '/') : undefined;
 
-    return this.sectionsService.updateSectionWithFileAndMap(id, updateSectionDto, newImagePath, newMapPath);
+    return this.sectionsService.updateSectionWithFiles(
+      id,
+      updateSectionDto,
+      newImagePath,
+      newSpeedSignPath,
+      newMapPath
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

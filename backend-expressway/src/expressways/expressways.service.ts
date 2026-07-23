@@ -38,9 +38,12 @@ export class ExpresswaysService {
         'COUNT(DISTINCT section.SectionId) AS totalSections',
       ])
       .addSelect('SUM(section.Length)', 'totalSystemLength')
-      .addSelect("COUNT(DISTINCT CASE WHEN section.Status = N'Complete' THEN section.SectionId END)", 'totalCompleted')
-      .addSelect("COUNT(DISTINCT CASE WHEN section.Status = N'Under construction' THEN section.SectionId END)", 'totalUnderConstruction')
-      .addSelect("COUNT(DISTINCT CASE WHEN section.Status = N'Extend under construction' THEN section.SectionId END)", 'totalExtendConstruction')
+      .addSelect("COUNT(DISTINCT CASE WHEN section.Status = N'Complete' THEN section.SectionId END)", 'totalSectionsCompleted')
+      .addSelect("COUNT(DISTINCT CASE WHEN section.Status = N'Not yet under construction' THEN section.SectionId END)", 'totalSectionsNotYetUnderConstruction')
+      .addSelect("COUNT(DISTINCT CASE WHEN section.Status = N'Under construction' THEN section.SectionId END)", 'totalSectionsUnderConstruction')
+      .addSelect("COUNT(DISTINCT CASE WHEN section.Status = N'Extend under construction' THEN section.SectionId END)", 'totalSectionsExtendConstruction')
+      .addSelect("COUNT(DISTINCT CASE WHEN section.Status = N'Incident' THEN section.SectionId END)", 'totalSectionsIncident')
+      .addSelect("COUNT(DISTINCT CASE WHEN section.Status = N'Maintenance' THEN section.SectionId END)", 'totalSectionsMaintenance')
 
       .addSelect("COUNT(restStop.RestStopId) AS totalRestStops")
       .addSelect("SUM(CASE WHEN restStop.Status = N'Under construction' THEN 1 ELSE 0 END)", 'restStopUnderConstruction')
@@ -77,9 +80,12 @@ export class ExpresswaysService {
       totalExpressways: parseInt(sectionAndRestStopQuery.totalExpressways) || 0,
       totalSections: parseInt(sectionAndRestStopQuery.totalSections) || 0,
       totalSystemLength: parseFloat(sectionAndRestStopQuery.totalSystemLength) || 0,
-      totalCompleted: parseInt(sectionAndRestStopQuery.totalCompleted) || 0,
-      totalUnderConstruction: parseInt(sectionAndRestStopQuery.totalUnderConstruction) || 0,
-      totalExtendConstruction: parseInt(sectionAndRestStopQuery.totalExtendConstruction) || 0,
+      totalSectionsCompleted: parseInt(sectionAndRestStopQuery.totalSectionsCompleted) || 0,
+      totalSectionsNotYetUnderConstruction: parseInt(sectionAndRestStopQuery.totalSectionsNotYetUnderConstruction) || 0,
+      totalSectionsUnderConstruction: parseInt(sectionAndRestStopQuery.totalSectionsUnderConstruction) || 0,
+      totalSectionsExtendConstruction: parseInt(sectionAndRestStopQuery.totalSectionsExtendConstruction) || 0,
+      totalSectionsIncident: parseInt(sectionAndRestStopQuery.totalSectionsIncident) || 0,
+      totalSectionsMaintenance: parseInt(sectionAndRestStopQuery.totalSectionsMaintenance) || 0,
 
       totalRestStops: parseInt(sectionAndRestStopQuery.totalRestStops) || 0,
       restStopUnderConstruction: parseInt(sectionAndRestStopQuery.restStopUnderConstruction) || 0,

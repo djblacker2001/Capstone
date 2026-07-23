@@ -49,6 +49,7 @@ const LoginPage = () => {
                 return;
             }
 
+            localStorage.setItem('accessToken', accessToken);
             localStorage.setItem('token', accessToken);
             localStorage.setItem('user', JSON.stringify(user));
             window.dispatchEvent(new Event("storage"));

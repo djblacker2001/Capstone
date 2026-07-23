@@ -35,6 +35,9 @@ export class Section {
   @Column({ type: 'float', nullable: true })
   EndKm?: number;
 
+  @Column({ name: 'SpeedSign', type: 'nvarchar', length: 'MAX', nullable: true })
+  SpeedSign?: string;
+
   @Column({ name: 'SpeedLimit', type: 'nvarchar', length: 'MAX', nullable: true })
   SpeedLimit?: string;
 

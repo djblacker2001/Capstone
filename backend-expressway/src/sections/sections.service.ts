@@ -5,6 +5,7 @@ import { Section } from './sections.entity';
 import { I18nContext, I18nService } from 'nestjs-i18n';
 import * as fs from 'fs';
 import * as path from 'path';
+import { UpdateSectionDto } from './dto/update-sections.dto';
 
 @Injectable()
 export class SectionsService {
@@ -112,51 +113,74 @@ export class SectionsService {
         return await this.sectionRepository.save(newSection);
     }
 
-    async updateSectionWithFileAndMap(
+    async updateSectionWithFiles(
         id: number,
-        data: any,
+        data: UpdateSectionDto,
         newImagePath?: string,
-        newMapFilePath?: string
+        newSpeedSignPath?: string, // 👈 Thêm tham số đường dẫn SpeedSign mới
+        newMapFilePath?: string,
     ): Promise<Section> {
         const existingSection = await this.findOneSection(id);
-        const updatePayload: any = {};
-        if (data.SectionName !== undefined && data.SectionName !== '') {
-            updatePayload.SectionName = data.SectionName;
+        if (!existingSection) {
+            throw new NotFoundException(`Không tìm thấy phân đoạn với ID: ${id}`);
         }
 
-        if (data.Length !== undefined && data.Length !== '') {
-            updatePayload.Length = Number(data.Length);
-        }
+        const updatePayload: Partial<Section> = {};
 
+        // 1. Map các trường văn bản & số từ DTO vào Payload
+        if (data.NameSection !== undefined) updatePayload.NameSection = data.NameSection;
+        if (data.Length !== undefined) updatePayload.Length = Number(data.Length);
+        if (data.StartLocation !== undefined) updatePayload.StartLocation = data.StartLocation;
+        if (data.StartKm !== undefined) updatePayload.StartKm = Number(data.StartKm);
+        if (data.EndLocation !== undefined) updatePayload.EndLocation = data.EndLocation;
+        if (data.EndKm !== undefined) updatePayload.EndKm = Number(data.EndKm);
+        if (data.SpeedLimit !== undefined) updatePayload.SpeedLimit = data.SpeedLimit;
+        if (data.TrafficLand !== undefined) updatePayload.TrafficLand = data.TrafficLand;
+        if (data.HasEmergencyLand !== undefined) updatePayload.HasEmergencyLand = Boolean(data.HasEmergencyLand);
+        if (data.Status !== undefined) updatePayload.Status = data.Status;
+
+        // 2. Xử lý Upload Ảnh Phân đoạn (Image) & dọn dẹp file cũ
         if (newImagePath) {
             updatePayload.Image = newImagePath;
             if (existingSection.Image) {
-                const oldImgPath = path.resolve(process.cwd(), existingSection.Image);
-                try {
-                    if (fs.existsSync(oldImgPath)) fs.unlinkSync(oldImgPath);
-                } catch (err) {
-                    console.error(`[Cleanup Error] Không thể xóa ảnh cũ:`, err);
-                }
+                this.deleteOldFile(existingSection.Image, 'ảnh phân đoạn');
             }
         }
 
+        // 3. 🚀 Xử lý Upload Biển báo tốc độ (SpeedSign) & dọn dẹp file cũ
+        if (newSpeedSignPath) {
+            updatePayload.SpeedSign = newSpeedSignPath;
+            if (existingSection.SpeedSign) {
+                this.deleteOldFile(existingSection.SpeedSign, 'ảnh biển báo tốc độ');
+            }
+        }
+
+        // 4. Xử lý Upload File Bản đồ (MapData) & dọn dẹp file cũ
         if (newMapFilePath) {
             updatePayload.MapData = newMapFilePath;
             if (existingSection.MapData) {
-                const oldMapPath = path.resolve(process.cwd(), existingSection.MapData);
-                try {
-                    if (fs.existsSync(oldMapPath)) fs.unlinkSync(oldMapPath);
-                } catch (err) {
-                    console.error(`[Cleanup Error] Không thể xóa file JSON bản đồ cũ:`, err);
-                }
+                this.deleteOldFile(existingSection.MapData, 'file JSON bản đồ');
             }
         }
 
+        // 5. Tiến hành cập nhật DB nếu có dữ liệu mới
         if (Object.keys(updatePayload).length > 0) {
             await this.sectionRepository.update({ SectionId: id }, updatePayload);
         }
 
         return this.findOneSection(id);
+    }
+
+    // 💡 Helper function nhỏ để tái sử dụng logic xóa file rác, tránh lặp code
+    private deleteOldFile(relativeFilePath: string, fileLabel: string) {
+        try {
+            const absolutePath = path.resolve(process.cwd(), relativeFilePath);
+            if (fs.existsSync(absolutePath)) {
+                fs.unlinkSync(absolutePath);
+            }
+        } catch (err) {
+            console.error(`[Cleanup Error] Không thể xóa ${fileLabel} cũ:`, err);
+        }
     }
 
     async remove(id: number): Promise<void> {
@@ -167,37 +191,30 @@ export class SectionsService {
     async getSectionStatistics() {
         const rawData = await this.sectionRepository
             .createQueryBuilder('section')
-            .leftJoin('section.expressway', 'expressway')
-            .leftJoin('section.bridge', 'bridge')
-            .leftJoin('section.tunnel', 'tunnel')
-            .leftJoin('section.interchange', 'interchange')
-            .leftJoin('section.province', 'province')
-            .leftJoin('section.restStop', 'restStop')
+            .leftJoin('section.expressway', 'expressway') // Chỉ giữ JOIN 1-1 với Expressway
             .select([
                 'section.SectionId AS id',
                 'section.NameSection AS sectionName',
                 'section.Length AS totalSectionLength',
                 'expressway.NameExpressway AS expresswayName',
             ])
-            .addSelect('COUNT(DISTINCT bridge.BridgeId)', 'bridgeCount')
-            .addSelect('COUNT(DISTINCT tunnel.TunnelId)', 'tunnelCount')
-            .addSelect('COUNT(DISTINCT interchange.InterchangeId)', 'interchangeCount')
-            .addSelect('COUNT(DISTINCT province.ProvinceId)', 'provinceCount')
+            // 1. Đếm Cầu, Hầm, Tỉnh thành bằng Sub-query
+            .addSelect('(SELECT COUNT(1) FROM dbo.Bridge b WHERE b.SectionId = section.SectionId)', 'bridgeCount')
+            .addSelect('(SELECT COUNT(1) FROM dbo.Tunnel t WHERE t.SectionId = section.SectionId)', 'tunnelCount')
+            .addSelect('(SELECT COUNT(1) FROM dbo.Interchange i WHERE i.SectionId = section.SectionId)', 'interchangeCount')
+            .addSelect('(SELECT COUNT(1) FROM dbo.SectionProvince sp WHERE sp.SectionId = section.SectionId)', 'provinceCount')
 
-            .addSelect("COUNT(DISTINCT CASE WHEN interchange.status = 'Complete' THEN interchange.InterchangeId END)", 'interchangeCompleteCount')
-            .addSelect("COUNT(DISTINCT CASE WHEN interchange.status = 'Under construction' THEN interchange.InterchangeId END)", 'interchangeUnderConstructionCount')
-            .addSelect("COUNT(DISTINCT CASE WHEN interchange.status = 'Not yet construction' THEN interchange.InterchangeId END)", 'interchangeNotYetConstructionCount')
+            // 2. Đếm Nút giao theo Trạng thái
+            .addSelect("(SELECT COUNT(1) FROM dbo.Interchange i WHERE i.SectionId = section.SectionId AND i.Status = 'Complete')", 'interchangeCompleteCount')
+            .addSelect("(SELECT COUNT(1) FROM dbo.Interchange i WHERE i.SectionId = section.SectionId AND i.Status = 'Under construction')", 'interchangeUnderConstructionCount')
+            .addSelect("(SELECT COUNT(1) FROM dbo.Interchange i WHERE i.SectionId = section.SectionId AND i.Status = 'Not yet construction')", 'interchangeNotYetConstructionCount')
 
-            // 🎯 SỬA LẠI THỐNG KÊ TRẠM DỪNG NGHỈ (Sử dụng COUNT DISTINCT kèm CASE WHEN)
-            .addSelect('COUNT(DISTINCT restStop.RestStopId)', 'restStopCount')
-            .addSelect("COUNT(DISTINCT CASE WHEN restStop.status = 'Operating' THEN restStop.RestStopId END)", 'restStopOperatingCount')
-            .addSelect("COUNT(DISTINCT CASE WHEN restStop.status = 'Under construction' THEN restStop.RestStopId END)", 'restStopUnderConstructionCount')
-            .addSelect("COUNT(DISTINCT CASE WHEN restStop.status = 'Not yet under construction' THEN restStop.RestStopId END)", 'restStopNotYetConstructionCount')
+            // 3. Đếm Trạm dừng nghỉ theo Trạng thái
+            .addSelect('(SELECT COUNT(1) FROM dbo.RestStop r WHERE r.SectionId = section.SectionId)', 'restStopCount')
+            .addSelect("(SELECT COUNT(1) FROM dbo.RestStop r WHERE r.SectionId = section.SectionId AND r.Status = 'Operating')", 'restStopOperatingCount')
+            .addSelect("(SELECT COUNT(1) FROM dbo.RestStop r WHERE r.SectionId = section.SectionId AND r.Status = 'Under construction')", 'restStopUnderConstructionCount')
+            .addSelect("(SELECT COUNT(1) FROM dbo.RestStop r WHERE r.SectionId = section.SectionId AND r.Status = 'Not yet under construction')", 'restStopNotYetConstructionCount')
 
-            .groupBy('section.SectionId')
-            .addGroupBy('section.NameSection')
-            .addGroupBy('section.Length')
-            .addGroupBy('expressway.NameExpressway')
             .orderBy('section.SectionId', 'ASC')
             .getRawMany();
 

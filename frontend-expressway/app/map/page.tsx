@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { Spin } from 'antd';
 import Header from '../components/Header/Header';
-import "./style.css"
+import "./map.css"
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 
 const MapComponent = dynamic(() => import('./MapComponent'), {

@@ -1,11 +1,11 @@
 "use client";
 
-import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Input, message, Modal, Popconfirm, Space, Table } from "antd";
+import { useEffect, useState } from "react";
+import {Button, Card, Form, Input, message, Modal, Popconfirm, Space, Table, Upload, Image as AntdImage} from "antd";
+import {DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined, UploadOutlined} from "@ant-design/icons";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import MainLayout from "../layout/Layout";
 import axiosClient from "@/api/axiosClient";
-import { useEffect, useState } from "react";
 
 interface SignDataType {
     SignId: number;
@@ -13,6 +13,7 @@ interface SignDataType {
     Image: string;
     Description: string;
 }
+
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function ManageSignPage() {
@@ -21,28 +22,27 @@ export default function ManageSignPage() {
     const [searchText, setSearchText] = useState<string>("");
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [editingSign, setEditingSign] = useState<SignDataType | null>(null);
+    const [fileList, setFileList] = useState<any[]>([]);
     const [form] = Form.useForm();
 
     const fetchSigns = async () => {
         setLoading(true);
         try {
             const response = await axiosClient.get("/signs");
-            console.log("Dữ liệu API Signs trả về:", response.data);
-            if (response.data) {
-                if (response.data.success && response.data.data) {
-                    setSigns(response.data.data);
-                } else if (Array.isArray(response.data)) {
-                    setSigns(response.data);
-                } else if (Array.isArray(response.data.data)) {
-                    setSigns(response.data.data);
-                } else {
-                    message.error("Cấu trúc JSON từ server không khớp với mã nguồn Front-end!");
-                }
+            const resData = response.data;
+
+            if (Array.isArray(resData)) {
+                setSigns(resData);
+            } else if (resData?.data && Array.isArray(resData.data)) {
+                setSigns(resData.data);
+            } else if (resData?.success && Array.isArray(resData.data)) {
+                setSigns(resData.data);
+            } else {
+                setSigns([]);
             }
         } catch (error: any) {
-            console.error("Lỗi chi tiết khi gọi API signs:", error);
-            const statusCode = error.response?.status;
-            message.error(`Không thể kết nối đến server! (Mã lỗi: ${statusCode || "Đứt kết nối"})`);
+            console.error("Lỗi khi tải danh sách:", error);
+            message.error("Không thể tải danh sách biển báo!");
         } finally {
             setLoading(false);
         }
@@ -54,10 +54,11 @@ export default function ManageSignPage() {
 
     const openModal = (sign: SignDataType | null = null) => {
         setEditingSign(sign);
+        setFileList([]);
+
         if (sign) {
             form.setFieldsValue({
                 Symbol: sign.Symbol,
-                Image: sign.Image,
                 Description: sign.Description,
             });
         } else {
@@ -70,22 +71,40 @@ export default function ManageSignPage() {
         try {
             const values = await form.validateFields();
             setLoading(true);
+            const formData = new FormData();
+            if (values.Symbol) formData.append("Symbol", values.Symbol);
+            if (values.Description) formData.append("Description", values.Description);
+            if (fileList.length > 0 && fileList[0].originFileObj) {
+                formData.append("file", fileList[0].originFileObj);
+            }
+
+            const config = {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            };
 
             if (editingSign) {
-
-                await axiosClient.put(`${baseUrl}/signs/${editingSign.SignId}`, values);
-                message.success("Cập nhật thông tin biển báo thành công!");
+                await axiosClient.put(`/signs/${editingSign.SignId}`, formData);
+                message.success("Cập nhật biển báo thành công!");
             } else {
-                await axiosClient.post(`${baseUrl}/signs`, values);
-
+                if (fileList.length === 0) {
+                    message.warning("Vui lòng chọn file ảnh cho biển báo mới!");
+                    setLoading(false);
+                    return;
+                }
+                await axiosClient.post("/signs", formData);
                 message.success("Thêm biển báo mới thành công!");
             }
 
             setIsModalOpen(false);
+            form.resetFields();
+            setFileList([]);
             fetchSigns();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Lỗi lưu dữ liệu:", error);
-            message.error("Thao tác thất bại, vui lòng kiểm tra dữ liệu đầu vào!");
+            const errMsg = error.response?.data?.message || "Thao tác thất bại, kiểm tra lại!";
+            message.error(errMsg);
         } finally {
             setLoading(false);
         }
@@ -94,10 +113,10 @@ export default function ManageSignPage() {
     const handleDeleteSign = async (signId: number) => {
         try {
             setLoading(true);
-            await axiosClient.delete(`${baseUrl}/signs/${signId}`);
-            message.success("Đã xóa biển báo thành công khỏi hệ thống!");
+            await axiosClient.delete(`/signs/${signId}`);
+            message.success("Đã xóa biển báo khỏi hệ thống!");
             fetchSigns();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Lỗi xóa biển báo:", error);
             message.error("Không thể xóa biển báo này!");
         } finally {
@@ -107,27 +126,26 @@ export default function ManageSignPage() {
 
     const columns = [
         {
-            title: "Mã số (SignId)",
+            title: "Mã số (ID)",
             dataIndex: "SignId",
             key: "SignId",
-            width: 130,
+            width: 100,
             sorter: (a: SignDataType, b: SignDataType) => a.SignId - b.SignId,
         },
         {
             title: "Hình ảnh",
             dataIndex: "Image",
             key: "Image",
-            width: 120,
+            width: 110,
             align: "center" as const,
             render: (imgStr: string) => {
                 const srcUrl = imgStr?.startsWith("http") ? imgStr : `${baseUrl}/${imgStr}`;
-                const AntdImage = require("antd").Image;
                 return (
                     <AntdImage
                         src={srcUrl}
                         alt="sign-icon"
-                        width={50}
-                        height={50}
+                        width={45}
+                        height={45}
                         style={{ objectFit: "contain", borderRadius: "4px" }}
                         fallback="/expresswayicon.png"
                     />
@@ -138,7 +156,7 @@ export default function ManageSignPage() {
             title: "Ký hiệu (Symbol)",
             dataIndex: "Symbol",
             key: "Symbol",
-            width: 150,
+            width: 160,
             render: (text: string) => <strong style={{ color: "#1890ff" }}>{text}</strong>,
         },
         {
@@ -150,12 +168,14 @@ export default function ManageSignPage() {
         {
             title: "Thao tác",
             key: "action",
-            width: 200,
+            width: 180,
+            align: "center" as const,
             render: (_: any, record: SignDataType) => (
-                <Space size="middle">
+                <Space size="small">
                     <Button
                         type="primary"
                         ghost
+                        size="small"
                         icon={<EditOutlined />}
                         onClick={() => openModal(record)}
                     >
@@ -169,7 +189,7 @@ export default function ManageSignPage() {
                         cancelText="Hủy"
                         okButtonProps={{ danger: true }}
                     >
-                        <Button danger icon={<DeleteOutlined />}>
+                        <Button danger size="small" icon={<DeleteOutlined />}>
                             Xóa
                         </Button>
                     </Popconfirm>
@@ -178,13 +198,14 @@ export default function ManageSignPage() {
         },
     ];
 
-    // Tìm kiếm tại chỗ (Front-end Filter)
     const filteredSigns = signs.filter((sign) => {
+        const query = searchText.toLowerCase();
         return (
-            sign.Symbol?.toLowerCase().includes(searchText.toLowerCase()) ||
-            sign.Description?.toLowerCase().includes(searchText.toLowerCase())
+            sign.Symbol?.toLowerCase().includes(query) ||
+            sign.Description?.toLowerCase().includes(query)
         );
     });
+
     return (
         <ProtectedRoute role={1}>
             <MainLayout>
@@ -216,9 +237,9 @@ export default function ManageSignPage() {
                         <Table
                             columns={columns}
                             dataSource={filteredSigns}
-                            rowKey="SignId" // Khóa chính để AntD định danh hàng
+                            rowKey="SignId"
                             loading={loading}
-                            pagination={{ pageSize: 5 }}
+                            pagination={{ pageSize: 6 }}
                             bordered
                         />
                     </Card>
@@ -232,6 +253,7 @@ export default function ManageSignPage() {
                         okText={editingSign ? "Lưu thay đổi" : "Tạo mới"}
                         cancelText="Hủy"
                         confirmLoading={loading}
+                        destroyOnClose
                     >
                         <Form form={form} layout="vertical" style={{ marginTop: "20px" }}>
                             <Form.Item
@@ -242,18 +264,25 @@ export default function ManageSignPage() {
                                 <Input placeholder="Ví dụ: IE.450a" />
                             </Form.Item>
 
-                            <Form.Item
-                                name="Image"
-                                label="Đường dẫn hình ảnh (Image Path)"
-                                rules={[{ required: true, message: "Vui lòng nhập đường dẫn ảnh!" }]}
-                            >
-                                <Input placeholder="Ví dụ: uploads/signs/IE450a.png" />
+                            {/* UPLOAD FILE ẢNH BẰNG COMPONENT CỦA ANTD */}
+                            <Form.Item label="Hình ảnh biển báo">
+                                <Upload
+                                    beforeUpload={() => false} // Không upload tự động, để submit form mới gửi
+                                    maxCount={1}
+                                    fileList={fileList}
+                                    onChange={({ fileList }) => setFileList(fileList)}
+                                    listType="picture"
+                                >
+                                    <Button icon={<UploadOutlined />}>
+                                        {editingSign ? "Chọn ảnh mới (Nếu muốn thay)" : "Tải ảnh lên"}
+                                    </Button>
+                                </Upload>
                             </Form.Item>
 
                             <Form.Item
                                 name="Description"
                                 label="Mô tả nội dung / Ý nghĩa"
-                                rules={[{ required: true, message: "Vui lòng nhập nội dung giải thích biển báo!" }]}
+                                rules={[{ required: true, message: "Vui lòng nhập nội dung giải thích!" }]}
                             >
                                 <Input.TextArea rows={4} placeholder="Nhập ý nghĩa chi tiết hiển thị..." />
                             </Form.Item>
@@ -262,5 +291,5 @@ export default function ManageSignPage() {
                 </div>
             </MainLayout>
         </ProtectedRoute>
-    )
+    );
 }

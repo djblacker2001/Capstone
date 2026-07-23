@@ -10,8 +10,8 @@ export class CreateSectionDto {
     @ApiProperty()
     NameSection!: string;
 
-    @ApiProperty({ type: 'string', format: 'binary', required: false, description: 'File hình ảnh phân đoạn (.png, .jpg)' })
-    imageFile?: any;
+    @ApiProperty({ type: 'string', format: 'binary', required: false})
+    Image?: any;
 
     @ApiProperty()
     Length!: number;
@@ -28,6 +28,9 @@ export class CreateSectionDto {
     @ApiProperty()
     EndKm?: number;
 
+    @ApiProperty({ type: 'string', format: 'binary', required: false})
+    SpeedSign?: any;
+
     @ApiProperty()
     SpeedLimit?: string;
 
@@ -41,5 +44,5 @@ export class CreateSectionDto {
     Status?: string;
 
     @ApiProperty({ type: 'string', format: 'binary', required: false, description: 'File JSON dữ liệu bản đồ (.json)' })
-    mapFile?: any;
+    MapData?: any;
 }

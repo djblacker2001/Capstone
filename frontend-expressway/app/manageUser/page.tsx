@@ -6,11 +6,11 @@ import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import MainLayout from "../layout/Layout";
 import axiosClient from "@/api/axiosClient";
 import { useEffect, useState } from "react";
-import "./style.css";
 
 interface UserDataType {
-    id: number;
+    UserId: number;
     Username: string;
+    Email?: string;
     RoleId: number;
     Avatar?: string;
     CreatedAt?: string;
@@ -19,7 +19,7 @@ interface UserDataType {
 export default function ManageUserPage() {
     const [loading, setLoading] = useState<boolean>(false);
     const [allAccounts, setAllAccounts] = useState<UserDataType[]>([]);
-    const [searchText, setSearchText] = useState<string>('');
+    const [searchText, setSearchText] = useState<string>("");
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [editingUser, setEditingUser] = useState<UserDataType | null>(null);
     const [form] = Form.useForm();
@@ -27,20 +27,19 @@ export default function ManageUserPage() {
     const fetchAllAccounts = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token') || localStorage.getItem('token');
-
-            const response = await axiosClient.get('http://localhost:8080/users', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            if (response.data) {
-                setAllAccounts(response.data);
+            const response: any = await axiosClient.get("/users");
+            
+            const resData = response?.data || response;
+            if (Array.isArray(resData)) {
+                setAllAccounts(resData);
+            } else if (resData?.data && Array.isArray(resData.data)) {
+                setAllAccounts(resData.data);
+            } else {
+                setAllAccounts([]);
             }
-        } catch (error) {
-            console.error('Lỗi lấy danh sách tài khoản:', error);
-            message.error('Không thể tải dữ liệu từ server!');
+        } catch (error: any) {
+            console.error("Lỗi lấy danh sách tài khoản:", error);
+            message.error("Không thể tải danh sách tài khoản từ Server!");
         } finally {
             setLoading(false);
         }
@@ -56,7 +55,7 @@ export default function ManageUserPage() {
             form.setFieldsValue({
                 Username: user.Username,
                 RoleId: user.RoleId,
-                password: '',
+                password: "",
             });
         } else {
             form.resetFields();
@@ -70,150 +69,132 @@ export default function ManageUserPage() {
             setLoading(true);
 
             if (editingUser) {
-                await axiosClient.put(`http://localhost:8080/users/${editingUser.id}`, values);
-                message.success('Cập nhật tài khoản thành công!');
+                const updatePayload = { ...values };
+                if (!updatePayload.password) {
+                    delete updatePayload.password;
+                }
+
+                await axiosClient.put(`/users/${editingUser.UserId}`, updatePayload);
+                message.success("Cập nhật tài khoản thành công!");
             } else {
-                await axiosClient.post('http://localhost:8080/users', values);
-                message.success('Thêm tài khoản mới thành công!');
+                await axiosClient.post("/users", values);
+                message.success("Thêm tài khoản mới thành công!");
             }
 
             setIsModalOpen(false);
+            form.resetFields();
             fetchAllAccounts();
-        } catch (error) {
-            console.error('Lỗi thao tác:', error);
-            message.error('Thao tác thất bại!');
+        } catch (error: any) {
+            console.error("Lỗi thao tác:", error);
+            const errMsg = error.response?.data?.message || "Thao tác thất bại, vui lòng kiểm tra lại!";
+            message.error(errMsg);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleDelete = async (id: number) => {
-        try {
-            setLoading(true);
-            await axiosClient.delete(`http://localhost:8080/users/${id}`);
-            message.success('Đã xóa tài khoản!');
-            fetchAllAccounts();
-        } catch (error) {
-            console.error('Lỗi xóa:', error);
-            message.error('Không thể xóa tài khoản này!');
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // Cấu hình các cột cho Bảng
     const columns = [
         { 
-            title: 'ID', 
-            dataIndex: 'UserId', 
-            key: 'UserId', 
-            width: 80 
+            title: "ID", 
+            dataIndex: "UserId", 
+            key: "UserId", 
+            width: 80,
+            sorter: (a: UserDataType, b: UserDataType) => a.UserId - b.UserId,
         },
         {
-            title: 'Username',
-            dataIndex: 'Username',
-            key: 'Username',
+            title: "Username",
+            dataIndex: "Username",
+            key: "Username",
             render: (text: string, record: UserDataType) => (
                 <Space>
-                    {record.RoleId === 1 ? <SafetyCertificateOutlined style={{ color: '#ff4d4f' }} /> : <UserOutlined />}
-                    <span style={{ fontWeight: 500 }}>{text}</span>
+                    {record.RoleId === 1 ? (
+                        <SafetyCertificateOutlined style={{ color: "#ff4d4f" }} />
+                    ) : (
+                        <UserOutlined style={{ color: "#1890ff" }} />
+                    )}
+                    <span style={{ fontWeight: 600 }}>{text}</span>
                 </Space>
             ),
         },
         {
-            title: 'Email',
-            dataIndex: 'Email',
-            key: 'Email',
+            title: "Email",
+            dataIndex: "Email",
+            key: "Email",
+            render: (email: string) => email || <i style={{ color: "#8c8c8c" }}>Chưa cập nhật</i>,
         },
         {
-            title: 'Phân loại',
-            dataIndex: 'RoleId',
-            key: 'RoleId',
-            width: 150,
-            render: (roleId: number) => roleId === 1 ? <Tag color="red">ADMIN (Bảng riêng)</Tag> : <Tag color="blue">USER (Bảng riêng)</Tag>
+            title: "Phân loại",
+            dataIndex: "RoleId",
+            key: "RoleId",
+            width: 180,
+            render: (roleId: number) => 
+                roleId === 1 ? (
+                    <Tag color="red">ADMIN (Bảng admins)</Tag>
+                ) : (
+                    <Tag color="blue">USER (Bảng users)</Tag>
+                ),
         },
     ];
 
-    const filteredAdmins = allAccounts.filter(acc => acc.RoleId === 1 && acc.Username?.toLowerCase().includes(searchText.toLowerCase()));
-    const filteredUsers = allAccounts.filter(acc => acc.RoleId === 2 && acc.Username?.toLowerCase().includes(searchText.toLowerCase()));
+    // Lọc theo tìm kiếm
+    const filteredUsers = allAccounts.filter(
+        (acc) => acc.RoleId === 2 && acc.Username?.toLowerCase().includes(searchText.toLowerCase())
+    );
+    const filteredAdmins = allAccounts.filter(
+        (acc) => acc.RoleId === 1 && acc.Username?.toLowerCase().includes(searchText.toLowerCase())
+    );
+
     const tabItems = [
         {
-            key: '1',
-            label: <span style={{ fontWeight: 'bold' }}>👤 Danh sách Người dùng (Table: users)</span>,
-            children: <Table columns={columns} dataSource={filteredUsers} rowKey="id" loading={loading} pagination={{ pageSize: 6 }} bordered />,
+            key: "1",
+            label: <span style={{ fontWeight: "bold" }}>👤 Danh sách Người dùng (Table: users)</span>,
+            children: (
+                <Table 
+                    columns={columns} 
+                    dataSource={filteredUsers} 
+                    rowKey="UserId" 
+                    loading={loading} 
+                    pagination={{ pageSize: 6 }} 
+                    bordered 
+                />
+            ),
         },
         {
-            key: '2',
-            label: <span style={{ fontWeight: 'bold' }}>🛡️ Danh sách Quản trị viên (Table: admins)</span>,
-            children: <Table columns={columns} dataSource={filteredAdmins} rowKey="id" loading={loading} pagination={{ pageSize: 6 }} bordered />,
+            key: "2",
+            label: <span style={{ fontWeight: "bold" }}>🛡️ Danh sách Quản trị viên (Table: admins)</span>,
+            children: (
+                <Table 
+                    columns={columns} 
+                    dataSource={filteredAdmins} 
+                    rowKey="UserId" 
+                    loading={loading} 
+                    pagination={{ pageSize: 6 }} 
+                    bordered 
+                />
+            ),
         },
     ];
+
     return (
         <ProtectedRoute role={1}>
             <MainLayout>
-                <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-                    <Card
-                        title={<span style={{ fontSize: '20px', fontWeight: 'bold' }}>⚙️ Trung tâm quản trị cơ sở dữ liệu tài khoản</span>}
-                        extra={
-                            <Button
-                                type="primary" icon={<UserAddOutlined />} onClick={() => openModal(null)}
-                                style={{ background: '#059731', borderColor: '#059731' }}
-                            >
-                                Cấp tài khoản mới
-                            </Button>
-                        }
-                    >
-                        <div style={{ marginBottom: '20px' }}>
+                <div style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
+                    <Card title={<span style={{ fontSize: "20px", fontWeight: "bold" }}>⚙️ Trung tâm quản trị cơ sở dữ liệu tài khoản</span>}>
+                        <div style={{ marginBottom: "20px" }}>
                             <Input
                                 placeholder="Tìm kiếm tài khoản nhanh..."
                                 prefix={<SearchOutlined />}
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
-                                style={{ width: 300 }}
+                                style={{ width: 320 }}
                                 allowClear
                             />
                         </div>
                         <Tabs defaultActiveKey="1" items={tabItems} type="card" />
                     </Card>
-
-                    <Modal
-                        title={editingUser ? '✏️ Hiệu chỉnh tài khoản' : '➕ Tạo tài khoản phân vùng mới'}
-                        open={isModalOpen}
-                        onOk={handleFormSubmit}
-                        onCancel={() => setIsModalOpen(false)}
-                        okText="Xác nhận lưu" cancelText="Hủy bỏ" confirmLoading={loading}
-                    >
-                        <Form form={form} layout="vertical" style={{ marginTop: '20px' }}>
-                            <Form.Item
-                                name="Username" label="Tên đăng nhập"
-                                rules={[{ required: true, message: 'Vui lòng điền tên đăng nhập!' }]}
-                            >
-                                <Input placeholder="Nhập tên tài khoản" disabled={!!editingUser} />
-                            </Form.Item>
-
-                            <Form.Item
-                                name="password" label={editingUser ? "Mật khẩu mới (Bỏ trống nếu giữ nguyên)" : "Mật khẩu khởi tạo"}
-                                rules={[{ required: !editingUser, message: 'Vui lòng điền mật khẩu!' }]}
-                            >
-                                <Input.Password placeholder="Nhập mã bảo mật" />
-                            </Form.Item>
-
-                            <Form.Item
-                                name="RoleId" label="Đích lưu trữ (Hệ thống tự phân bảng)"
-                                rules={[{ required: true, message: 'Vui lòng chọn đích lưu trữ!' }]}
-                            >
-                                <Select
-                                    placeholder="Chọn bảng đích ghi dữ liệu"
-                                    disabled={!!editingUser}
-                                    options={[
-                                        { value: 2, label: 'Lưu vào bảng [users]' },
-                                        { value: 1, label: 'Lưu vào bảng [admins]' },
-                                    ]}
-                                />
-                            </Form.Item>
-                        </Form>
-                    </Modal>
                 </div>
             </MainLayout>
         </ProtectedRoute>
-    )
+    );
 }

@@ -1,16 +1,16 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 const axiosClient = axios.create({
-  baseURL: 'http://localhost:8080',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  baseURL: baseUrl,
 });
 
 axiosClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+      
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -22,20 +22,19 @@ axiosClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 axiosClient.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response.data;
-  },
+  (response: AxiosResponse) => response,
   (error) => {
     if (typeof window !== 'undefined' && error.response?.status === 401) {
-      localStorage.removeItem('user');
-      localStorage.removeItem('accessToken');
-      window.location.href = '/';
+      if (!window.location.pathname.includes('/login') && window.location.pathname !== '/') {
+        localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

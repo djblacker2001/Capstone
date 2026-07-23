@@ -58,33 +58,42 @@ export class SignsService {
     return await this.signRepository.save(newSign);
   }
 
+  private cleanPayload<T extends Record<string, any>>(data: T): Partial<T> {
+    const cleaned: Record<string, any> = {};
+
+    Object.keys(data).forEach((key) => {
+      if (key === 'SignId' || key === 'id') {
+        return;
+      }
+
+      const value = data[key];
+      if (value !== undefined && value !== null && value !== '') {
+        cleaned[key] = value;
+      }
+    });
+
+    return cleaned as Partial<T>;
+  }
+
   async update(id: number, data: Partial<Sign>): Promise<Sign> {
     await this.findOne(id);
-    await this.signRepository.update(id, data);
+    const updatePayload = this.cleanPayload(data);
+    if (Object.keys(updatePayload).length > 0) {
+      await this.signRepository.update(id, updatePayload);
+    }
+
     return this.findOne(id);
   }
 
   async updateImage(id: number, data: Partial<Sign>, newImagePath?: string): Promise<Sign> {
-    // 1. Kiểm tra xem biển báo có tồn tại hay không (Dùng hàm findOne có sẵn của bạn để tự bắn lỗi 404 nếu không tìm thấy)
     const existingSign = await this.findOne(id);
-
-    // 2. Chuẩn bị object chứa dữ liệu cập nhật text
-    const updatePayload: Partial<Sign> = {
-      Symbol: data.Symbol,
-      Description: data.Description,
-    };
-
-    // 3. Nếu có file hình ảnh mới được truyền lên từ Controller
+    const updatePayload: Partial<Sign> = this.cleanPayload(data);
     if (newImagePath) {
       updatePayload.Image = newImagePath;
-
-      // 4. TIẾN HÀNH XÓA FILE ẢNH CŨ KHỎI Ổ CỨNG (Để bảo vệ tài nguyên Server)
       if (existingSign.Image) {
-        // Tạo đường dẫn tuyệt đối đến file ảnh cũ
         const oldFileAbsolutePath = path.resolve(process.cwd(), existingSign.Image);
 
         try {
-          // Kiểm tra file có thực sự tồn tại trên ổ cứng hay không trước khi xóa
           if (fs.existsSync(oldFileAbsolutePath)) {
             fs.unlinkSync(oldFileAbsolutePath);
             console.log(`[Multer-Cleanup] Đã xóa thành công file ảnh cũ: ${oldFileAbsolutePath}`);
@@ -94,7 +103,11 @@ export class SignsService {
         }
       }
     }
-    await this.signRepository.update({ SignId: id }, updatePayload);
+
+    if (Object.keys(updatePayload).length > 0) {
+      await this.signRepository.update({ SignId: id }, updatePayload);
+    }
+
     return this.findOne(id);
   }
 
