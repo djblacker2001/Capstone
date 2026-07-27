@@ -1,8 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { Card, Row, Col, Typography, Badge, Descriptions, Space, Tabs, Table, Tag } from 'antd';
-import { useState } from 'react';
+import { Card, Row, Col, Typography, Badge, Descriptions, Space, Tabs, Table, Tag, Spin, Alert } from 'antd';
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import "./style.css";
 import {
     CompassOutlined,
@@ -14,7 +15,7 @@ import {
 import MainLayout from '@/app/layout/Layout';
 import ProtectedRoute from '@/app/components/ProtectedRoute/ProtectedRoute';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 const DynamicMapContainer = dynamic(() => import('./MapComponent'), {
     ssr: false,
@@ -27,7 +28,7 @@ const DynamicMapContainer = dynamic(() => import('./MapComponent'), {
 
 const { Title, Text } = Typography;
 
-// 1. Interface chuẩn khớp 100% với JSON API
+// --- Interfaces khớp 100% với JSON API ---
 interface InterchangeItem {
     InterchangeId: number;
     SectionId: number;
@@ -84,137 +85,88 @@ interface SectionDetail {
     StartKm: number;
     EndLocation: string;
     EndKm: number;
-    SpeedLimit: string; // Trong JSON trường này lưu link ảnh biển báo
+    SpeedSign: string | null;
+    SpeedLimit: number | string | null;
     TrafficLand: number;
     HasEmergencyLand: boolean;
     Status: string;
     MapData: string;
-    interchange: InterchangeItem[];
-    restStop: RestStopItem[];
-    bridge: BridgeItem[];
-    tunnel: TunnelItem[];
-    province: ProvinceItem[];
+    restStop?: RestStopItem[];
+    interchange?: InterchangeItem[];
+    bridge?: BridgeItem[];
+    tunnel?: TunnelItem[];
+    province?: ProvinceItem[];
 }
 
-const ExpresswayPage = () => {
-    const [isFullscreen, setIsFullscreen] = useState(false);
+export default function ExpresswayPage() {
+    const params = useParams();
+    const rawId = params?.id;
+    const currentId = Array.isArray(rawId) ? rawId[0] : rawId;
 
-    // 2. Mock Data từ đúng JSON bạn cung cấp
-    const data: SectionDetail = {
-        SectionId: 101,
-        ExpresswayId: 100,
-        NameSection: "Pháp Vân – Cầu Giẽ",
-        Image: "uploads/ways/phapvancaugie.jpg",
-        Length: 30,
-        StartLocation: "Pháp Vân",
-        StartKm: 182,
-        EndLocation: "Đại Xuyên",
-        EndKm: 211.7,
-        SpeedLimit: "uploads/signs/phapvancaugietocdo.png",
-        TrafficLand: 6,
-        HasEmergencyLand: true,
-        Status: "Complete",
-        MapData: "uploads/maps/phapvancaugie.json",
-        restStop: [],
-        interchange: [
-            {
-                InterchangeId: 10101,
-                SectionId: 101,
-                NameInterchange: "Pháp Vân",
-                Type: "Trumpet",
-                Location: "182",
-                Longitude: 105.849085,
-                Latitude: 20.961243,
-                BOT: "Nop",
-                Connection: "Hanoi Ring Road 3, AH1",
-                Status: "Complete"
-            },
-            {
-                InterchangeId: 10102,
-                SectionId: 101,
-                NameInterchange: "Tứ Hiệp",
-                Type: "Diamond",
-                Location: "184.7",
-                Longitude: null,
-                Latitude: null,
-                BOT: "Nop",
-                Connection: "Tam Trinh – Văn Điển Road",
-                Status: "Under construction"
-            },
-            {
-                InterchangeId: 10103,
-                SectionId: 101,
-                NameInterchange: "Hanoi Ring Road 4",
-                Type: "Diamond",
-                Location: "190",
-                Longitude: 105.868271,
-                Latitude: 20.891335,
-                BOT: "Nop",
-                Connection: "Hanoi Ring Road 4",
-                Status: "Under construction"
-            },
-            {
-                InterchangeId: 10104,
-                SectionId: 101,
-                NameInterchange: "Thường Tín",
-                Type: "Diamond",
-                Location: "192.7",
-                Longitude: 105.879758,
-                Latitude: 20.870341,
-                BOT: "Operating",
-                Connection: "DT427",
-                Status: "Complete"
-            },
-            {
-                InterchangeId: 10105,
-                SectionId: 101,
-                NameInterchange: "Vạn Điểm",
-                Type: "Diamond",
-                Location: "203.7",
-                Longitude: 105.908351,
-                Latitude: 20.77252,
-                BOT: "Operating",
-                Connection: "DT429",
-                Status: "Complete"
-            },
-            {
-                InterchangeId: 10106,
-                SectionId: 101,
-                NameInterchange: "Đại Xuyên",
-                Type: "Trumpet",
-                Location: "211.7",
-                Longitude: 105.91885,
-                Latitude: 20.703974,
-                BOT: "Operating",
-                Connection: "AH1, \r\nDT428",
-                Status: "Complete"
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [data, setData] = useState<SectionDetail | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchSectionDetail = async () => {
+            if (!currentId) return;
+
+            try {
+                setLoading(true);
+                setError(null);
+
+                const apiUrl = `${baseUrl}/sections/${currentId}`;
+                console.log("👉 [Public] URL API đang gọi:", apiUrl);
+
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
+
+                const result = await response.json();
+                console.log("👉 [Public] Dữ liệu thô từ API:", result);
+
+                // Bóc tách trường `data` từ Response của Backend
+                const sectionData = result?.data || result;
+
+                if (Array.isArray(sectionData)) {
+                    const found = sectionData.find((item: any) => String(item.SectionId) === String(currentId));
+                    setData(found || sectionData[0] || null);
+                } else {
+                    setData(sectionData);
+                }
+
+            } catch (err: any) {
+                console.error("❌ Lỗi Fetch:", err);
+                setError(err.message || 'Có lỗi xảy ra khi kết nối tới máy chủ');
+            } finally {
+                setLoading(false);
             }
-        ],
-        bridge: [],
-        tunnel: [],
-        province: [
-            {
-                ProvinceId: 1,
-                ProvinceName: "Hà Nội City",
-                Region: "North"
-            }
-        ]
-    };
+        };
+
+        fetchSectionDetail();
+    }, [currentId]);
 
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'Complete':
-                return <Badge status="success" text="Active / Complete" />;
+                return <Badge status="success" text="Hoàn thành / Đang hoạt động" />;
             case 'Under construction':
-                return <Badge status="processing" text="Under Construction" />;
+                return <Badge status="processing" text="Đang thi công" />;
             case 'Extend under construction':
-                return <Badge status="warning" text="Extending" />;
+                return <Badge status="warning" text="Đang mở rộng" />;
             default:
                 return <Badge status="default" text={status} />;
         }
     };
 
-    // 3. Cột cho bảng Nút giao (Interchange)
+    // Helper ghép URL ảnh
+    const getImageUrl = (path?: string | null) => {
+        if (!path) return '';
+        if (path.startsWith('http://') || path.startsWith('https://')) return path;
+        return `${baseUrl}/${path.startsWith('/') ? path.slice(1) : path}`;
+    };
+
+    // --- Cấu hình bảng Nút giao ---
     const interchangeColumns = [
         {
             title: 'Tên nút giao',
@@ -237,7 +189,7 @@ const ExpresswayPage = () => {
             title: 'Kết nối',
             dataIndex: 'Connection',
             key: 'Connection',
-            render: (text: string) => <span>{text}</span>
+            render: (text: string) => <span style={{ whiteSpace: 'pre-line' }}>{text}</span>
         },
         {
             title: 'Trạm BOT',
@@ -268,7 +220,7 @@ const ExpresswayPage = () => {
         },
     ];
 
-    // Cột Trạm dừng
+    // --- Cấu hình bảng Trạm dừng nghỉ ---
     const restStopColumns = [
         {
             title: 'Tên trạm dừng',
@@ -316,64 +268,81 @@ const ExpresswayPage = () => {
         },
     ];
 
-    // Cột Cầu
     const bridgeColumns = [
         { title: 'Tên cầu', dataIndex: 'NameBridge', key: 'NameBridge', render: (text: string) => <Text strong>{text}</Text> },
         { title: 'Vị trí', dataIndex: 'Location', key: 'Location', render: (km: string) => <Tag color="orange">Km {km}</Tag> },
     ];
 
-    // Cột Đường hầm
     const tunnelColumns = [
         { title: 'Tên đường hầm', dataIndex: 'NameTunnel', key: 'NameTunnel', render: (text: string) => <Text strong>{text}</Text> },
         { title: 'Vị trí', dataIndex: 'Location', key: 'Location', render: (km: string) => <Tag color="purple">Km {km}</Tag> },
     ];
 
-    // 4. Các Tab
+    if (loading) {
+        return (
+            <ProtectedRoute>
+                <MainLayout>
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                        <Spin size="large" tip="Đang tải dữ liệu tuyến đường..." />
+                    </div>
+                </MainLayout>
+            </ProtectedRoute>
+        );
+    }
+
+    if (error || !data) {
+        return (
+            <ProtectedRoute>
+                <MainLayout>
+                    <div style={{ padding: '20px' }}>
+                        <Alert
+                            message="Lỗi tải dữ liệu"
+                            description={error || 'Không tìm thấy thông tin tuyến đường.'}
+                            type="error"
+                            showIcon
+                        />
+                    </div>
+                </MainLayout>
+            </ProtectedRoute>
+        );
+    }
+
     const tabItems = [
         {
             key: '1',
             label: (
                 <span>
-                    <BranchesOutlined /> Nút giao ({data.interchange.length})
+                    <BranchesOutlined /> Nút giao ({data.interchange?.length || 0})
                 </span>
             ),
-            children: <Table dataSource={data.interchange} columns={interchangeColumns} rowKey="InterchangeId" pagination={false} size="small" />
+            children: <Table dataSource={data.interchange || []} columns={interchangeColumns} rowKey="InterchangeId" pagination={false} size="small" locale={{ emptyText: 'Chưa có dữ liệu nút giao' }} />
         },
         {
             key: '2',
             label: (
                 <span>
-                    <CoffeeOutlined /> Trạm dừng nghỉ ({data.restStop.length})
+                    <CoffeeOutlined /> Trạm dừng nghỉ ({data.restStop?.length || 0})
                 </span>
             ),
-            children: (
-                <Table
-                    dataSource={data.restStop}
-                    columns={restStopColumns}
-                    rowKey="RestStopId"
-                    pagination={false}
-                    size="small"
-                    locale={{ emptyText: 'Chưa có trạm dừng nghỉ' }}
-                />
-            )
+            children: <Table dataSource={data.restStop || []} columns={restStopColumns} rowKey="RestStopId" pagination={false} size="small" locale={{ emptyText: 'Chưa có trạm dừng nghỉ' }} />
         },
         {
             key: '3',
             label: (
                 <span>
-                    <EnvironmentOutlined /> Cầu ({data.bridge.length})
+                    <EnvironmentOutlined /> Cầu ({data.bridge?.length || 0})
                 </span>
             ),
-            children: <Table dataSource={data.bridge} columns={bridgeColumns} rowKey="BridgeId" pagination={false} size="small" locale={{ emptyText: 'Chưa có dữ liệu cầu' }} />
+            children: <Table dataSource={data.bridge || []} columns={bridgeColumns} rowKey="BridgeId" pagination={false} size="small" locale={{ emptyText: 'Chưa có dữ liệu cầu' }} />
         },
         {
             key: '4',
             label: (
                 <span>
-                    <CompassOutlined /> Đường hầm ({data.tunnel.length})
+                    <CompassOutlined /> Đường hầm ({data.tunnel?.length || 0})
                 </span>
             ),
-            children: <Table dataSource={data.tunnel} columns={tunnelColumns} rowKey="TunnelId" pagination={false} size="small" locale={{ emptyText: 'Tuyến đường không có hầm' }} />
+            children: <Table dataSource={data.tunnel || []} columns={tunnelColumns} rowKey="TunnelId" pagination={false} size="small" locale={{ emptyText: 'Tuyến đường không có hầm' }} />
         },
     ];
 
@@ -382,28 +351,32 @@ const ExpresswayPage = () => {
             <MainLayout>
                 <div style={{ padding: '20px', position: 'relative' }}>
                     <Row gutter={[24, 24]}>
-                        {/* Cột trái: Ảnh đoạn đường, Ảnh biển báo & Bản đồ */}
+                        {/* Cột trái: Hình ảnh & Bản đồ */}
                         <Col xs={24} md={8} lg={6}>
                             <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
-                                {/* Ảnh đoạn đường */}
-                                <div style={{ width: '100%', border: '1px solid #d9d9d9', borderRadius: '8px', overflow: 'hidden' }}>
-                                    <img
-                                        src={`${baseUrl}/${data.Image}`}
-                                        alt="Đoạn đường"
-                                        style={{ width: '100%', display: 'block', objectFit: 'cover' }}
-                                    />
-                                </div>
+                                {/* Ảnh tuyến đường */}
+                                {data.Image && (
+                                    <div style={{ width: '100%', border: '1px solid #d9d9d9', borderRadius: '8px', overflow: 'hidden' }}>
+                                        <img
+                                            src={getImageUrl(data.Image)}
+                                            alt="Đoạn đường"
+                                            style={{ width: '100%', display: 'block', objectFit: 'cover' }}
+                                        />
+                                    </div>
+                                )}
 
-                                {/* Ảnh Biển báo tốc độ (lấy từ SpeedLimit) */}
-                                <div style={{ width: '100%', border: '1px solid #d9d9d9', borderRadius: '8px', overflow: 'hidden' }}>
-                                    <img
-                                        src={`${baseUrl}/${data.SpeedLimit}`}
-                                        alt="Biển báo tốc độ"
-                                        style={{ width: '100%', display: 'block', objectFit: 'cover' }}
-                                    />
-                                </div>
+                                {/* Ảnh biển báo tốc độ (Lấy từ SpeedSign) */}
+                                {data.SpeedSign && (
+                                    <div style={{ width: '100%', border: '1px solid #d9d9d9', borderRadius: '8px', overflow: 'hidden' }}>
+                                        <img
+                                            src={getImageUrl(data.SpeedSign)}
+                                            alt="Biển báo tốc độ"
+                                            style={{ width: '100%', display: 'block', objectFit: 'cover' }}
+                                        />
+                                    </div>
+                                )}
 
-                                {/* Map */}
+                                {/* Bản đồ */}
                                 <div className="map-wrapper" style={{ marginTop: '8px' }}>
                                     <div className={isFullscreen ? 'map-expanded' : 'map-small'}>
                                         <DynamicMapContainer
@@ -416,7 +389,7 @@ const ExpresswayPage = () => {
                                     {!isFullscreen && (
                                         <div style={{ marginTop: '10px', textAlign: 'center' }}>
                                             <a href="#" onClick={(e) => { e.preventDefault(); setIsFullscreen(true); }} style={{ color: '#007bff', textDecoration: 'underline', fontSize: '14px', fontWeight: 500 }}>
-                                                Full screen
+                                                Xem toàn màn hình
                                             </a>
                                         </div>
                                     )}
@@ -424,7 +397,7 @@ const ExpresswayPage = () => {
                             </div>
                         </Col>
 
-                        {/* Cột phải: Thông tin tổng quan & Bảng danh sách */}
+                        {/* Cột phải: Thông tin tổng quan & Bảng chi tiết */}
                         <Col xs={24} md={16} lg={18}>
                             <Space direction="vertical" size="large" style={{ width: '100%' }}>
                                 <Card style={{ width: '100%', border: 'none', background: '#ffffff' }}>
@@ -432,7 +405,7 @@ const ExpresswayPage = () => {
                                         <Space>
                                             <CompassOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
                                             <Title level={3} style={{ margin: 0 }}>
-                                                EXPRESSWAY SECTION DETAILS
+                                                CHI TIẾT ĐOẠN ĐƯỜNG CAO TỐC
                                             </Title>
                                         </Space>
                                     </Space>
@@ -443,11 +416,11 @@ const ExpresswayPage = () => {
                                         size="middle"
                                         labelStyle={{ background: '#f5f5f5', fontWeight: 600, width: '200px' }}
                                     >
-                                        <Descriptions.Item label="Section Name">
+                                        <Descriptions.Item label="Tên đoạn đường">
                                             <Text strong style={{ color: '#1890ff', fontSize: '16px' }}>{data.NameSection}</Text>
                                         </Descriptions.Item>
 
-                                        <Descriptions.Item label="Provinces">
+                                        <Descriptions.Item label="Tỉnh / Thành phố">
                                             <Space wrap>
                                                 {data.province?.map((p) => (
                                                     <Tag color="volcano" key={p.ProvinceId}>{p.ProvinceName}</Tag>
@@ -455,38 +428,38 @@ const ExpresswayPage = () => {
                                             </Space>
                                         </Descriptions.Item>
 
-                                        <Descriptions.Item label="Total Length">
+                                        <Descriptions.Item label="Tổng chiều dài">
                                             <Space>
                                                 <Text strong>{data.Length}</Text>
                                                 <Text type="secondary">Km</Text>
                                             </Space>
                                         </Descriptions.Item>
 
-                                        <Descriptions.Item label="Route Markers">
+                                        <Descriptions.Item label="Cột mốc tuyến đường">
                                             <Space split={<Text type="secondary">→</Text>}>
                                                 <Text>{data.StartLocation} <Text type="secondary">(Km {data.StartKm})</Text></Text>
                                                 <Text>{data.EndLocation} <Text type="secondary">(Km {data.EndKm})</Text></Text>
                                             </Space>
                                         </Descriptions.Item>
 
-                                        <Descriptions.Item label="Lanes Configuration">
+                                        <Descriptions.Item label="Quy mô làn xe">
                                             <Space direction="vertical" size={0}>
-                                                <Text>{data.TrafficLand} Main Traffic Lanes</Text>
+                                                <Text>{data.TrafficLand} làn xe chính</Text>
                                                 {data.HasEmergencyLand && (
                                                     <Text type="success" style={{ fontSize: '13px' }}>
-                                                        <SafetyCertificateOutlined /> Includes Emergency Shoulder Lanes
+                                                        <SafetyCertificateOutlined /> Có làn dừng khẩn cấp
                                                     </Text>
                                                 )}
                                             </Space>
                                         </Descriptions.Item>
 
-                                        <Descriptions.Item label="Operation Status">
+                                        <Descriptions.Item label="Trạng thái vận hành">
                                             {getStatusBadge(data.Status)}
                                         </Descriptions.Item>
                                     </Descriptions>
                                 </Card>
 
-                                {/* Tabs dữ liệu chi tiết Nút giao, Trạm dừng, Cầu, Hầm */}
+                                {/* Bảng thông tin chi tiết */}
                                 <Card style={{ width: '100%' }}>
                                     <Tabs defaultActiveKey="1" items={tabItems} />
                                 </Card>
@@ -498,5 +471,3 @@ const ExpresswayPage = () => {
         </ProtectedRoute>
     );
 };
-
-export default ExpresswayPage;

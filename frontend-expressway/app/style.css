@@ -40,7 +40,6 @@
   border-color: #00a859 !important;
 }
 
-/* STATISTIC CARDS */
 .stats-cards-section {
   max-width: 1100px;
   margin: 0 auto 60px auto;
@@ -58,7 +57,6 @@
   margin-right: 8px;
 }
 
-/* GIS GRID SECTION */
 .gis-preview-section {
   max-width: 1100px;
   margin: 0 auto;
@@ -95,7 +93,6 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-/* CẤU HÌNH ĐỘ RỘNG BẢN ĐỒ */
 .map-container-holder {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 10;
@@ -120,7 +117,6 @@
   padding: 10px;
 }
 
-/* NÚT FULLSCREEN TRÊN BẢN ĐỒ */
 .leaflet-fullscreen-btn {
   position: absolute;
   top: 15px;
@@ -136,7 +132,6 @@
   border-color: #00a859 !important;
 }
 
-/* CAPTION */
 .gis-caption-layer {
   position: absolute;
   bottom: 15px;
@@ -185,12 +180,11 @@
   padding: 0;
 }
 
-/* ĐỔI: CSS TÁCH BIỆT NÚT FULL SCREEN ĐẸP MẮT THEO MẪU */
 .custom-map-fullscreen-btn {
   position: absolute;
   top: 12px;
   right: 12px;
-  z-index: 1000; /* Đảm bảo nằm trên lớp bản đồ layer */
+  z-index: 1000;
   background: rgba(255, 255, 255, 0.9) !important;
   color: #1f2937 !important;
   border: 1px solid #d1d5db !important;

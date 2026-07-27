@@ -7,6 +7,7 @@ import "./style.css";
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 import { CompassOutlined, InfoCircleOutlined, EnvironmentOutlined, CarOutlined, SearchOutlined, UndoOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -47,6 +48,7 @@ export default function ExpresswayPage() {
     const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
     const [filterProvince, setFilterProvince] = useState<string>('');
     const [filterKm, setFilterKm] = useState<string>('');
+    const router = useRouter();
 
     const fetchAllSections = async () => {
         setLoading(true);
@@ -312,6 +314,7 @@ export default function ExpresswayPage() {
                                     <Col xs={24} sm={12} md={8} lg={6} key={section.SectionId}>
                                         <Card
                                             hoverable
+                                            onClick={() => router.push(`/expressway/${section.SectionId}`)}
                                             style={{
                                                 borderRadius: '16px',
                                                 overflow: 'hidden',

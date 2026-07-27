@@ -1,9 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Form, Input, InputNumber, Select, Button, Card, Tabs, Table, Popconfirm, Space, Row, Col, Spin, message, Upload } from 'antd';
-import { ArrowLeftOutlined, SaveOutlined, PlusOutlined, EditOutlined, DeleteOutlined, CloseOutlined } from '@ant-design/icons';
+import { 
+    Form, Input, InputNumber, Select, Button, Card, 
+    Tabs, Table, Popconfirm, Space, Row, Col, Spin, message, Upload 
+} from 'antd';
+import { 
+    ArrowLeftOutlined, SaveOutlined, PlusOutlined, 
+    EditOutlined, DeleteOutlined, CloseOutlined 
+} from '@ant-design/icons';
 
 import axiosClient from '@/api/axiosClient';
 import ProtectedRoute from '@/app/components/ProtectedRoute/ProtectedRoute';
@@ -12,28 +18,35 @@ import MainLayout from '@/app/layout/Layout';
 const UpdateSectionPage = () => {
     const params = useParams();
     const router = useRouter();
+
+    // 🔑 Lấy duy nhất `SectionId` tương ứng tên thư mục [SectionId]
     const rawSectionId = params?.SectionId;
     const sectionId = Array.isArray(rawSectionId) ? rawSectionId[0] : rawSectionId;
+
     const [loading, setLoading] = useState<boolean>(true);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [sectionData, setSectionData] = useState<any>(null);
+
+    // Danh sách hạ tầng
     const [interchanges, setInterchanges] = useState<any[]>([]);
     const [restStops, setRestStops] = useState<any[]>([]);
     const [bridges, setBridges] = useState<any[]>([]);
     const [tunnels, setTunnels] = useState<any[]>([]);
+
+    // Quản lý ảnh Biển báo tốc độ
     const [speedSignFile, setSpeedSignFile] = useState<File | null>(null);
     const [speedSignUrl, setSpeedSignUrl] = useState<string>('');
     const [isEditingSign, setIsEditingSign] = useState<boolean>(false);
 
-    // State chỉnh sửa
+    // State Chỉnh sửa Sub-item
     const [activeTab, setActiveTab] = useState<string>('interchange');
     const [editingSubIndex, setEditingSubIndex] = useState<number | null>(null);
 
     const [mainForm] = Form.useForm();
     const [subForm] = Form.useForm();
 
-    // 1. Fetch dữ liệu phân đoạn (Chỉ dùng 1 API duy nhất)
-    const fetchSectionData = async () => {
+    // 1. Fetch dữ liệu phân đoạn
+    const fetchSectionData = useCallback(async () => {
         if (!sectionId || sectionId === 'undefined') return;
 
         setLoading(true);
@@ -54,11 +67,7 @@ const UpdateSectionPage = () => {
                     SpeedLimit: data.SpeedLimit,
                 });
 
-                if (data.SpeedSign) {
-                    setSpeedSignUrl(data.SpeedSign);
-                } else {
-                    setSpeedSignUrl('');
-                }
+                setSpeedSignUrl(data.SpeedSign || '');
                 setIsEditingSign(false);
                 setSpeedSignFile(null);
 
@@ -73,12 +82,13 @@ const UpdateSectionPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [sectionId, mainForm]);
 
     useEffect(() => {
         fetchSectionData();
-    }, [sectionId]);
+    }, [fetchSectionData]);
 
+    // 2. Xử lý Sub-items (Nút giao, Cầu, Hầm, Trạm dừng)
     const handleStartEditSubItem = (record: any = null, index: number = -1) => {
         if (record && index !== -1) {
             setEditingSubIndex(index);
@@ -98,60 +108,76 @@ const UpdateSectionPage = () => {
         try {
             const values = await subForm.validateFields();
 
-            if (activeTab === 'interchange') {
-                const list = [...interchanges];
-                if (editingSubIndex !== null && editingSubIndex >= 0) list[editingSubIndex] = { ...list[editingSubIndex], ...values };
-                else list.push(values);
-                setInterchanges(list);
-            } else if (activeTab === 'restStop') {
-                const list = [...restStops];
-                if (editingSubIndex !== null && editingSubIndex >= 0) list[editingSubIndex] = { ...list[editingSubIndex], ...values };
-                else list.push(values);
-                setRestStops(list);
-            } else if (activeTab === 'bridge') {
-                const list = [...bridges];
-                if (editingSubIndex !== null && editingSubIndex >= 0) list[editingSubIndex] = { ...list[editingSubIndex], ...values };
-                else list.push(values);
-                setBridges(list);
-            } else if (activeTab === 'tunnel') {
-                const list = [...tunnels];
-                if (editingSubIndex !== null && editingSubIndex >= 0) list[editingSubIndex] = { ...list[editingSubIndex], ...values };
-                else list.push(values);
-                setTunnels(list);
+            const updateList = (prevList: any[]) => {
+                const list = [...prevList];
+                if (editingSubIndex !== null && editingSubIndex >= 0) {
+                    // Cập nhật lại và giữ nguyên id cũ nếu có
+                    list[editingSubIndex] = { ...list[editingSubIndex], ...values };
+                } else {
+                    // Thêm mới
+                    list.push(values);
+                }
+                return list;
+            };
+
+            switch (activeTab) {
+                case 'interchange':
+                    setInterchanges(updateList);
+                    break;
+                case 'restStop':
+                    setRestStops(updateList);
+                    break;
+                case 'bridge':
+                    setBridges(updateList);
+                    break;
+                case 'tunnel':
+                    setTunnels(updateList);
+                    break;
+                default:
+                    break;
             }
 
             message.success('Đã cập nhật danh sách tạm thời!');
             handleCancelSubEdit();
         } catch (error) {
-            console.error(error);
+            console.error('Validate sub-form failed:', error);
         }
     };
 
     const handleDeleteSubItemFromState = (index: number) => {
-        if (activeTab === 'interchange') setInterchanges(interchanges.filter((_, i) => i !== index));
-        else if (activeTab === 'restStop') setRestStops(restStops.filter((_, i) => i !== index));
-        else if (activeTab === 'bridge') setBridges(bridges.filter((_, i) => i !== index));
-        else if (activeTab === 'tunnel') setTunnels(tunnels.filter((_, i) => i !== index));
+        const filterList = (prevList: any[]) => prevList.filter((_, i) => i !== index);
+
+        switch (activeTab) {
+            case 'interchange': setInterchanges(filterList); break;
+            case 'restStop': setRestStops(filterList); break;
+            case 'bridge': setBridges(filterList); break;
+            case 'tunnel': setTunnels(filterList); break;
+        }
 
         message.success('Đã xóa khỏi danh sách!');
     };
 
+    // 3. Lưu toàn bộ thông tin
     const handleSaveAll = async () => {
         try {
             const mainValues = await mainForm.validateFields();
             setSubmitting(true);
 
             const formData = new FormData();
+            
+            // Append main form fields
             Object.keys(mainValues).forEach((key) => {
                 if (mainValues[key] !== undefined && mainValues[key] !== null) {
                     formData.append(key, mainValues[key]);
                 }
             });
 
+            // Append File nếu có chọn ảnh mới
             if (speedSignFile) {
                 formData.append('SpeedSign', speedSignFile);
             }
 
+            // Append danh sách hạ tầng dạng JSON String
             formData.append('interchanges', JSON.stringify(interchanges));
             formData.append('restStops', JSON.stringify(restStops));
             formData.append('bridges', JSON.stringify(bridges));
@@ -165,17 +191,33 @@ const UpdateSectionPage = () => {
             fetchSectionData();
         } catch (error: any) {
             console.error('Lỗi lưu dữ liệu:', error);
-            message.error('Không thể cập nhật!');
+            message.error(error?.response?.data?.message || 'Không thể cập nhật!');
         } finally {
             setSubmitting(false);
         }
     };
 
-    // Cột hiển thị bảng
+    // 4. Cột của Bảng
     const getSubColumns = (type: string) => [
-        { title: 'STT', key: 'index', width: 60, render: (_: any, __: any, index: number) => index + 1 },
-        { title: 'Tên hạ tầng', dataIndex: 'Name', key: 'Name', render: (text: string) => <b>{text}</b> },
-        { title: 'Vị trí (Km)', dataIndex: 'KmLocation', key: 'KmLocation', render: (km: number) => km !== undefined ? `Km ${km}` : '-' },
+        { 
+            title: 'STT', 
+            key: 'index', 
+            width: 60, 
+            align: 'center' as const,
+            render: (_: any, __: any, index: number) => index + 1 
+        },
+        { 
+            title: 'Tên hạ tầng', 
+            dataIndex: 'Name', 
+            key: 'Name', 
+            render: (text: string) => <b>{text}</b> 
+        },
+        { 
+            title: 'Vị trí (Km)', 
+            dataIndex: 'KmLocation', 
+            key: 'KmLocation', 
+            render: (km: number) => (km !== undefined && km !== null ? `Km ${km}` : '-') 
+        },
         ...(type === 'bridge' || type === 'tunnel' ? [{ title: 'Chiều dài (m)', dataIndex: 'Length', key: 'Length' }] : []),
         ...(type === 'interchange' ? [{ title: 'Đường kết nối', dataIndex: 'ConnectRoads', key: 'ConnectRoads' }] : []),
         ...(type === 'restStop' ? [{ title: 'Tiện ích', dataIndex: 'Facilities', key: 'Facilities' }] : []),
@@ -187,15 +229,21 @@ const UpdateSectionPage = () => {
             render: (_: any, record: any, index: number) => (
                 <Space size="small">
                     <Button
-                        type="primary" ghost size="small" icon={<EditOutlined />}
+                        type="primary"
+                        ghost
+                        size="small"
+                        icon={<EditOutlined />}
                         onClick={() => handleStartEditSubItem(record, index)}
                     >
                         Sửa
                     </Button>
                     <Popconfirm
                         title="Xóa hạ tầng này?"
+                        description="Hạ tầng sẽ bị xóa khỏi danh sách tạm thời."
                         onConfirm={() => handleDeleteSubItemFromState(index)}
-                        okText="Xóa" cancelText="Hủy" okButtonProps={{ danger: true }}
+                        okText="Xóa"
+                        cancelText="Hủy"
+                        okButtonProps={{ danger: true }}
                     >
                         <Button danger size="small" icon={<DeleteOutlined />} />
                     </Popconfirm>
@@ -204,12 +252,21 @@ const UpdateSectionPage = () => {
         }
     ];
 
+    // Helper kiểm tra URL ảnh chuẩn
+    const getImageUrl = (url: string) => {
+        if (!url) return '';
+        if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
+            return url;
+        }
+        return `http://localhost:8080/${url.replace(/^\//, '')}`;
+    };
+
     if (loading || !sectionId || sectionId === 'undefined') {
         return (
             <ProtectedRoute role={1}>
                 <MainLayout>
-                    <div style={{ padding: 50, textAlign: 'center' }}>
-                        <Spin size="large" description="Đang tải dữ liệu tuyến đường..." />
+                    <div style={{ padding: 100, textAlign: 'center' }}>
+                        <Spin size="large" tip="Đang tải dữ liệu tuyến đường..." />
                     </div>
                 </MainLayout>
             </ProtectedRoute>
@@ -229,7 +286,7 @@ const UpdateSectionPage = () => {
                     </Button>
 
                     <Card
-                        title={`CẬP NHẬT THÔNG TIN: ${sectionData?.NameSection || 'PHÂN ĐOẠN CAO TỐC'}`}
+                        title={`CẬP NHẬT THÔNG TIN: ${sectionData?.NameSection?.toUpperCase() || 'PHÂN ĐOẠN CAO TỐC'}`}
                         style={{ marginBottom: 24, borderRadius: 8 }}
                         extra={
                             <Button
@@ -252,7 +309,7 @@ const UpdateSectionPage = () => {
                                 </Col>
                                 <Col xs={24} md={6}>
                                     <Form.Item name="Length" label="Chiều dài toàn tuyến (Km)" rules={[{ required: true, message: 'Nhập chiều dài!' }]}>
-                                        <InputNumber style={{ width: '100%' }} min={0} />
+                                        <InputNumber style={{ width: '100%' }} min={0} placeholder="VD: 99" />
                                     </Form.Item>
                                 </Col>
                                 <Col xs={24} md={6}>
@@ -273,13 +330,13 @@ const UpdateSectionPage = () => {
                                 <Col xs={24} md={6}><Form.Item name="EndKm" label="Km Kết thúc"><InputNumber style={{ width: '100%' }} placeholder="VD: 99" /></Form.Item></Col>
                             </Row>
 
-                            {/* 🚀 KHU VỰC BỔ SUNG: BIỂN BÁO & TỐC ĐỘ */}
+                            {/* KHU VỰC: BIỂN BÁO & TỐC ĐỘ */}
                             <Row gutter={16}>
                                 <Col xs={24} md={12}>
                                     <Form.Item name="SpeedLimit" label="Mô tả / Giới hạn tốc độ">
                                         <Input.TextArea
-                                            rows={3}
-                                            placeholder="VD: Tốc độ tối đa 120km/h, tối thiểu 60km/h cho 2 làn xe..."
+                                            rows={4}
+                                            placeholder="VD: Tốc độ tối đa 120km/h, tối thiểu 60km/h..."
                                         />
                                     </Form.Item>
                                 </Col>
@@ -290,25 +347,20 @@ const UpdateSectionPage = () => {
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                                                 {speedSignUrl ? (
                                                     <img
-                                                        src={
-                                                            speedSignUrl.startsWith('http') || speedSignUrl.startsWith('/')
-                                                                ? speedSignUrl
-                                                                : `http://localhost:8080/${speedSignUrl}`
-                                                        }
+                                                        src={getImageUrl(speedSignUrl)}
                                                         alt="Biển báo hiện tại"
                                                         style={{
-                                                            width: 300,
-                                                            height: 200,
+                                                            width: 240,
+                                                            height: 140,
                                                             objectFit: 'contain',
                                                             borderRadius: 8,
                                                             border: '1px solid #d9d9d9',
                                                             padding: 4,
+                                                            backgroundColor: '#fafafa'
                                                         }}
                                                     />
                                                 ) : (
-                                                    <span style={{ color: '#8c8c8c' }}>
-                                                        Chưa có biển báo
-                                                    </span>
+                                                    <span style={{ color: '#8c8c8c' }}>Chưa có biển báo</span>
                                                 )}
 
                                                 <Button
@@ -319,7 +371,7 @@ const UpdateSectionPage = () => {
                                                 </Button>
                                             </div>
                                         ) : (
-                                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                                 <Upload
                                                     name="file"
                                                     listType="picture-card"
@@ -328,9 +380,7 @@ const UpdateSectionPage = () => {
                                                         setSpeedSignFile(file);
                                                         return false; // Chặn auto upload
                                                     }}
-                                                    onRemove={() => {
-                                                        setSpeedSignFile(null);
-                                                    }}
+                                                    onRemove={() => setSpeedSignFile(null)}
                                                     fileList={
                                                         speedSignFile
                                                             ? [{ uid: '-1', name: speedSignFile.name, status: 'done' }]
@@ -350,7 +400,7 @@ const UpdateSectionPage = () => {
                                                     danger
                                                     onClick={() => {
                                                         setIsEditingSign(false);
-                                                        setSpeedSignFile(null); // Hủy chọn file nếu bấm Hủy
+                                                        setSpeedSignFile(null);
                                                     }}
                                                 >
                                                     Hủy
@@ -363,6 +413,7 @@ const UpdateSectionPage = () => {
                         </Form>
                     </Card>
 
+                    {/* QUẢN LÝ HẠ TẦNG KĨ THUẬT */}
                     <Card title="QUẢN LÝ HẠ TẦNG KỸ THUẬT" style={{ borderRadius: 8 }}>
                         <Tabs
                             activeKey={activeTab}
@@ -393,14 +444,15 @@ const UpdateSectionPage = () => {
                             columns={getSubColumns(activeTab)}
                             dataSource={
                                 activeTab === 'interchange' ? interchanges :
-                                    activeTab === 'restStop' ? restStops :
-                                        activeTab === 'bridge' ? bridges : tunnels
+                                activeTab === 'restStop' ? restStops :
+                                activeTab === 'bridge' ? bridges : tunnels
                             }
-                            rowKey={(_, index) => index!}
+                            rowKey={(record, index) => record?._id || record?.id || `sub-item-${index}`}
                             pagination={{ pageSize: 5 }}
                             bordered
                         />
 
+                        {/* FORM SỬA / THÊM HẠ TẦNG CON */}
                         {editingSubIndex !== null && (
                             <Card
                                 type="inner"
@@ -411,7 +463,7 @@ const UpdateSectionPage = () => {
                                 <Form form={subForm} layout="vertical">
                                     <Row gutter={16}>
                                         <Col xs={24} md={12}>
-                                            <Form.Item name="Name" label="Tên hạ tầng" rules={[{ required: true, message: 'Nhập tên!' }]}>
+                                            <Form.Item name="Name" label="Tên hạ tầng" rules={[{ required: true, message: 'Nhập tên hạ tầng!' }]}>
                                                 <Input placeholder="Ví dụ: Nút giao Chợ Đệm, Cầu Sông Phan..." />
                                             </Form.Item>
                                         </Col>

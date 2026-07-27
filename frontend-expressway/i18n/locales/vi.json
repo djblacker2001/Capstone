@@ -9,6 +9,9 @@
         "manageSign": "Quản lý biển báo",
         "login": "Đăng nhập"
     },
+    "footer": {
+        "bottom": "Hệ thống quản lý đường cao tốc tại Việt Nam"
+    },
     "landing": {
         "title1": "Hệ Thống Quản Lý Dữ Liệu Không Gian",
         "title2": "Hạ Tầng Đường Cao Tốc Việt Nam",
@@ -18,7 +21,8 @@
     "dashboard": {},
     "expressway": {},
     "sign": {},
-    "footer": {
-        "bottom": "Hệ thống quản lý đường cao tốc tại Việt Nam"
-    }
+    "manageExpressway": {},
+    "manageUser": {},
+    "manageSign": {},
+    "map":{}
 }

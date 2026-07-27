@@ -9,6 +9,9 @@
     "manageSign": "Manage Sign",
     "login": "Login"
   },
+  "footer": {
+    "bottom": "Expressway Management System in Vietnam"
+  },
   "landing": {
     "title1": "Spatial Data Management System",
     "title2": "Vietnam's Expressway Infrastructure",
@@ -18,7 +21,8 @@
   "dashboard": {},
   "expressway": {},
   "sign": {},
-  "footer": {
-    "bottom": "Expressway Management System in Vietnam"
-  }
+  "manageExpressway": {},
+  "manageUser": {},
+  "manageSign": {},
+  "map":{}
 }
