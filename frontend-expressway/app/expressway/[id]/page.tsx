@@ -86,7 +86,7 @@ interface SectionDetail {
     EndLocation: string;
     EndKm: number;
     SpeedSign: string | null;
-    SpeedLimit: number | string | null;
+    SpeedLimit: string | null;
     TrafficLand: number;
     HasEmergencyLand: boolean;
     Status: string;
@@ -124,8 +124,6 @@ export default function ExpresswayPage() {
 
                 const result = await response.json();
                 console.log("👉 [Public] Dữ liệu thô từ API:", result);
-
-                // Bóc tách trường `data` từ Response của Backend
                 const sectionData = result?.data || result;
 
                 if (Array.isArray(sectionData)) {
@@ -414,7 +412,7 @@ export default function ExpresswayPage() {
                                         bordered
                                         column={1}
                                         size="middle"
-                                        labelStyle={{ background: '#f5f5f5', fontWeight: 600, width: '200px' }}
+                                        labelStyle={{ background: '#f5f5f5', fontWeight: 600, width: '15%' }}
                                     >
                                         <Descriptions.Item label="Tên đoạn đường">
                                             <Text strong style={{ color: '#1890ff', fontSize: '16px' }}>{data.NameSection}</Text>
@@ -432,6 +430,14 @@ export default function ExpresswayPage() {
                                             <Space>
                                                 <Text strong>{data.Length}</Text>
                                                 <Text type="secondary">Km</Text>
+                                            </Space>
+                                        </Descriptions.Item>
+
+                                        <Descriptions.Item label="Tốc độ cho phép">
+                                            <Space>
+                                                <div className="whitespace-pre-line">
+                                                    {data.SpeedLimit}
+                                                </div>
                                             </Space>
                                         </Descriptions.Item>
 

@@ -33,6 +33,7 @@
 .desktopMenu .ant-menu-item {
     color: white !important;
     padding: 15px;
+    transition: background-color 0.3s ease;
 }
 
 .desktopMenu .ant-menu-item::after {
@@ -41,6 +42,15 @@
 
 .desktopMenu .ant-menu-item:hover {
     background: #0ec45d !important;
+}
+
+.desktopMenu .ant-menu-item-selected {
+    background: #0ec45d !important;
+    font-weight: 600;
+}
+
+.desktopMenu .ant-menu-item-selected a {
+    color: white !important;
 }
 
 .right {
@@ -82,11 +92,11 @@
 
 .mobileMenu .ant-menu-item:hover {
     background: rgba(255, 255, 255, 0.2) !important;
-
 }
 
 .mobileMenu .ant-menu-item-selected {
     background: rgba(255, 255, 255, 0.3) !important;
+    font-weight: 600;
 }
 
 .mobileMenu.show {

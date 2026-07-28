@@ -2,13 +2,13 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { 
-    Form, Input, InputNumber, Select, Button, Card, 
-    Tabs, Table, Popconfirm, Space, Row, Col, Spin, message, Upload 
+import {
+    Form, Input, InputNumber, Select, Button, Card,
+    Tabs, Table, Popconfirm, Space, Row, Col, Spin, message, Upload
 } from 'antd';
-import { 
-    ArrowLeftOutlined, SaveOutlined, PlusOutlined, 
-    EditOutlined, DeleteOutlined, CloseOutlined 
+import {
+    ArrowLeftOutlined, SaveOutlined, PlusOutlined,
+    EditOutlined, DeleteOutlined, CloseOutlined
 } from '@ant-design/icons';
 
 import axiosClient from '@/api/axiosClient';
@@ -164,7 +164,7 @@ const UpdateSectionPage = () => {
             setSubmitting(true);
 
             const formData = new FormData();
-            
+
             // Append main form fields
             Object.keys(mainValues).forEach((key) => {
                 if (mainValues[key] !== undefined && mainValues[key] !== null) {
@@ -199,24 +199,24 @@ const UpdateSectionPage = () => {
 
     // 4. Cột của Bảng
     const getSubColumns = (type: string) => [
-        { 
-            title: 'STT', 
-            key: 'index', 
-            width: 60, 
+        {
+            title: 'STT',
+            key: 'index',
+            width: 60,
             align: 'center' as const,
-            render: (_: any, __: any, index: number) => index + 1 
+            render: (_: any, __: any, index: number) => index + 1
         },
-        { 
-            title: 'Tên hạ tầng', 
-            dataIndex: 'Name', 
-            key: 'Name', 
-            render: (text: string) => <b>{text}</b> 
+        {
+            title: 'Tên hạ tầng',
+            dataIndex: 'Name',
+            key: 'Name',
+            render: (text: string) => <b>{text}</b>
         },
-        { 
-            title: 'Vị trí (Km)', 
-            dataIndex: 'KmLocation', 
-            key: 'KmLocation', 
-            render: (km: number) => (km !== undefined && km !== null ? `Km ${km}` : '-') 
+        {
+            title: 'Vị trí (Km)',
+            dataIndex: 'KmLocation',
+            key: 'KmLocation',
+            render: (km: number) => (km !== undefined && km !== null ? `Km ${km}` : '-')
         },
         ...(type === 'bridge' || type === 'tunnel' ? [{ title: 'Chiều dài (m)', dataIndex: 'Length', key: 'Length' }] : []),
         ...(type === 'interchange' ? [{ title: 'Đường kết nối', dataIndex: 'ConnectRoads', key: 'ConnectRoads' }] : []),
@@ -314,11 +314,15 @@ const UpdateSectionPage = () => {
                                 </Col>
                                 <Col xs={24} md={6}>
                                     <Form.Item name="Status" label="Trạng thái hoạt động">
-                                        <Select options={[
-                                            { value: 'Complete', label: 'Đã hoàn thành' },
-                                            { value: 'Extend under construction', label: 'Đang thi công / mở rộng' },
-                                            { value: 'Maintenance', label: 'Đang bảo trì' },
-                                        ]} />
+                                        <Select
+                                            options={[
+                                                { value: 'Not yet under construction', label: 'Chưa thi công' },
+                                                { value: 'Under construction', label: 'Đang thi công' },
+                                                { value: 'Complete', label: 'Đã hoàn thành' },
+                                                { value: 'Extend under construction', label: 'Đang thi công mở rộng' },
+                                                { value: 'Maintenance', label: 'Đang bảo trì' },
+                                            ]}
+                                        />
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -444,8 +448,8 @@ const UpdateSectionPage = () => {
                             columns={getSubColumns(activeTab)}
                             dataSource={
                                 activeTab === 'interchange' ? interchanges :
-                                activeTab === 'restStop' ? restStops :
-                                activeTab === 'bridge' ? bridges : tunnels
+                                    activeTab === 'restStop' ? restStops :
+                                        activeTab === 'bridge' ? bridges : tunnels
                             }
                             rowKey={(record, index) => record?._id || record?.id || `sub-item-${index}`}
                             pagination={{ pageSize: 5 }}

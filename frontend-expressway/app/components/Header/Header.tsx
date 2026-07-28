@@ -5,12 +5,13 @@ import { DownOutlined, GlobalOutlined, LogoutOutlined, MenuOutlined, SettingOutl
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+// 1. Import usePathname từ next/navigation
+import { useRouter, usePathname } from "next/navigation";
 import axiosClient from "@/api/axiosClient";
-import { i18n } from "i18next";
 import { useTranslation } from "react-i18next";
 
 const { Header } = Layout;
+
 interface UserData {
   Username?: string;
   RoleId?: number;
@@ -23,10 +24,14 @@ export default function MainHeader() {
   const menuRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
+  
+  const pathname = usePathname();
+
   const { t, i18n } = useTranslation();
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
   };
+
   const languageItems: MenuProps['items'] = [
     {
       key: 'en',
@@ -69,7 +74,6 @@ export default function MainHeader() {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('access_token');
         localStorage.removeItem('token');
-
         setUser(null);
       } else {
         setUser(JSON.parse(raw));
@@ -113,20 +117,29 @@ export default function MainHeader() {
     }
   };
 
+  // 3. Quy định key của items khớp trực tiếp với đường dẫn href
   const items = [
-    { key: "home", label: <Link href="/home">{t("header.homepage")}</Link> },
-    { key: "bangdieukhien", label: <Link href="/dashboard">{t("header.dashboard")}</Link> },
-    { key: "tuyenduong", label: <Link href="/expressway">{t("header.expressway")}</Link> },
-    { key: "bienbao", label: <Link href="/sign">{t("header.sign")}</Link> },
+    { key: "/home", label: <Link href="/home">{t("header.homepage")}</Link> },
+    { key: "/dashboard", label: <Link href="/dashboard">{t("header.dashboard")}</Link> },
+    { key: "/expressway", label: <Link href="/expressway">{t("header.expressway")}</Link> },
+    { key: "/sign", label: <Link href="/sign">{t("header.sign")}</Link> },
 
     ...(user?.RoleId === 1
       ? [
-        { key: "manageExpressway", label: <Link href="/manageExpressway">{t("header.manageExpressway")}</Link> },
-        { key: "manageUser", label: <Link href="/manageUser">{t("header.manageUser")}</Link> },
-        { key: "manageSign", label: <Link href="/manageSign">{t("header.manageSign")}</Link> },
+        { key: "/manageExpressway", label: <Link href="/manageExpressway">{t("header.manageExpressway")}</Link> },
+        { key: "/manageUser", label: <Link href="/manageUser">{t("header.manageUser")}</Link> },
+        { key: "/manageSign", label: <Link href="/manageSign">{t("header.manageSign")}</Link> },
       ]
       : []),
   ];
+
+  // 4. Hàm xác định key đang active (hỗ trợ cả các trang con, ví dụ: /expressway/123 vẫn sáng tab /expressway)
+  const getSelectedKey = () => {
+    const matchedItem = items.find((item) => 
+      pathname === item.key || (item.key !== "/" && pathname.startsWith(item.key))
+    );
+    return matchedItem ? [matchedItem.key] : [pathname];
+  };
 
   const userMenu: MenuProps["items"] = [
     { key: "profile", icon: <UserOutlined />, label: <Link href="/profile">Personal information</Link> },
@@ -159,7 +172,13 @@ export default function MainHeader() {
           </Link>
         </div>
 
-        <Menu mode="horizontal" items={items} className="desktopMenu" />
+        {/* 5. Truyền selectedKeys vào Desktop Menu */}
+        <Menu 
+          mode="horizontal" 
+          items={items} 
+          selectedKeys={getSelectedKey()} 
+          className="desktopMenu" 
+        />
 
         <div className="right">
           <Dropdown menu={{ items: languageItems }} placement="bottomRight">
@@ -195,9 +214,11 @@ export default function MainHeader() {
         ref={menuRef}
         className={`mobileMenu ${open ? "show" : ""}`}
       >
+        {/* 6. Truyền selectedKeys vào Mobile Menu */}
         <Menu
           mode="inline"
           items={items}
+          selectedKeys={getSelectedKey()}
           onClick={() => setOpen(false)}
         />
       </div>
