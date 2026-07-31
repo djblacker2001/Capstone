@@ -63,18 +63,31 @@ export default function ManageExpresswayPage() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [statsRes, sectionsRes]: [any, any] = await Promise.all([
+            const [statsRes, sectionsStatsRes, sectionsListRes]: [any, any, any] = await Promise.all([
                 axiosClient.get('/expressways/statistics'),
-                axiosClient.get('/sections/statistics')
+                axiosClient.get('/sections/statistics'),
+                axiosClient.get('/sections')
             ]);
 
-            console.log("=== API STATS RAW RESPONSE ===", statsRes);
             const statsData = statsRes?.data?.data || statsRes?.data || statsRes;
             setStats(statsData);
 
-            const arrayData = sectionsRes?.data?.data || sectionsRes?.data || sectionsRes;
-            if (Array.isArray(arrayData)) {
-                setData(arrayData);
+            const statsList = sectionsStatsRes?.data?.data || sectionsStatsRes?.data || sectionsStatsRes || [];
+            const rawSections = sectionsListRes?.data?.data || sectionsListRes?.data || sectionsListRes || [];
+
+            if (Array.isArray(rawSections)) {
+                const mergedData = rawSections.map((item: any) => {
+                    const statItem = Array.isArray(statsList)
+                        ? statsList.find((s: any) => (s.id || s.SectionId) === (item.SectionId || item.id))
+                        : {};
+
+                    return {
+                        ...statItem,
+                        ...item,
+                    };
+                });
+
+                setData(mergedData);
             }
         } catch (error) {
             console.error('Lỗi khi tải dữ liệu:', error);
@@ -124,20 +137,6 @@ export default function ManageExpresswayPage() {
         } catch (error: any) {
             console.error('Lỗi khi lưu phân đoạn:', error);
             message.error(error?.response?.data?.message || 'Thao tác thất bại!');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDelete = async (sectionId: number) => {
-        try {
-            setLoading(true);
-            await axiosClient.delete(`/sections/${sectionId}`);
-            message.success('Đã xóa phân đoạn thành công!');
-            fetchData();
-        } catch (error) {
-            console.error('Lỗi khi xóa:', error);
-            message.error('Không thể xóa phân đoạn này!');
         } finally {
             setLoading(false);
         }
@@ -194,12 +193,39 @@ export default function ManageExpresswayPage() {
             title: 'Trạng Thái',
             dataIndex: 'Status',
             key: 'Status',
-            width: 140,
+            width: 170,
             align: 'center' as const,
-            render: (status: string) => {
-                if (status === 'Complete') return <Tag color="green">Đã hoàn thành</Tag>;
-                if (status?.includes('Extend')) return <Tag color="warning">Đang thi công</Tag>;
-                return <Tag color="default">{status || 'Chưa xác định'}</Tag>;
+            render: (_: any, record: any) => {
+                const rawStatus = record?.Status ?? record?.status ?? '';
+                const statusVal = String(rawStatus).trim().toLowerCase();
+
+                switch (statusVal) {
+                    case 'complete':
+                    case 'completed':
+                        return <Tag color="#237804">Đang hoạt động</Tag>;
+
+                    case 'under construction':
+                    case 'construction':
+                        return <Tag color="#1890ff">Đang thi công</Tag>;
+
+                    case 'extend under construction':
+                    case 'extend':
+                        return <Tag color="#86c5ff">Đang thi công mở rộng</Tag>;
+
+                    case 'not yet construction':
+                    case 'not_started':
+                    case 'planning':
+                        return <Tag color="#faad14">Chưa thi công</Tag>;
+
+                    case 'incident':
+                        return <Tag color="#ff4d4f">Đang gặp sự cố</Tag>;
+
+                    case 'maintenance':
+                        return <Tag color="#722ed1">Đang bảo trì</Tag>;
+
+                    default:
+                        return <Tag color="default">{rawStatus || 'Chưa xác định'}</Tag>;
+                }
             },
         },
         {
@@ -346,11 +372,21 @@ export default function ManageExpresswayPage() {
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
-                                    <Form.Item name="Status" label="Trạng thái">
+                                    <Form.Item
+                                        name="Status"
+                                        label="Trạng thái"
+                                        rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}
+                                    >
                                         <Select
+                                            placeholder="Chọn trạng thái tuyến đường"
+                                            allowClear
                                             options={[
-                                                { value: 'Complete', label: 'Đã hoàn thành' },
-                                                { value: 'Extend under construction', label: 'Đang thi công' },
+                                                { value: 'Complete', label: 'Đang hoạt động' },
+                                                { value: 'Under construction', label: 'Đang thi công' },
+                                                { value: 'Extend under construction', label: 'Đang thi công mở rộng' },
+                                                { value: 'Not yet construction', label: 'Chưa thi công' },
+                                                { value: 'Incident', label: 'Đang gặp sự cố' },
+                                                { value: 'Maintenance', label: 'Đang bảo trì' },
                                             ]}
                                         />
                                     </Form.Item>

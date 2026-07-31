@@ -5,7 +5,6 @@ import { DownOutlined, GlobalOutlined, LogoutOutlined, MenuOutlined, SettingOutl
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-// 1. Import usePathname từ next/navigation
 import { useRouter, usePathname } from "next/navigation";
 import axiosClient from "@/api/axiosClient";
 import { useTranslation } from "react-i18next";
@@ -117,9 +116,8 @@ export default function MainHeader() {
     }
   };
 
-  // 3. Quy định key của items khớp trực tiếp với đường dẫn href
   const items = [
-    { key: "/home", label: <Link href="/home">{t("header.homepage")}</Link> },
+    { key: "/", label: <Link href="/">{t("header.homepage")}</Link> },
     { key: "/dashboard", label: <Link href="/dashboard">{t("header.dashboard")}</Link> },
     { key: "/expressway", label: <Link href="/expressway">{t("header.expressway")}</Link> },
     { key: "/sign", label: <Link href="/sign">{t("header.sign")}</Link> },
@@ -133,7 +131,6 @@ export default function MainHeader() {
       : []),
   ];
 
-  // 4. Hàm xác định key đang active (hỗ trợ cả các trang con, ví dụ: /expressway/123 vẫn sáng tab /expressway)
   const getSelectedKey = () => {
     const matchedItem = items.find((item) => 
       pathname === item.key || (item.key !== "/" && pathname.startsWith(item.key))
@@ -172,7 +169,6 @@ export default function MainHeader() {
           </Link>
         </div>
 
-        {/* 5. Truyền selectedKeys vào Desktop Menu */}
         <Menu 
           mode="horizontal" 
           items={items} 
@@ -214,7 +210,6 @@ export default function MainHeader() {
         ref={menuRef}
         className={`mobileMenu ${open ? "show" : ""}`}
       >
-        {/* 6. Truyền selectedKeys vào Mobile Menu */}
         <Menu
           mode="inline"
           items={items}

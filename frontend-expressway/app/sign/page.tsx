@@ -1,93 +1,100 @@
 'use client';
 
 import { SearchOutlined, FilterOutlined } from "@ant-design/icons";
-import { Card, Row, Col, Input, Select, Spin, Tag, Empty, Typography, message } from "antd";
+import { Card, Row, Col, Input, Select, Spin, Tag, Empty, Typography } from "antd";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import MainLayout from "../layout/Layout";
-import axios from "axios";
 import { useState, useEffect } from "react";
+import axiosClient from "@/api/axiosClient";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 interface Sign {
     SignId: number;
     Symbol: string;
-    Image: string;
-    Description: string;
+    Image?: string | null;
+    Description?: string | null;
+    signType?: {
+        SignTypeId: number;
+        NameSignType: string;
+    };
 }
 
 const SignPage = () => {
     const [signs, setSigns] = useState<Sign[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [searchText, setSearchText] = useState<string>('');
-    const [selectedType, setSelectedType] = useState<string>('All');
+    const [selectedTypeId, setSelectedTypeId] = useState<string>('All');
+
+    // Gọi API lấy dữ liệu dựa theo TypeId được chọn (Dùng Cách 2: Path Param)
+    const fetchSigns = async (typeId: string) => {
+        setLoading(true);
+        try {
+            const url = typeId === 'All'
+                ? `/signs`
+                : `/signs/type/${typeId}`;
+
+            const res = await axiosClient.get(url);
+            const data = Array.isArray(res.data)
+                ? res.data
+                : res.data?.data || res.data?.result || [];
+
+            setSigns(data);
+        } catch (err) {
+            console.error('Lỗi lấy danh sách biển báo:', err);
+            setSigns([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        axios.get('http://localhost:8080/signs')
-            .then((res) => {
-                if (Array.isArray(res.data)) {
-                    setSigns(res.data);
-                }
-                else if (res.data && Array.isArray(res.data.data)) {
-                    setSigns(res.data.data);
-                } else if (res.data && Array.isArray(res.data.result)) {
-                    setSigns(res.data.result);
-                }
-                else {
-                    console.error('Dữ liệu API trả về không đúng định dạng mảng:', res.data);
-                    setSigns([]);
-                }
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error('Lỗi lấy danh sách biển báo:', err);
-                setSigns([]); // Lỗi thì đưa về mảng rỗng để chặn lỗi sập .filter
-                setLoading(false);
-            });
-    }, []);
+        fetchSigns(selectedTypeId);
+    }, [selectedTypeId]);
 
-    const getSignType = (symbol: string): string => {
-        if (!symbol) return 'Khác';
-        const upperSymbol = symbol.toUpperCase();
+    // Hàm xử lý URL ảnh an toàn chống lỗi null/undefined
+    const getFullImageUrl = (imagePath?: string | null) => {
+        if (!imagePath) return 'https://placehold.co/150?text=No+Image';
+        if (imagePath.startsWith('http')) return imagePath;
+        return `http://localhost:8080/${imagePath}`;
+    };
 
-        if (upperSymbol.startsWith('IE') || upperSymbol.startsWith('IF')) {
-            return 'Biển chỉ dẫn cao tốc';
+    // Xác định tên nhóm hiển thị trên Tag
+    const getSignTypeName = (sign: Sign): string => {
+        if (sign.signType?.NameSignType) {
+            return sign.signType.NameSignType;
         }
-        if (upperSymbol.startsWith('P')) {
-            return 'Biển cấm';
-        }
-        if (upperSymbol.startsWith('W')) {
-            return 'Biển nguy hiểm';
-        }
-        if (upperSymbol.startsWith('R')) {
-            return 'Biển hiệu lệnh';
-        }
+        if (!sign.Symbol) return 'Khác';
+        const upper = sign.Symbol.toUpperCase();
+        if (upper.startsWith('P')) return 'Biển báo cấm';
+        if (upper.startsWith('W')) return 'Biển nguy hiểm và cảnh báo';
+        if (upper.startsWith('R')) return 'Biển hiệu lệnh';
+        if (upper.startsWith('I')) return 'Biển chỉ dẫn';
+        if (upper.startsWith('S')) return 'Biển phụ';
         return 'Biển báo khác';
     };
 
-    // Hàm lọc danh sách
-    const filteredSigns = signs.filter((sign) => {
-        const matchSearch =
-            (sign.Symbol && sign.Symbol.toLowerCase().includes(searchText.toLowerCase())) ||
-            (sign.Description && sign.Description.toLowerCase().includes(searchText.toLowerCase()));
-
-        const type = getSignType(sign.Symbol);
-        const matchType = selectedType === 'All' || type === selectedType;
-
-        return matchSearch && matchType;
-    });
-
-    // Chọn màu sắc Tag tương ứng với nhóm biển báo
-    const getTagColor = (type: string) => {
-        switch (type) {
-            case 'Biển chỉ dẫn cao tốc': return 'blue';
-            case 'Biển cấm': return 'red';
-            case 'Biển nguy hiểm': return 'orange';
-            case 'Biển hiệu lệnh': return 'cyan';
+    // Màu sắc cho Tag dựa trên SignTypeId trong DB
+    const getTagColor = (typeId?: number) => {
+        switch (typeId) {
+            case 1: return 'red';     // Biển cấm
+            case 2: return 'orange';  // Biển nguy hiểm
+            case 3: return 'blue';    // Biển hiệu lệnh
+            case 4: return 'cyan';    // Biển chỉ dẫn
+            case 5: return 'green';   // Biển chỉ dẫn cao tốc
+            case 6: return 'purple';  // Biển phụ
             default: return 'default';
         }
     };
+
+    // Lọc theo từ khóa tìm kiếm
+    const filteredSigns = signs.filter((sign) => {
+        const symbolMatch = sign.Symbol?.toLowerCase().includes(searchText.toLowerCase());
+        const descMatch = sign.Description?.toLowerCase().includes(searchText.toLowerCase());
+        return symbolMatch || descMatch;
+    });
+
     return (
         <ProtectedRoute>
             <MainLayout>
@@ -108,7 +115,7 @@ const SignPage = () => {
                         <Row gutter={[16, 16]}>
                             <Col xs={24} md={16}>
                                 <Input
-                                    placeholder="Tìm kiếm theo mã ký hiệu hoặc nội dung ý nghĩa (Ví dụ: IE.450, Exit, Interchange...)"
+                                    placeholder="Tìm kiếm theo mã ký hiệu hoặc nội dung ý nghĩa (Ví dụ: P.101, W.201, Exit...)"
                                     prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
                                     value={searchText}
                                     onChange={(e) => setSearchText(e.target.value)}
@@ -117,24 +124,27 @@ const SignPage = () => {
                                 />
                             </Col>
                             <Col xs={24} md={8}>
+                                {/* Khớp hoàn toàn với các SignTypeId trong Database */}
                                 <Select
                                     suffixIcon={<FilterOutlined />}
                                     style={{ width: '100%' }}
-                                    value={selectedType}
-                                    onChange={(value) => setSelectedType(value)}
+                                    value={selectedTypeId}
+                                    onChange={(value) => setSelectedTypeId(value)}
                                     size="large"
                                 >
                                     <Option value="All">Tất cả nhóm biển báo</Option>
-                                    <Option value="Biển chỉ dẫn cao tốc">Biển chỉ dẫn cao tốc (IE/IF)</Option>
-                                    <Option value="Biển cấm">Biển báo cấm (P)</Option>
-                                    <Option value="Biển nguy hiểm">Biển nguy hiểm (W)</Option>
-                                    <Option value="Biển hiệu lệnh">Biển hiệu lệnh (R)</Option>
+                                    <Option value="1">Biển báo cấm (1)</Option>
+                                    <Option value="2">Biển nguy hiểm & cảnh báo (2)</Option>
+                                    <Option value="3">Biển hiệu lệnh (3)</Option>
+                                    <Option value="4">Biển chỉ dẫn (4)</Option>
+                                    <Option value="5">Biển chỉ dẫn cao tốc (5)</Option>
+                                    <Option value="6">Biển phụ (6)</Option>
                                 </Select>
                             </Col>
                         </Row>
                     </Card>
 
-                    {/* Danh sách lưới */}
+                    {/* Danh sách hiển thị */}
                     {loading ? (
                         <div style={{ textAlign: 'center', padding: '80px 0' }}>
                             <Spin size="large" tip="Đang kết nối cơ sở dữ liệu..." />
@@ -142,11 +152,9 @@ const SignPage = () => {
                     ) : filteredSigns.length > 0 ? (
                         <Row gutter={[20, 20]}>
                             {filteredSigns.map((sign) => {
-                                const type = getSignType(sign.Symbol);
-                                // Nối domain back-end nếu trường Image trong DB của bạn chỉ lưu chuỗi tương đối 'uploads/...'
-                                const fullImageUrl = sign.Image.startsWith('http')
-                                    ? sign.Image
-                                    : `http://localhost:8080/${sign.Image}`; // Thay 5000 bằng port back-end của bạn
+                                const fullImageUrl = getFullImageUrl(sign.Image);
+                                const typeName = getSignTypeName(sign);
+                                const tagColor = getTagColor(sign.signType?.SignTypeId);
 
                                 return (
                                     <Col xs={24} sm={12} md={8} lg={6} key={sign.SignId}>
@@ -171,10 +179,9 @@ const SignPage = () => {
                                                     borderBottom: '1px solid #f5f5f5'
                                                 }}>
                                                     <img
-                                                        alt={sign.Symbol}
+                                                        alt={sign.Symbol || 'Sign'}
                                                         src={fullImageUrl}
                                                         onError={(e) => {
-                                                            // Ảnh lỗi thì đắp ảnh mặc định thế chỗ
                                                             (e.target as HTMLImageElement).src = 'https://placehold.co/150?text=No+Image';
                                                         }}
                                                         style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
@@ -182,9 +189,12 @@ const SignPage = () => {
                                                 </div>
                                             }
                                         >
-                                            <div style={{ marginBottom: '8px' }}>
-                                                <Tag color={getTagColor(type)} style={{ fontWeight: 600, borderRadius: '4px' }}>
+                                            <div style={{ marginBottom: '8px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                                <Tag color={tagColor} style={{ fontWeight: 600, borderRadius: '4px' }}>
                                                     {sign.Symbol}
+                                                </Tag>
+                                                <Tag style={{ borderRadius: '4px', fontSize: '11px' }}>
+                                                    {typeName}
                                                 </Tag>
                                             </div>
 
@@ -198,7 +208,7 @@ const SignPage = () => {
                                                 WebkitBoxOrient: 'vertical',
                                                 overflow: 'hidden'
                                             }}>
-                                                {sign.Description || 'No description available.'}
+                                                {sign.Description || 'Chưa có thông tin mô tả.'}
                                             </Text>
                                         </Card>
                                     </Col>
@@ -206,12 +216,12 @@ const SignPage = () => {
                             })}
                         </Row>
                     ) : (
-                        <Empty description="Không tìm thấy biển báo nào khớp với từ khóa tra cứu." style={{ marginTop: '60px' }} />
+                        <Empty description="Không tìm thấy biển báo nào khớp với yêu cầu." style={{ marginTop: '60px' }} />
                     )}
                 </div>
             </MainLayout>
         </ProtectedRoute>
-    )
-}
+    );
+};
 
 export default SignPage;

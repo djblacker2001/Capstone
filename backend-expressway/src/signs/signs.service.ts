@@ -19,11 +19,16 @@ export class SignsService {
   }
 
   async findAll(): Promise<Sign[]> {
-    return await this.signRepository.find();
+    return await this.signRepository.find({
+      relations: ['signType'],
+    });
   }
 
   async findOne(id: number): Promise<Sign> {
-    const sign = await this.signRepository.findOne({ where: { SignId: id } });
+    const sign = await this.signRepository.findOne({
+      where: { SignId: id },
+      relations: ['signType'],
+    });
     if (!sign) {
       throw new NotFoundException(
         this.i18n.t('sign.NOT_FOUND', { lang: this.lang, args: { id } })
@@ -32,11 +37,19 @@ export class SignsService {
     return sign;
   }
 
+  async findBySignType(signTypeId?: number): Promise<Sign[]> {
+    return await this.signRepository.find({
+      where: { signType: { SignTypeId: signTypeId } },
+      relations: ['signType'],
+    });
+  }
+
   async searchByDescription(keyword: string) {
     const signs = await this.signRepository.find({
       where: {
         Description: Like(`%${keyword}%`),
       },
+      relations: ['signType'],
     });
 
     if (signs.length === 0) {
@@ -55,7 +68,8 @@ export class SignsService {
 
   async create(data: Partial<Sign>): Promise<Sign> {
     const newSign = this.signRepository.create(data);
-    return await this.signRepository.save(newSign);
+    const savedSign = await this.signRepository.save(newSign);
+    return this.findOne(savedSign.SignId);
   }
 
   private cleanPayload<T extends Record<string, any>>(data: T): Partial<T> {
@@ -88,6 +102,7 @@ export class SignsService {
   async updateImage(id: number, data: Partial<Sign>, newImagePath?: string): Promise<Sign> {
     const existingSign = await this.findOne(id);
     const updatePayload: Partial<Sign> = this.cleanPayload(data);
+    
     if (newImagePath) {
       updatePayload.Image = newImagePath;
       if (existingSign.Image) {
@@ -112,7 +127,18 @@ export class SignsService {
   }
 
   async remove(id: number): Promise<any> {
-    await this.findOne(id);
+    const existingSign = await this.findOne(id);
+    if (existingSign.Image) {
+      const fileAbsolutePath = path.resolve(process.cwd(), existingSign.Image);
+      try {
+        if (fs.existsSync(fileAbsolutePath)) {
+          fs.unlinkSync(fileAbsolutePath);
+        }
+      } catch (err) {
+        console.error(`[Delete Error] Không thể xóa ảnh biển báo:`, err);
+      }
+    }
+
     await this.signRepository.delete(id);
 
     return {

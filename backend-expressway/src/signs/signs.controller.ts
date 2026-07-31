@@ -40,6 +40,11 @@ export class SignsController {
     return this.signsService.findOne(id);
   }
 
+  @Get('type/:signTypeId')
+  async getBySignType(@Param('signTypeId', ParseIntPipe) signTypeId: number) {
+    return this.signsService.findBySignType(signTypeId);
+  }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post()

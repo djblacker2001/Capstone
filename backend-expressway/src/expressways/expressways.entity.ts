@@ -17,9 +17,6 @@ export class Expressway {
   Description?: string;
 
   @Column({ nullable: true })
-  Tag?: string;
-
-  @Column({ nullable: true })
   MapData?: string;
 
   @OneToMany(() => Section, (section) => section.expressway)

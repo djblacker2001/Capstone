@@ -1,51 +1,35 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import {
-    Form, Input, InputNumber, Select, Button, Card,
-    Tabs, Table, Popconfirm, Space, Row, Col, Spin, message, Upload
-} from 'antd';
-import {
-    ArrowLeftOutlined, SaveOutlined, PlusOutlined,
-    EditOutlined, DeleteOutlined, CloseOutlined
-} from '@ant-design/icons';
-
+import {Form, Input, InputNumber, Select, Button, Card,Tabs, Table, Popconfirm, Space, Row, Col, Spin, message, Upload} from 'antd';
+import {ArrowLeftOutlined, SaveOutlined, PlusOutlined,EditOutlined, DeleteOutlined, CloseOutlined} from '@ant-design/icons';
 import axiosClient from '@/api/axiosClient';
 import ProtectedRoute from '@/app/components/ProtectedRoute/ProtectedRoute';
 import MainLayout from '@/app/layout/Layout';
 
-const UpdateSectionPage = () => {
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+export default function UpdateSectionPage() {
     const params = useParams();
     const router = useRouter();
-
-    // 🔑 Lấy duy nhất `SectionId` tương ứng tên thư mục [SectionId]
     const rawSectionId = params?.SectionId;
     const sectionId = Array.isArray(rawSectionId) ? rawSectionId[0] : rawSectionId;
 
     const [loading, setLoading] = useState<boolean>(true);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [sectionData, setSectionData] = useState<any>(null);
-
-    // Danh sách hạ tầng
     const [interchanges, setInterchanges] = useState<any[]>([]);
     const [restStops, setRestStops] = useState<any[]>([]);
     const [bridges, setBridges] = useState<any[]>([]);
     const [tunnels, setTunnels] = useState<any[]>([]);
-
-    // Quản lý ảnh Biển báo tốc độ
     const [speedSignFile, setSpeedSignFile] = useState<File | null>(null);
     const [speedSignUrl, setSpeedSignUrl] = useState<string>('');
     const [isEditingSign, setIsEditingSign] = useState<boolean>(false);
-
-    // State Chỉnh sửa Sub-item
     const [activeTab, setActiveTab] = useState<string>('interchange');
     const [editingSubIndex, setEditingSubIndex] = useState<number | null>(null);
 
     const [mainForm] = Form.useForm();
     const [subForm] = Form.useForm();
-
-    // 1. Fetch dữ liệu phân đoạn
     const fetchSectionData = useCallback(async () => {
         if (!sectionId || sectionId === 'undefined') return;
 
@@ -87,8 +71,6 @@ const UpdateSectionPage = () => {
     useEffect(() => {
         fetchSectionData();
     }, [fetchSectionData]);
-
-    // 2. Xử lý Sub-items (Nút giao, Cầu, Hầm, Trạm dừng)
     const handleStartEditSubItem = (record: any = null, index: number = -1) => {
         if (record && index !== -1) {
             setEditingSubIndex(index);
@@ -111,10 +93,8 @@ const UpdateSectionPage = () => {
             const updateList = (prevList: any[]) => {
                 const list = [...prevList];
                 if (editingSubIndex !== null && editingSubIndex >= 0) {
-                    // Cập nhật lại và giữ nguyên id cũ nếu có
                     list[editingSubIndex] = { ...list[editingSubIndex], ...values };
                 } else {
-                    // Thêm mới
                     list.push(values);
                 }
                 return list;
@@ -157,27 +137,21 @@ const UpdateSectionPage = () => {
         message.success('Đã xóa khỏi danh sách!');
     };
 
-    // 3. Lưu toàn bộ thông tin
     const handleSaveAll = async () => {
         try {
             const mainValues = await mainForm.validateFields();
             setSubmitting(true);
-
             const formData = new FormData();
-
-            // Append main form fields
             Object.keys(mainValues).forEach((key) => {
                 if (mainValues[key] !== undefined && mainValues[key] !== null) {
                     formData.append(key, mainValues[key]);
                 }
             });
 
-            // Append File nếu có chọn ảnh mới
             if (speedSignFile) {
                 formData.append('SpeedSign', speedSignFile);
             }
 
-            // Append danh sách hạ tầng dạng JSON String
             formData.append('interchanges', JSON.stringify(interchanges));
             formData.append('restStops', JSON.stringify(restStops));
             formData.append('bridges', JSON.stringify(bridges));
@@ -189,6 +163,7 @@ const UpdateSectionPage = () => {
 
             message.success('Cập nhật thành công!');
             fetchSectionData();
+            router.push('/manageExpressway')
         } catch (error: any) {
             console.error('Lỗi lưu dữ liệu:', error);
             message.error(error?.response?.data?.message || 'Không thể cập nhật!');
@@ -197,7 +172,6 @@ const UpdateSectionPage = () => {
         }
     };
 
-    // 4. Cột của Bảng
     const getSubColumns = (type: string) => [
         {
             title: 'STT',
@@ -252,13 +226,12 @@ const UpdateSectionPage = () => {
         }
     ];
 
-    // Helper kiểm tra URL ảnh chuẩn
     const getImageUrl = (url: string) => {
         if (!url) return '';
         if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
             return url;
         }
-        return `http://localhost:8080/${url.replace(/^\//, '')}`;
+        return `${baseUrl}/${url.replace(/^\//, '')}`;
     };
 
     if (loading || !sectionId || sectionId === 'undefined') {
@@ -334,7 +307,6 @@ const UpdateSectionPage = () => {
                                 <Col xs={24} md={6}><Form.Item name="EndKm" label="Km Kết thúc"><InputNumber style={{ width: '100%' }} placeholder="VD: 99" /></Form.Item></Col>
                             </Row>
 
-                            {/* KHU VỰC: BIỂN BÁO & TỐC ĐỘ */}
                             <Row gutter={16}>
                                 <Col xs={24} md={12}>
                                     <Form.Item name="SpeedLimit" label="Mô tả / Giới hạn tốc độ">
@@ -382,7 +354,7 @@ const UpdateSectionPage = () => {
                                                     maxCount={1}
                                                     beforeUpload={(file) => {
                                                         setSpeedSignFile(file);
-                                                        return false; // Chặn auto upload
+                                                        return false;
                                                     }}
                                                     onRemove={() => setSpeedSignFile(null)}
                                                     fileList={
@@ -417,7 +389,6 @@ const UpdateSectionPage = () => {
                         </Form>
                     </Card>
 
-                    {/* QUẢN LÝ HẠ TẦNG KĨ THUẬT */}
                     <Card title="QUẢN LÝ HẠ TẦNG KỸ THUẬT" style={{ borderRadius: 8 }}>
                         <Tabs
                             activeKey={activeTab}
@@ -456,7 +427,6 @@ const UpdateSectionPage = () => {
                             bordered
                         />
 
-                        {/* FORM SỬA / THÊM HẠ TẦNG CON */}
                         {editingSubIndex !== null && (
                             <Card
                                 type="inner"
@@ -525,5 +495,3 @@ const UpdateSectionPage = () => {
         </ProtectedRoute>
     );
 };
-
-export default UpdateSectionPage;

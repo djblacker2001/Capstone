@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {Button, Card, Form, Input, message, Modal, Popconfirm, Space, Table, Upload, Image as AntdImage} from "antd";
-import {DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined, UploadOutlined} from "@ant-design/icons";
+import { Button, Card, Form, Input, message, Modal, Popconfirm, Space, Table, Upload, Image as AntdImage, Select } from "antd";
+import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import MainLayout from "../layout/Layout";
 import axiosClient from "@/api/axiosClient";
@@ -244,7 +244,6 @@ export default function ManageSignPage() {
                         />
                     </Card>
 
-                    {/* MODAL FORM THÊM / SỬA */}
                     <Modal
                         title={editingSign ? "✏️ Cập nhật thông tin biển báo" : "➕ Thêm biển báo mới vào hệ thống"}
                         open={isModalOpen}
@@ -261,13 +260,27 @@ export default function ManageSignPage() {
                                 label="Ký hiệu biển báo (Symbol)"
                                 rules={[{ required: true, message: "Vui lòng nhập ký hiệu biển báo!" }]}
                             >
-                                <Input placeholder="Ví dụ: IE.450a" />
+                                <Input placeholder="Ví dụ: IE.450a, P.101, W.201..." />
                             </Form.Item>
 
-                            {/* UPLOAD FILE ẢNH BẰNG COMPONENT CỦA ANTD */}
+                            <Form.Item
+                                name="SignTypeId"
+                                label="Loại biển báo"
+                                rules={[{ required: true, message: "Vui lòng chọn loại biển báo!" }]}
+                            >
+                                <Select placeholder="-- Chọn nhóm loại biển báo --">
+                                    <Select.Option value={1}>Biển báo cấm (1)</Select.Option>
+                                    <Select.Option value={2}>Biển báo nguy hiểm và cảnh báo (2)</Select.Option>
+                                    <Select.Option value={3}>Biển báo hiệu lệnh (3)</Select.Option>
+                                    <Select.Option value={4}>Biển chỉ dẫn (4)</Select.Option>
+                                    <Select.Option value={5}>Biển chỉ dẫn trên đường cao tốc (5)</Select.Option>
+                                    <Select.Option value={6}>Biển phụ (6)</Select.Option>
+                                </Select>
+                            </Form.Item>
+
                             <Form.Item label="Hình ảnh biển báo">
                                 <Upload
-                                    beforeUpload={() => false} // Không upload tự động, để submit form mới gửi
+                                    beforeUpload={() => false}
                                     maxCount={1}
                                     fileList={fileList}
                                     onChange={({ fileList }) => setFileList(fileList)}
@@ -286,6 +299,7 @@ export default function ManageSignPage() {
                             >
                                 <Input.TextArea rows={4} placeholder="Nhập ý nghĩa chi tiết hiển thị..." />
                             </Form.Item>
+
                         </Form>
                     </Modal>
                 </div>

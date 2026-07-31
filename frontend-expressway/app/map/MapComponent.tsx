@@ -5,24 +5,14 @@ import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMap } from 'react-l
 import L from 'leaflet';
 import { Spin, Select, Space, Card, Tag, Button, Drawer, Grid, Image, Divider, Typography } from 'antd';
 import 'leaflet/dist/leaflet.css';
-import {
-  BranchesOutlined,
-  CoffeeOutlined,
-  FilterOutlined,
-  PartitionOutlined,
-  DashboardOutlined,
-  CompassOutlined,
-} from '@ant-design/icons';
+import { BranchesOutlined, CoffeeOutlined, FilterOutlined, PartitionOutlined, DashboardOutlined, CompassOutlined, } from '@ant-design/icons';
 
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-// ----------------------------------------------------------------------
-// HÀM TÍNH KHOẢNG CÁCH HAVERSINE (Đơn vị: km)
-// ----------------------------------------------------------------------
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371; // Bán kính Trái Đất (km)
+  const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
@@ -35,9 +25,6 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c;
 }
 
-// ----------------------------------------------------------------------
-// CUSTOM ICONS LEAFLET
-// ----------------------------------------------------------------------
 const createCustomIcon = (iconHtml: string, className: string = '') => {
   if (typeof window === 'undefined') return null;
   return L.divIcon({
@@ -66,8 +53,6 @@ const restStopIcon = createCustomIcon(
   '<div style="background:#52c41a;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);font-size:14px;">☕</div>'
 );
 
-// Icon biển báo tốc độ hình tròn chuẩn giao thông
-// Hàm tạo icon biển báo tốc độ động từ URL
 const createSpeedSignIcon = (imgUrl: string, size: number = 36) => {
   return createCustomIcon(
     `<div style="width:${size}px;height:${size}px;border-radius:50%;overflow:hidden;border:2px solid #ff4d4f;box-shadow:0 2px 6px rgba(0,0,0,0.4);background:white;">
@@ -76,7 +61,7 @@ const createSpeedSignIcon = (imgUrl: string, size: number = 36) => {
   );
 };
 
-// Component hỗ trợ chuyển góc nhìn mượt mà
+
 function ChangeMapCenter({ center, zoom = 12 }: { center: [number, number]; zoom?: number }) {
   const map = useMap();
   useEffect(() => {
@@ -217,15 +202,11 @@ export default function MapComponent() {
     ? allRestStops
     : allRestStops.filter((r) => r.SectionId === selectedSection);
 
-  // ----------------------------------------------------------------------
-  // TÍNH TOÁN CÁC ĐIỂM GẦN NHẤT DỰA VÀO GPS NGƯỜI DÙNG
-  // ----------------------------------------------------------------------
   const nearestInfo = useMemo(() => {
     if (!position) return null;
 
     const [uLat, uLng] = position;
 
-    // 1. Nút giao gần nhất
     let nearestIC: { item: InterchangeItem; dist: number } | null = null;
     allInterchanges.forEach((ic) => {
       const d = calculateDistance(uLat, uLng, ic.Latitude, ic.Longitude);
@@ -234,7 +215,6 @@ export default function MapComponent() {
       }
     });
 
-    // 2. Trạm dừng nghỉ gần nhất
     let nearestRS: { item: RestStopItem; dist: number } | null = null;
     allRestStops.forEach((rs) => {
       const d = calculateDistance(uLat, uLng, rs.Latitude, rs.Longitude);
@@ -243,7 +223,6 @@ export default function MapComponent() {
       }
     });
 
-    // 3. Phân đoạn cao tốc gần nhất
     let nearestSec: { item: SectionItem; dist: number } | null = null;
     sections.forEach((sec) => {
       const d = calculateDistance(uLat, uLng, sec.lat, sec.lng);
@@ -255,7 +234,6 @@ export default function MapComponent() {
     return { nearestIC, nearestRS, nearestSec };
   }, [position]);
 
-  // Fetch Danh sách Cao tốc
   useEffect(() => {
     fetch(`${baseUrl}/expressways`)
       .then((res) => {
