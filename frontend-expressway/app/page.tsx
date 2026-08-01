@@ -37,7 +37,6 @@ export default function Home() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { t } = useTranslation();
 
-  // 1. Gọi API lấy danh sách toàn bộ tuyến cao tốc từ Server
   useEffect(() => {
     const fetchExpressways = async () => {
       try {
@@ -50,8 +49,7 @@ export default function Home() {
             : res.data?.data || [];
 
         setRoutesData(data);
-        
-        // Mặc định chọn tuyến đầu tiên
+
         if (data.length > 0) {
           setActiveRouteId(data[0].ExpresswayId);
         }
@@ -65,7 +63,6 @@ export default function Home() {
     fetchExpressways();
   }, []);
 
-  // 2. Tìm tuyến cao tốc đang được chọn dựa trên activeRouteId
   const selectedExpressway = routesData.find(item => item.ExpresswayId === activeRouteId);
 
   return (

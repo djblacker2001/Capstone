@@ -2,6 +2,8 @@ Cho biết được là Km thứ bao nhiêu thuộc đoạn đường nào
 ghi table trên API https://docs.google.com/spreadsheets/d/1hWOIR6iNfHYh9b6UmkETdWbYy4-9r37IyUeNjihhIP4/edit?gid=0#gid=0
 ý nghĩa của đoạn đường 
 
+npm install antd @ant-design/icons @ant-design/charts @ant-design/x
+
 "Username": "admin1",
 "Email": "hoangvu222001@gmail.com",
 "Password": "10012026",

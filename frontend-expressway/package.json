@@ -9,12 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ant-design/charts": "^2.6.7",
     "@ant-design/icons": "^6.3.2",
     "@ant-design/plots": "^2.6.8",
+    "@ant-design/x": "^2.9.0",
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
     "@fortawesome/react-fontawesome": "^3.3.1",
-    "antd": "^6.5.0",
+    "antd": "^6.5.3",
     "axios": "^1.16.1",
     "i18next": "^26.3.0",
     "i18next-browser-languagedetector": "^8.2.1",
