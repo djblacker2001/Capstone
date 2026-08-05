@@ -24,5 +24,12 @@
     "manageExpressway": {},
     "manageUser": {},
     "manageSign": {},
-    "map":{}
+    "map":{
+        "interchange":"Nút giao",
+        "restStop":"Trạm dừng nghỉ",
+        "location":"Vị trí",
+        "toilet": "Vệ sinh",
+        "food": "Ăn uống",
+        "petrol": "Cây xăng"
+    }
 }

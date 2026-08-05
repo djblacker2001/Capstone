@@ -9,7 +9,7 @@ import axiosClient from "@/api/axiosClient";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 interface Sign {
     SignId: number;
     Symbol: string;
@@ -26,8 +26,6 @@ const SignPage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [searchText, setSearchText] = useState<string>('');
     const [selectedTypeId, setSelectedTypeId] = useState<string>('All');
-
-    // Gọi API lấy dữ liệu dựa theo TypeId được chọn (Dùng Cách 2: Path Param)
     const fetchSigns = async (typeId: string) => {
         setLoading(true);
         try {
@@ -53,11 +51,10 @@ const SignPage = () => {
         fetchSigns(selectedTypeId);
     }, [selectedTypeId]);
 
-    // Hàm xử lý URL ảnh an toàn chống lỗi null/undefined
     const getFullImageUrl = (imagePath?: string | null) => {
         if (!imagePath) return 'https://placehold.co/150?text=No+Image';
         if (imagePath.startsWith('http')) return imagePath;
-        return `http://localhost:8080/${imagePath}`;
+        return `${baseUrl}/${imagePath}`;
     };
 
     // Xác định tên nhóm hiển thị trên Tag
@@ -78,17 +75,16 @@ const SignPage = () => {
     // Màu sắc cho Tag dựa trên SignTypeId trong DB
     const getTagColor = (typeId?: number) => {
         switch (typeId) {
-            case 1: return 'red';     // Biển cấm
-            case 2: return 'orange';  // Biển nguy hiểm
-            case 3: return 'blue';    // Biển hiệu lệnh
-            case 4: return 'cyan';    // Biển chỉ dẫn
-            case 5: return 'green';   // Biển chỉ dẫn cao tốc
-            case 6: return 'purple';  // Biển phụ
+            case 1: return 'red';
+            case 2: return 'orange';
+            case 3: return 'blue';
+            case 4: return 'cyan';
+            case 5: return 'green';
+            case 6: return 'purple';
             default: return 'default';
         }
     };
 
-    // Lọc theo từ khóa tìm kiếm
     const filteredSigns = signs.filter((sign) => {
         const symbolMatch = sign.Symbol?.toLowerCase().includes(searchText.toLowerCase());
         const descMatch = sign.Description?.toLowerCase().includes(searchText.toLowerCase());
@@ -100,7 +96,6 @@ const SignPage = () => {
             <MainLayout>
                 <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', minHeight: '100vh' }}>
 
-                    {/* Tiêu đề */}
                     <div style={{ marginBottom: '32px', textAlign: 'center' }}>
                         <Title level={2} style={{ margin: 0, fontWeight: 700 }}>
                             Hệ Thống Biển Báo Đường Bộ & Cao Tốc
@@ -110,7 +105,6 @@ const SignPage = () => {
                         </Text>
                     </div>
 
-                    {/* Bộ lọc tìm kiếm */}
                     <Card style={{ marginBottom: '24px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
                         <Row gutter={[16, 16]}>
                             <Col xs={24} md={16}>
@@ -124,7 +118,6 @@ const SignPage = () => {
                                 />
                             </Col>
                             <Col xs={24} md={8}>
-                                {/* Khớp hoàn toàn với các SignTypeId trong Database */}
                                 <Select
                                     suffixIcon={<FilterOutlined />}
                                     style={{ width: '100%' }}
@@ -133,87 +126,98 @@ const SignPage = () => {
                                     size="large"
                                 >
                                     <Option value="All">Tất cả nhóm biển báo</Option>
-                                    <Option value="1">Biển báo cấm (1)</Option>
-                                    <Option value="2">Biển nguy hiểm & cảnh báo (2)</Option>
-                                    <Option value="3">Biển hiệu lệnh (3)</Option>
-                                    <Option value="4">Biển chỉ dẫn (4)</Option>
-                                    <Option value="5">Biển chỉ dẫn cao tốc (5)</Option>
-                                    <Option value="6">Biển phụ (6)</Option>
+                                    <Option value="1">Biển báo cấm</Option>
+                                    <Option value="2">Biển nguy hiểm & cảnh báo</Option>
+                                    <Option value="3">Biển hiệu lệnh</Option>
+                                    <Option value="4">Biển chỉ dẫn</Option>
+                                    <Option value="5">Biển chỉ dẫn cao tốc</Option>
+                                    <Option value="6">Biển phụ</Option>
                                 </Select>
                             </Col>
                         </Row>
                     </Card>
 
-                    {/* Danh sách hiển thị */}
                     {loading ? (
                         <div style={{ textAlign: 'center', padding: '80px 0' }}>
                             <Spin size="large" tip="Đang kết nối cơ sở dữ liệu..." />
                         </div>
                     ) : filteredSigns.length > 0 ? (
                         <Row gutter={[20, 20]}>
-                            {filteredSigns.map((sign) => {
-                                const fullImageUrl = getFullImageUrl(sign.Image);
-                                const typeName = getSignTypeName(sign);
-                                const tagColor = getTagColor(sign.signType?.SignTypeId);
+                            {[...filteredSigns]
+                                .sort((a, b) => {
+                                    const nameA = getSignTypeName(a) || '';
+                                    const nameB = getSignTypeName(b) || '';
+                                    const typeComparison = nameA.localeCompare(nameB, 'vi', { sensitivity: 'base' });
+                                    if (typeComparison !== 0) return typeComparison;
 
-                                return (
-                                    <Col xs={24} sm={12} md={8} lg={6} key={sign.SignId}>
-                                        <Card
-                                            hoverable
-                                            style={{
-                                                borderRadius: '12px',
-                                                height: '100%',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                border: '1px solid #f0f0f0'
-                                            }}
-                                            bodyStyle={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}
-                                            cover={
-                                                <div style={{
-                                                    background: '#f9f9f9',
-                                                    height: '160px',
+                                    const symbolA = a.Symbol || '';
+                                    const symbolB = b.Symbol || '';
+                                    return symbolA.localeCompare(symbolB, 'vi', { numeric: true, sensitivity: 'base' });
+                                })
+                                .map((sign) => {
+                                    const fullImageUrl = getFullImageUrl(sign.Image);
+                                    const typeName = getSignTypeName(sign);
+                                    const tagColor = getTagColor(sign.signType?.SignTypeId);
+
+                                    return (
+                                        <Col xs={24} sm={12} md={8} lg={6} key={sign.SignId}>
+                                            <Card
+                                                hoverable
+                                                style={{
+                                                    borderRadius: '12px',
+                                                    height: '100%',
                                                     display: 'flex',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    padding: '12px',
-                                                    borderBottom: '1px solid #f5f5f5'
-                                                }}>
-                                                    <img
-                                                        alt={sign.Symbol || 'Sign'}
-                                                        src={fullImageUrl}
-                                                        onError={(e) => {
-                                                            (e.target as HTMLImageElement).src = 'https://placehold.co/150?text=No+Image';
-                                                        }}
-                                                        style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
-                                                    />
+                                                    flexDirection: 'column',
+                                                    border: '1px solid #f0f0f0'
+                                                }}
+                                                bodyStyle={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}
+                                                cover={
+                                                    <div style={{
+                                                        background: '#f9f9f9',
+                                                        height: '160px',
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        padding: '12px',
+                                                        borderBottom: '1px solid #f5f5f5'
+                                                    }}>
+                                                        <img
+                                                            alt={sign.Symbol || 'Sign'}
+                                                            src={fullImageUrl}
+                                                            onError={(e) => {
+                                                                (e.target as HTMLImageElement).src = 'https://placehold.co/150?text=No+Image';
+                                                            }}
+                                                            style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
+                                                        />
+                                                    </div>
+                                                }
+                                            >
+                                                <div style={{ marginBottom: '8px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                                    <Tag color={tagColor} style={{ fontWeight: 600, borderRadius: '4px' }}>
+                                                        {sign.Symbol}
+                                                    </Tag>
+                                                    <Tag style={{ borderRadius: '4px', fontSize: '11px' }}>
+                                                        {typeName}
+                                                    </Tag>
                                                 </div>
-                                            }
-                                        >
-                                            <div style={{ marginBottom: '8px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                                                <Tag color={tagColor} style={{ fontWeight: 600, borderRadius: '4px' }}>
-                                                    {sign.Symbol}
-                                                </Tag>
-                                                <Tag style={{ borderRadius: '4px', fontSize: '11px' }}>
-                                                    {typeName}
-                                                </Tag>
-                                            </div>
 
-                                            <Text style={{
-                                                fontSize: '14px',
-                                                color: '#262626',
-                                                fontWeight: '500',
-                                                lineHeight: '1.5',
-                                                display: '-webkit-box',
-                                                WebkitLineClamp: 3,
-                                                WebkitBoxOrient: 'vertical',
-                                                overflow: 'hidden'
-                                            }}>
-                                                {sign.Description || 'Chưa có thông tin mô tả.'}
-                                            </Text>
-                                        </Card>
-                                    </Col>
-                                );
-                            })}
+                                                <Text style={{
+                                                    fontSize: '14px',
+                                                    color: '#262626',
+                                                    fontWeight: '500',
+                                                    lineHeight: '1.5',
+                                                    display: '-webkit-box',
+                                                    WebkitLineClamp: 3,
+                                                    WebkitBoxOrient: 'vertical',
+                                                    overflow: 'hidden',
+                                                    whiteSpace: 'pre-line'
+                                                }}>
+                                                    {sign.Description || 'Chưa có thông tin mô tả.'}
+                                                </Text>
+                                            </Card>
+                                        </Col>
+                                    );
+                                })}
                         </Row>
                     ) : (
                         <Empty description="Không tìm thấy biển báo nào khớp với yêu cầu." style={{ marginTop: '60px' }} />

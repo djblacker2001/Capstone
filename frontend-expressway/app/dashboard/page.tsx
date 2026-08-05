@@ -69,9 +69,9 @@ export default function DashboardPage() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <p style={{ color: '#0050b3', margin: 0, fontSize: '13px', fontWeight: 600 }}>Phân đoạn</p>
+                                    <p style={{ color: '#0050b3', margin: 0, fontSize: '13px', fontWeight: 600 }}>Expressway segment</p>
                                     <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#002c8c' }}>
-                                        {totalSections} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>đoạn</span>
+                                        {totalSections} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>sections</span>
                                     </h2>
                                 </div>
                                 <div style={{ background: '#1890ff', padding: '10px', borderRadius: '10px', color: '#ffffff', fontSize: '20px', display: 'flex', boxShadow: '0 4px 8px rgba(24, 144, 255, 0.3)' }}>
@@ -95,7 +95,7 @@ export default function DashboardPage() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <p style={{ color: '#531dab', margin: 0, fontSize: '13px', fontWeight: 600 }}>Chiều dài quản lý</p>
+                                    <p style={{ color: '#531dab', margin: 0, fontSize: '13px', fontWeight: 600 }}>Management length</p>
                                     <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#22075e' }}>
                                         {totalLength} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>km</span>
                                     </h2>
@@ -121,7 +121,7 @@ export default function DashboardPage() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <p style={{ color: '#d46b08', margin: 0, fontSize: '13px', fontWeight: 600 }}>Công trình (Cầu/Hầm)</p>
+                                    <p style={{ color: '#d46b08', margin: 0, fontSize: '13px', fontWeight: 600 }}>Structures (Bridges/Tunnels)</p>
                                     <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#612500' }}>
                                         {totalBridges} <span style={{ fontSize: '16px', color: '#8c8c8c', fontWeight: '300' }}>/</span> {totalTunnels}
                                     </h2>
@@ -147,9 +147,9 @@ export default function DashboardPage() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <p style={{ color: '#389e0d', margin: 0, fontSize: '13px', fontWeight: 600 }}>Nút giao</p>
+                                    <p style={{ color: '#389e0d', margin: 0, fontSize: '13px', fontWeight: 600 }}>Interchange</p>
                                     <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#135200' }}>
-                                        {totalInterchange} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>nút</span>
+                                        {totalInterchange} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>interchanges</span>
                                     </h2>
                                 </div>
                                 <div style={{ background: '#52c41a', padding: '10px', borderRadius: '10px', color: '#ffffff', fontSize: '20px', display: 'flex', boxShadow: '0 4px 8px rgba(82, 196, 26, 0.3)' }}>
@@ -172,9 +172,9 @@ export default function DashboardPage() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <p style={{ color: '#c41d7f', margin: 0, fontSize: '13px', fontWeight: 600 }}>Trạm dừng nghỉ</p>
+                                    <p style={{ color: '#c41d7f', margin: 0, fontSize: '13px', fontWeight: 600 }}>Rest Stop</p>
                                     <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#5c0038' }}>
-                                        {totalRestStops} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>trạm</span>
+                                        {totalRestStops} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>rest stops</span>
                                     </h2>
                                 </div>
                                 <div style={{ background: '#eb2f96', padding: '10px', borderRadius: '10px', color: '#ffffff', fontSize: '20px', display: 'flex', boxShadow: '0 4px 8px rgba(235, 47, 150, 0.3)' }}>
@@ -197,9 +197,9 @@ export default function DashboardPage() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <p style={{ color: '#cf1322', margin: 0, fontSize: '13px', fontWeight: 600 }}>Biển báo giao thông</p>
+                                    <p style={{ color: '#cf1322', margin: 0, fontSize: '13px', fontWeight: 600 }}>Sign</p>
                                     <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#5c0011' }}>
-                                        {totalSigns} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>biển</span>
+                                        {totalSigns} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>signs</span>
                                     </h2>
                                 </div>
                                 <div style={{ background: '#f5222d', padding: '10px', borderRadius: '10px', color: '#ffffff', fontSize: '20px', display: 'flex', boxShadow: '0 4px 8px rgba(245, 34, 45, 0.3)' }}>

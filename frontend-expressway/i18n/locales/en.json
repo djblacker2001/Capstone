@@ -24,5 +24,12 @@
   "manageExpressway": {},
   "manageUser": {},
   "manageSign": {},
-  "map":{}
+  "map":{
+    "interchange":"Interchange",
+    "restStop":"Rest Stop",
+    "location":"Location",
+    "toilet": "Toilet",
+    "food": "Food",
+    "petrol": "Petrol"
+  }
 }

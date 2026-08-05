@@ -1,107 +1,41 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './style.css';
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 interface MapProps {
   isFullscreen: boolean;
   setIsFullscreen: (val: boolean) => void;
   geojsonData: any;
 }
 
-function MapController({
-  isFullscreen,
-  geojsonData,
-}: {
-  isFullscreen: boolean;
-  geojsonData: any;
-}) {
+function MapFitBounds({ geojsonData }: { geojsonData: any }) {
   const map = useMap();
-  const routingRef = useRef<any>(null);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !map) return;
-
-    const L = require('leaflet');
-    (window as any).L = L;
-    require('leaflet-routing-machine');
-
-    routingRef.current = (L as any).Routing.control({
-      waypoints: [],
-      routeWhileDragging: false,
-      show: false,
-      addWaypoints: false,
-      draggableWaypoints: false,
-      fitSelectedRoutes: false,
-
-      createMarker: () => null,
-
-      lineOptions: {
-        styles: [
-          {
-            color: '#ff3838',
-            opacity: 0.8,
-            weight: 6,
-          },
-        ],
-        extendToWaypoints: true,
-        missingRouteTolerance: 100,
-      },
-    }).addTo(map);
-
-    routingRef.current.on('routesfound', (e: any) => {
-      if (!e.routes?.length) return;
-
-      const bounds = L.latLngBounds(
-        e.routes[0].coordinates
-      );
-
-      map.fitBounds(bounds, {
-        padding: [20, 20],
-      });
-    });
-
-    return () => {
-      try {
-        routingRef.current?.off();
-        routingRef.current?.remove();
-        routingRef.current = null;
-      } catch (err) {
-        console.error('Routing cleanup error:', err);
-      }
-    };
-  }, [map]);
-
-  useEffect(() => {
-    if (!routingRef.current || !geojsonData) return;
+    if (!geojsonData || typeof window === 'undefined') return;
 
     try {
       const L = require('leaflet');
+      const geoJsonLayer = L.geoJSON(geojsonData);
+      const bounds = geoJsonLayer.getBounds();
 
-      const coords = geojsonData?.geometry?.coordinates;
-
-      if (!coords || coords.length < 2) return;
-
-      const startPoint = L.latLng(
-        coords[0][1],
-        coords[0][0]
-      );
-
-      const endPoint = L.latLng(
-        coords[coords.length - 1][1],
-        coords[coords.length - 1][0]
-      );
-
-      routingRef.current.setWaypoints([
-        startPoint,
-        endPoint,
-      ]);
+      if (bounds.isValid()) {
+        map.fitBounds(bounds, { padding: [30, 30] });
+      }
     } catch (err) {
-      console.error('Update route error:', err);
+      console.error('Fit bounds error:', err);
     }
-  }, [geojsonData]);
+  }, [geojsonData, map]);
+
+  return null;
+}
+
+function MapResizeController({ isFullscreen }: { isFullscreen: boolean }) {
+  const map = useMap();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -117,11 +51,9 @@ function MapController({
 export default function MapComponent({
   isFullscreen,
   setIsFullscreen,
-  geojsonData, // Hiện tại đang là string path từ cha truyền xuống
+  geojsonData,
 }: MapProps) {
-  // Tạo một state mới để lưu trữ dữ liệu JSON thực tế sau khi fetch
   const [actualGeoJson, setActualGeoJson] = useState<any>(null);
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isFullscreen) {
@@ -132,27 +64,21 @@ export default function MapComponent({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFullscreen, setIsFullscreen]);
-
-  // Bộ lọc Fetch dữ liệu tự động từ Backend NestJS
   useEffect(() => {
     if (typeof geojsonData === 'string' && geojsonData.trim() !== '') {
-      // Ghép với domain backend NestJS của bạn (ví dụ: http://localhost:8080)
-      fetch(`http://localhost:8080/${geojsonData}`)
+
+      const url = geojsonData.startsWith('http') ? geojsonData : `${baseUrl}/${geojsonData}`;
+
+      fetch(url)
         .then((res) => {
           if (!res.ok) throw new Error('Network response was not ok');
           return res.json();
         })
         .then((data) => {
-          // Nếu file JSON của bạn bọc trong một FeatureCollection (như xuất từ geojson.io)
-          if (data.type === 'FeatureCollection' && data.features?.length > 0) {
-            setActualGeoJson(data.features[0]); // Lấy phần tử feature đầu tiên
-          } else {
-            setActualGeoJson(data);
-          }
+          setActualGeoJson(data);
         })
         .catch((err) => console.error('Failed to load GeoJSON map file:', err));
     } else if (geojsonData && typeof geojsonData === 'object') {
-      // Phòng trường hợp sau này bạn truyền thẳng object từ ngoài vào
       setActualGeoJson(geojsonData);
     }
   }, [geojsonData]);
@@ -168,15 +94,18 @@ export default function MapComponent({
       zoomControl={isFullscreen}
       attributionControl={false}
     >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-
-      {/* Truyền dữ liệu Object đã fetch thành công vào Controller */}
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      {actualGeoJson && <MapFitBounds geojsonData={actualGeoJson} />}
+      <MapResizeController isFullscreen={isFullscreen} />
       {actualGeoJson && (
-        <MapController
-          isFullscreen={isFullscreen}
-          geojsonData={actualGeoJson}
+        <GeoJSON
+          key={JSON.stringify(actualGeoJson)}
+          data={actualGeoJson}
+          style={() => ({
+            color: '#ff3838',
+            weight: 6,
+            opacity: 0.85,
+          })}
         />
       )}
 

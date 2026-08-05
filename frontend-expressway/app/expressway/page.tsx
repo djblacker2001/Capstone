@@ -174,6 +174,10 @@ export default function ExpresswayPage() {
 
     const getSectionStatusProps = (status: string | undefined) => {
         switch (status) {
+            case 'Not yet construction':
+            case 'Chưa thi công':
+                return { text: 'Chưa thi công', color: 'yellow' };
+
             case 'Complete':
             case 'Operating':
             case 'Đang hoạt động':
@@ -223,6 +227,7 @@ export default function ExpresswayPage() {
                                     value={filterName}
                                     disabled={!!filterKm}
                                     onChange={(e) => setFilterName(e.target.value)}
+                                    onPressEnter={handleSearch}
                                     allowClear
                                 />
                             </Col>
@@ -237,6 +242,7 @@ export default function ExpresswayPage() {
                                     onChange={(value) => setFilterStatus(value)}
                                     allowClear
                                 >
+                                    <Option value="Not yet construction">Chưa thi công</Option>
                                     <Option value="Complete">Đang hoạt động</Option>
                                     <Option value="Under construction">Đang thi công</Option>
                                     <Option value="Extend under construction">Đang thi công mở rộng</Option>
@@ -247,13 +253,56 @@ export default function ExpresswayPage() {
 
                             <Col xs={24} sm={12} md={5}>
                                 <div style={{ marginBottom: '6px', fontWeight: 600, color: '#434343' }}>Đi qua tỉnh/thành:</div>
-                                <Input
-                                    placeholder="Ví dụ: Hà Nội, Ninh Bình..."
-                                    value={filterProvince}
+                                <Select
+                                    showSearch
+                                    placeholder="Chọn tỉnh/thành..."
+                                    style={{ width: '100%' }}
+                                    value={filterProvince || undefined}
                                     disabled={!!filterKm}
-                                    onChange={(e) => setFilterProvince(e.target.value)}
+                                    onChange={(value) => setFilterProvince(value)}
                                     allowClear
-                                />
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                        (option?.children as unknown as string)
+                                            ?.toLowerCase()
+                                            .includes(input.toLowerCase())
+                                    }
+                                >
+                                    <Select.Option value="Hà Nội City">Hà Nội</Select.Option>
+                                    <Select.Option value="Cao Bằng Province">Cao Bằng</Select.Option>
+                                    <Select.Option value="Tuyên Quang Province">Tuyên Quang</Select.Option>
+                                    <Select.Option value="Điện Biên Province">Điện Biên</Select.Option>
+                                    <Select.Option value="Lai Châu Province">Lai Châu</Select.Option>
+                                    <Select.Option value="Sơn La Province">Sơn La</Select.Option>
+                                    <Select.Option value="Lào Cai Province">Lào Cai</Select.Option>
+                                    <Select.Option value="Thái Nguyên Province">Thái Nguyên</Select.Option>
+                                    <Select.Option value="Lạng Sơn Province">Lạng Sơn</Select.Option>
+                                    <Select.Option value="Quảng Ninh Province">Quảng Ninh</Select.Option>
+                                    <Select.Option value="Bắc Ninh Province">Bắc Ninh</Select.Option>
+                                    <Select.Option value="Phú Thọ Province">Phú Thọ</Select.Option>
+                                    <Select.Option value="Hải Phòng City">Hải Phòng</Select.Option>
+                                    <Select.Option value="Hưng Yên Province">Hưng Yên</Select.Option>
+                                    <Select.Option value="Ninh Bình Province">Ninh Bình</Select.Option>
+                                    <Select.Option value="Thanh Hóa Province">Thanh Hóa</Select.Option>
+                                    <Select.Option value="Nghệ An Province">Nghệ An</Select.Option>
+                                    <Select.Option value="Hà Tĩnh Province">Hà Tĩnh</Select.Option>
+                                    <Select.Option value="Quảng Trị Province">Quảng Trị</Select.Option>
+                                    <Select.Option value="Huế City">Huế</Select.Option>
+                                    <Select.Option value="Đà Nẵng City">Đà Nẵng</Select.Option>
+                                    <Select.Option value="Quảng Ngãi Province">Quảng Ngãi</Select.Option>
+                                    <Select.Option value="Gia Lai Province">Gia Lai</Select.Option>
+                                    <Select.Option value="Khánh Hòa Province">Khánh Hòa</Select.Option>
+                                    <Select.Option value="Đắk Lắk Province">Đắk Lắk</Select.Option>
+                                    <Select.Option value="Lâm Đồng Province">Lâm Đồng</Select.Option>
+                                    <Select.Option value="Đồng Nai City">Đồng Nai</Select.Option>
+                                    <Select.Option value="Hồ Chí Minh City">Hồ Chí Minh</Select.Option>
+                                    <Select.Option value="Tây Ninh Province">Tây Ninh</Select.Option>
+                                    <Select.Option value="Đồng Tháp Province">Đồng Tháp</Select.Option>
+                                    <Select.Option value="Vĩnh Long Province">Vĩnh Long</Select.Option>
+                                    <Select.Option value="An Giang Province">An Giang</Select.Option>
+                                    <Select.Option value="Cần Thơ City">Cần Thơ</Select.Option>
+                                    <Select.Option value="Cà Mau Province">Cà Mau</Select.Option>
+                                </Select>
                             </Col>
 
                             <Col xs={24} sm={12} md={4}>
@@ -269,6 +318,7 @@ export default function ExpresswayPage() {
                                     value={filterKm}
                                     disabled={!!(filterName || filterStatus || filterProvince)}
                                     onChange={(e) => setFilterKm(e.target.value)}
+                                    onPressEnter={handleSearch}
                                     allowClear
                                 />
                             </Col>

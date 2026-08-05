@@ -18,7 +18,6 @@ export default function ExpresswayStatusChart() {
     const [total, setTotal] = useState<number>(0);
     const [isMobileSize, setIsMobileSize] = useState<boolean>(false);
 
-    // Xử lý kiểm tra màn hình Responsive an toàn trên SSR Next.js
     useEffect(() => {
         const checkMobile = () => {
             setIsMobileSize(window.innerWidth < 768);
@@ -37,17 +36,15 @@ export default function ExpresswayStatusChart() {
             .then((resData) => {
                 if (resData.success && resData.data) {
                     const stats = resData.data;
-
-                    // Mapping đúng 5 trạng thái theo JSON API Response thực tế
                     const formattedData: ChartDataItem[] = [
                         { type: 'Not Yet Under Construction', value: stats.totalSectionsNotYetUnderConstruction || 0 },
                         { type: 'Under Construction', value: stats.totalSectionsUnderConstruction || 0 },
                         { type: 'Completed / Operating', value: stats.totalSectionsCompleted || 0 },
-                        { type: 'Extending / Under Construction', value: stats.totalSectionsExtendConstruction || 0 },
+                        { type: 'Extending under Construction', value: stats.totalSectionsExtendConstruction || 0 },
                         { type: 'Maintenance', value: stats.totalSectionsMaintenance || 0 },
+                        { type: 'Incident', value: stats.totalSectionsIncident || 0 },
                     ];
 
-                    // Lọc ra các trạng thái có số lượng > 0 (Dựa trên JSON của bạn sẽ giữ lại Completed và Extend Construction)
                     const filteredData = formattedData.filter(item => item.value > 0);
                     const sum = filteredData.reduce((acc, curr) => acc + curr.value, 0);
 
@@ -62,14 +59,12 @@ export default function ExpresswayStatusChart() {
             });
     }, []);
 
-    // Cấu hình Biểu đồ Pie
     const config = useMemo(() => {
         return {
             data: chartData,
             angleField: 'value',
             colorField: 'type',
-            // Dãy 5 màu chuẩn UI tương ứng với 5 trạng thái
-            color: ['#8c8c8c', '#faad14', '#52c41a', '#1890ff', '#ff4d4f'],
+            color: ['#faad14', '#1890ff', '#237804', '#86c5ff', '#722ed1', '#ff4d4f'],
             radius: isMobileSize ? 0.8 : 0.7,
             label: isMobileSize
                 ? false

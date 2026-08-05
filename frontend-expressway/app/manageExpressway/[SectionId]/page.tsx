@@ -294,6 +294,7 @@ export default function UpdateSectionPage() {
                                                 { value: 'Complete', label: 'Đã hoàn thành' },
                                                 { value: 'Extend under construction', label: 'Đang thi công mở rộng' },
                                                 { value: 'Maintenance', label: 'Đang bảo trì' },
+                                                { value: 'Incident', label: 'Đang gặp sự cố' },
                                             ]}
                                         />
                                     </Form.Item>

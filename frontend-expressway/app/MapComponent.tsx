@@ -6,6 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import './style.css';
 import UserLocationControl from './UserLocationControl';
 import axios from 'axios';
+import { useTranslation } from "react-i18next";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 interface MapProps {
@@ -60,6 +61,11 @@ export default function MapComponent({
     mapDataFromApi,
 }: MapProps) {
     const [currentGeojson, setCurrentGeojson] = useState<any>(null);
+    const { t, i18n } = useTranslation();
+    const changeLanguage = (lng: string) => {
+        i18n.changeLanguage(lng);
+    };
+
     useEffect(() => {
         const loadGeojsonData = async () => {
             if (!mapDataFromApi) {
@@ -81,11 +87,11 @@ export default function MapComponent({
                         : `${baseUrl}/${mapDataFromApi.replace(/^\//, '')}`;
 
                     try {
-                        console.log("📥 Đang tải file GeoJSON từ URL:", fileUrl);
+                        console.log("Đang tải file GeoJSON từ URL:", fileUrl);
                         const res = await axios.get(fileUrl);
                         setCurrentGeojson(res.data);
                     } catch (err) {
-                        console.error("❌ Lỗi tải file GeoJSON từ URL:", fileUrl, err);
+                        console.error("Lỗi tải file GeoJSON từ URL:", fileUrl, err);
                         setCurrentGeojson(null);
                     }
                 }

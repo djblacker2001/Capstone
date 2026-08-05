@@ -12,6 +12,7 @@ interface SignDataType {
     Symbol: string;
     Image: string;
     Description: string;
+    SignTypeId?: number;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -54,15 +55,33 @@ export default function ManageSignPage() {
 
     const openModal = (sign: SignDataType | null = null) => {
         setEditingSign(sign);
-        setFileList([]);
 
         if (sign) {
             form.setFieldsValue({
                 Symbol: sign.Symbol,
+                SignTypeId: sign.SignTypeId,
                 Description: sign.Description,
             });
+
+            if (sign.Image) {
+                const imageUrl = sign.Image.startsWith("http")
+                    ? sign.Image
+                    : `${baseUrl}/${sign.Image}`;
+
+                setFileList([
+                    {
+                        uid: "-1",
+                        name: "Ảnh hiện tại",
+                        status: "done",
+                        url: imageUrl,
+                    },
+                ]);
+            } else {
+                setFileList([]);
+            }
         } else {
             form.resetFields();
+            setFileList([]);
         }
         setIsModalOpen(true);
     };
@@ -72,28 +91,23 @@ export default function ManageSignPage() {
             const values = await form.validateFields();
             setLoading(true);
             const formData = new FormData();
+
             if (values.Symbol) formData.append("Symbol", values.Symbol);
+            if (values.SignTypeId) formData.append("SignTypeId", values.SignTypeId);
             if (values.Description) formData.append("Description", values.Description);
             if (fileList.length > 0 && fileList[0].originFileObj) {
                 formData.append("file", fileList[0].originFileObj);
             }
 
-            const config = {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            };
-
             if (editingSign) {
-                await axiosClient.put(`/signs/${editingSign.SignId}`, formData);
+                await axiosClient.put(`/signs/${editingSign.SignId}`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
                 message.success("Cập nhật biển báo thành công!");
             } else {
-                if (fileList.length === 0) {
-                    message.warning("Vui lòng chọn file ảnh cho biển báo mới!");
-                    setLoading(false);
-                    return;
-                }
-                await axiosClient.post("/signs", formData);
+                await axiosClient.post("/signs", formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
                 message.success("Thêm biển báo mới thành công!");
             }
 
@@ -125,13 +139,7 @@ export default function ManageSignPage() {
     };
 
     const columns = [
-        {
-            title: "Mã số (ID)",
-            dataIndex: "SignId",
-            key: "SignId",
-            width: 100,
-            sorter: (a: SignDataType, b: SignDataType) => a.SignId - b.SignId,
-        },
+        
         {
             title: "Hình ảnh",
             dataIndex: "Image",
@@ -269,12 +277,12 @@ export default function ManageSignPage() {
                                 rules={[{ required: true, message: "Vui lòng chọn loại biển báo!" }]}
                             >
                                 <Select placeholder="-- Chọn nhóm loại biển báo --">
-                                    <Select.Option value={1}>Biển báo cấm (1)</Select.Option>
-                                    <Select.Option value={2}>Biển báo nguy hiểm và cảnh báo (2)</Select.Option>
-                                    <Select.Option value={3}>Biển báo hiệu lệnh (3)</Select.Option>
+                                    <Select.Option value={1}>Biển báo cấm</Select.Option>
+                                    <Select.Option value={2}>Biển báo nguy hiểm và cảnh báo</Select.Option>
+                                    <Select.Option value={3}>Biển báo hiệu lệnh</Select.Option>
                                     <Select.Option value={4}>Biển chỉ dẫn (4)</Select.Option>
-                                    <Select.Option value={5}>Biển chỉ dẫn trên đường cao tốc (5)</Select.Option>
-                                    <Select.Option value={6}>Biển phụ (6)</Select.Option>
+                                    <Select.Option value={5}>Biển chỉ dẫn trên đường cao tốc</Select.Option>
+                                    <Select.Option value={6}>Biển phụ</Select.Option>
                                 </Select>
                             </Form.Item>
 
