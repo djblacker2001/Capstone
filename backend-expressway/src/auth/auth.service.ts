@@ -71,7 +71,7 @@ export class AuthService implements OnModuleInit {
     const inputUsername = data.Username || data.username;
     const inputEmail = data.Email || data.email;
     const inputPassword = data.Password || data.password;
-    const inputRole = data.Role || data.role || 'user'; // Mặc định là 'user'
+    const inputRole = data.Role || data.role || 'user';
 
     const existUsername = await this.usersService.findByUsername(inputUsername);
     if (existUsername) {
