@@ -93,7 +93,6 @@ export default function ManageUserPage() {
         }
     };
 
-    // Cấu hình các cột cho Bảng
     const columns = [
         { 
             title: "ID", 
@@ -137,7 +136,6 @@ export default function ManageUserPage() {
         },
     ];
 
-    // Lọc theo tìm kiếm
     const filteredUsers = allAccounts.filter(
         (acc) => acc.RoleId === 2 && acc.Username?.toLowerCase().includes(searchText.toLowerCase())
     );
@@ -148,7 +146,7 @@ export default function ManageUserPage() {
     const tabItems = [
         {
             key: "1",
-            label: <span style={{ fontWeight: "bold" }}>👤 Danh sách Người dùng (Table: users)</span>,
+            label: <span style={{ fontWeight: "bold" }}>Danh sách Người dùng (Table: users)</span>,
             children: (
                 <Table 
                     columns={columns} 
@@ -162,7 +160,7 @@ export default function ManageUserPage() {
         },
         {
             key: "2",
-            label: <span style={{ fontWeight: "bold" }}>🛡️ Danh sách Quản trị viên (Table: admins)</span>,
+            label: <span style={{ fontWeight: "bold" }}>Danh sách Quản trị viên (Table: admins)</span>,
             children: (
                 <Table 
                     columns={columns} 

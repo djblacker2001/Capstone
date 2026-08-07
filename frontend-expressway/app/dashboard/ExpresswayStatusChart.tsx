@@ -10,7 +10,7 @@ interface ChartDataItem {
     value: number;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function ExpresswayStatusChart() {
     const [chartData, setChartData] = useState<ChartDataItem[]>([]);

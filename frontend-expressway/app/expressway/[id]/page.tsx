@@ -5,17 +5,11 @@ import { Card, Row, Col, Typography, Badge, Descriptions, Space, Tabs, Table, Ta
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import "./style.css";
-import {
-    CompassOutlined,
-    SafetyCertificateOutlined,
-    BranchesOutlined,
-    CoffeeOutlined,
-    EnvironmentOutlined
-} from '@ant-design/icons';
+import {CompassOutlined, SafetyCertificateOutlined, BranchesOutlined, CoffeeOutlined, EnvironmentOutlined} from '@ant-design/icons';
 import MainLayout from '@/app/layout/Layout';
 import ProtectedRoute from '@/app/components/ProtectedRoute/ProtectedRoute';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const DynamicMapContainer = dynamic(() => import('./MapComponent'), {
     ssr: false,
@@ -28,7 +22,6 @@ const DynamicMapContainer = dynamic(() => import('./MapComponent'), {
 
 const { Title, Text } = Typography;
 
-// --- Interfaces khớp 100% với JSON API ---
 interface InterchangeItem {
     InterchangeId: number;
     SectionId: number;

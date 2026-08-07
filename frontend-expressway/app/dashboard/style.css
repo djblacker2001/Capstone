@@ -1,4 +1,3 @@
-/* Pie chart */
 .pie-chart-container {
     width: 100%;
     display: flex;
@@ -15,7 +14,6 @@
 }
 
 @media (max-width: 768px) {
-    /* Pie chart */
     .pie-chart-container {
         height: 300px;
     }

@@ -17,4 +17,4 @@ import { Province } from '../provinces/provinces.entity';
   providers: [SectionsService],
   exports: [SectionsService],
 })
-export class SectionsModule { }
+export class SectionsModule { } 

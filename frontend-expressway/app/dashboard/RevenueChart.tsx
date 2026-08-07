@@ -115,10 +115,9 @@ export default function RevenueChart() {
                 fill: '#fff',
             }
         },
-        // 🎯 Cấu hình màu sắc tô mảng (Area) và đường biên (Line)
         style: {
-            fill: 'linear-gradient(to bottom, #003366 0%, rgba(0, 51, 102, 0.1) 100%)', // Hiệu ứng mờ dần từ trên xuống dưới cực đẹp
-            stroke: '#003366', // Giữ đường viền nét đậm màu xanh
+            fill: 'linear-gradient(to bottom, #003366 0%, rgba(0, 51, 102, 0.1) 100%)',
+            stroke: '#003366',
             lineWidth: 3,
         },
         axis: {
