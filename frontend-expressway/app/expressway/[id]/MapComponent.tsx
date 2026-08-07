@@ -84,29 +84,12 @@ export default function MapComponent({
   }, [geojsonData]);
 
   return (
-    <MapContainer
-      center={[20.8348, 105.884]}
-      zoom={11}
-      style={{
-        height: '100%',
-        width: '100%',
-      }}
-      zoomControl={isFullscreen}
-      attributionControl={false}
-    >
+    <MapContainer center={[20.8348, 105.884]} zoom={11} style={{height: '100%', width: '100%',}} zoomControl={isFullscreen} attributionControl={false}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       {actualGeoJson && <MapFitBounds geojsonData={actualGeoJson} />}
       <MapResizeController isFullscreen={isFullscreen} />
       {actualGeoJson && (
-        <GeoJSON
-          key={JSON.stringify(actualGeoJson)}
-          data={actualGeoJson}
-          style={() => ({
-            color: '#ff3838',
-            weight: 6,
-            opacity: 0.85,
-          })}
-        />
+        <GeoJSON key={JSON.stringify(actualGeoJson)} data={actualGeoJson} style={() => ({color: '#ff3838', weight: 6, opacity: 0.85,})}/>
       )}
 
       {isFullscreen && (

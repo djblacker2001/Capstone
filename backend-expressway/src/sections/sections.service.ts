@@ -117,7 +117,7 @@ export class SectionsService {
         id: number,
         data: UpdateSectionDto,
         newImagePath?: string,
-        newSpeedSignPath?: string, // 👈 Thêm tham số đường dẫn SpeedSign mới
+        newSpeedSignPath?: string,
         newMapFilePath?: string,
     ): Promise<Section> {
         const existingSection = await this.findOneSection(id);
@@ -126,8 +126,6 @@ export class SectionsService {
         }
 
         const updatePayload: Partial<Section> = {};
-
-        // 1. Map các trường văn bản & số từ DTO vào Payload
         if (data.NameSection !== undefined) updatePayload.NameSection = data.NameSection;
         if (data.Length !== undefined) updatePayload.Length = Number(data.Length);
         if (data.StartLocation !== undefined) updatePayload.StartLocation = data.StartLocation;
@@ -138,8 +136,6 @@ export class SectionsService {
         if (data.TrafficLand !== undefined) updatePayload.TrafficLand = data.TrafficLand;
         if (data.HasEmergencyLand !== undefined) updatePayload.HasEmergencyLand = Boolean(data.HasEmergencyLand);
         if (data.Status !== undefined) updatePayload.Status = data.Status;
-
-        // 2. Xử lý Upload Ảnh Phân đoạn (Image) & dọn dẹp file cũ
         if (newImagePath) {
             updatePayload.Image = newImagePath;
             if (existingSection.Image) {
@@ -147,7 +143,6 @@ export class SectionsService {
             }
         }
 
-        // 3. 🚀 Xử lý Upload Biển báo tốc độ (SpeedSign) & dọn dẹp file cũ
         if (newSpeedSignPath) {
             updatePayload.SpeedSign = newSpeedSignPath;
             if (existingSection.SpeedSign) {
@@ -155,7 +150,6 @@ export class SectionsService {
             }
         }
 
-        // 4. Xử lý Upload File Bản đồ (MapData) & dọn dẹp file cũ
         if (newMapFilePath) {
             updatePayload.MapData = newMapFilePath;
             if (existingSection.MapData) {
@@ -163,7 +157,6 @@ export class SectionsService {
             }
         }
 
-        // 5. Tiến hành cập nhật DB nếu có dữ liệu mới
         if (Object.keys(updatePayload).length > 0) {
             await this.sectionRepository.update({ SectionId: id }, updatePayload);
         }
@@ -171,7 +164,6 @@ export class SectionsService {
         return this.findOneSection(id);
     }
 
-    // 💡 Helper function nhỏ để tái sử dụng logic xóa file rác, tránh lặp code
     private deleteOldFile(relativeFilePath: string, fileLabel: string) {
         try {
             const absolutePath = path.resolve(process.cwd(), relativeFilePath);
@@ -191,25 +183,23 @@ export class SectionsService {
     async getSectionStatistics() {
         const rawData = await this.sectionRepository
             .createQueryBuilder('section')
-            .leftJoin('section.expressway', 'expressway') // Chỉ giữ JOIN 1-1 với Expressway
+            .leftJoin('section.expressway', 'expressway')
             .select([
                 'section.SectionId AS id',
                 'section.NameSection AS sectionName',
                 'section.Length AS totalSectionLength',
                 'expressway.NameExpressway AS expresswayName',
             ])
-            // 1. Đếm Cầu, Hầm, Tỉnh thành bằng Sub-query
+
             .addSelect('(SELECT COUNT(1) FROM dbo.Bridge b WHERE b.SectionId = section.SectionId)', 'bridgeCount')
             .addSelect('(SELECT COUNT(1) FROM dbo.Tunnel t WHERE t.SectionId = section.SectionId)', 'tunnelCount')
             .addSelect('(SELECT COUNT(1) FROM dbo.Interchange i WHERE i.SectionId = section.SectionId)', 'interchangeCount')
             .addSelect('(SELECT COUNT(1) FROM dbo.SectionProvince sp WHERE sp.SectionId = section.SectionId)', 'provinceCount')
 
-            // 2. Đếm Nút giao theo Trạng thái
             .addSelect("(SELECT COUNT(1) FROM dbo.Interchange i WHERE i.SectionId = section.SectionId AND i.Status = 'Complete')", 'interchangeCompleteCount')
             .addSelect("(SELECT COUNT(1) FROM dbo.Interchange i WHERE i.SectionId = section.SectionId AND i.Status = 'Under construction')", 'interchangeUnderConstructionCount')
             .addSelect("(SELECT COUNT(1) FROM dbo.Interchange i WHERE i.SectionId = section.SectionId AND i.Status = 'Not yet construction')", 'interchangeNotYetConstructionCount')
 
-            // 3. Đếm Trạm dừng nghỉ theo Trạng thái
             .addSelect('(SELECT COUNT(1) FROM dbo.RestStop r WHERE r.SectionId = section.SectionId)', 'restStopCount')
             .addSelect("(SELECT COUNT(1) FROM dbo.RestStop r WHERE r.SectionId = section.SectionId AND r.Status = 'Operating')", 'restStopOperatingCount')
             .addSelect("(SELECT COUNT(1) FROM dbo.RestStop r WHERE r.SectionId = section.SectionId AND r.Status = 'Under construction')", 'restStopUnderConstructionCount')

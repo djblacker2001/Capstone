@@ -7,6 +7,8 @@ import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import MainLayout from "../layout/Layout";
 import axiosClient from "@/api/axiosClient";
 import Link from "next/link";
+import "./manageExpressway.css"
+import { useRouter } from "next/navigation";
 
 interface SectionType {
     SectionId: number;
@@ -59,6 +61,7 @@ export default function ManageExpresswayPage() {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [editingSection, setEditingSection] = useState<SectionType | null>(null);
     const [form] = Form.useForm();
+    const router = useRouter();
 
     const fetchData = async () => {
         setLoading(true);
@@ -100,24 +103,6 @@ export default function ManageExpresswayPage() {
     useEffect(() => {
         fetchData();
     }, []);
-
-    const openModal = (section: SectionType | null = null) => {
-        setEditingSection(section);
-        if (section) {
-            form.setFieldsValue({
-                NameSection: section.NameSection || (section as any).sectionName,
-                Length: section.Length || section.totalSectionLength || 0,
-                StartLocation: section.StartLocation,
-                StartKm: section.StartKm,
-                EndLocation: section.EndLocation,
-                EndKm: section.EndKm,
-                Status: section.Status || 'Complete',
-            });
-        } else {
-            form.resetFields();
-        }
-        setIsModalOpen(true);
-    };
 
     const handleFormSubmit = async () => {
         try {
@@ -320,9 +305,8 @@ export default function ManageExpresswayPage() {
                                 <Button
                                     type="primary"
                                     size="large"
-                                    icon={<PlusOutlined />}
-                                    style={{ backgroundColor: '#237804', borderColor: '#237804' }}
-                                    onClick={() => openModal(null)}
+                                    className="addExpressway"
+                                    onClick={() => router.push('/manageExpressway/addExpressway')}
                                 >
                                     Thêm Phân Đoạn Mới
                                 </Button>
@@ -340,87 +324,6 @@ export default function ManageExpresswayPage() {
                             bordered
                         />
                     </Card>
-
-                    <Modal
-                        title={editingSection ? "✏️ Cập nhật Phân đoạn Cao tốc" : "➕ Thêm Phân đoạn Cao tốc Mới"}
-                        open={isModalOpen}
-                        onOk={handleFormSubmit}
-                        onCancel={() => setIsModalOpen(false)}
-                        okText="Xác nhận"
-                        cancelText="Hủy bỏ"
-                        confirmLoading={loading}
-                        destroyOnClose
-                        width={600}
-                    >
-                        <Form form={form} layout="vertical" style={{ marginTop: '16px' }}>
-                            <Form.Item
-                                name="NameSection"
-                                label="Tên Phân Đoạn"
-                                rules={[{ required: true, message: 'Vui lòng nhập tên phân đoạn!' }]}
-                            >
-                                <Input placeholder="Ví dụ: Pháp Vân - Cầu Giẽ" />
-                            </Form.Item>
-
-                            <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item
-                                        name="Length"
-                                        label="Chiều dài (km)"
-                                        rules={[{ required: true, message: 'Vui lòng nhập chiều dài!' }]}
-                                    >
-                                        <InputNumber min={0} style={{ width: '100%' }} placeholder="VD: 30" />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                    <Form.Item
-                                        name="Status"
-                                        label="Trạng thái"
-                                        rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}
-                                    >
-                                        <Select
-                                            placeholder="Chọn trạng thái tuyến đường"
-                                            allowClear
-                                            options={[
-                                                { value: 'Complete', label: 'Đang hoạt động' },
-                                                { value: 'Under construction', label: 'Đang thi công' },
-                                                { value: 'Extend under construction', label: 'Đang thi công mở rộng' },
-                                                { value: 'Not yet construction', label: 'Chưa thi công' },
-                                                { value: 'Incident', label: 'Đang gặp sự cố' },
-                                                { value: 'Maintenance', label: 'Đang bảo trì' },
-                                            ]}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-
-                            <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item name="StartLocation" label="Điểm đầu">
-                                        <Input placeholder="VD: Pháp Vân" />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                    <Form.Item name="StartKm" label="Km Bắt đầu">
-                                        <InputNumber min={0} style={{ width: '100%' }} placeholder="VD: 182" />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-
-                            <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item name="EndLocation" label="Điểm cuối">
-                                        <Input placeholder="VD: Đại Xuyên" />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                    <Form.Item name="EndKm" label="Km Kết thúc">
-                                        <InputNumber min={0} style={{ width: '100%' }} placeholder="VD: 211.7" />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </Form>
-                    </Modal>
-
                 </div>
             </MainLayout>
         </ProtectedRoute>

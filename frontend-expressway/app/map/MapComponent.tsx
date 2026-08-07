@@ -105,12 +105,7 @@ function ChangeMapCenter({ center, zoom = 12 }: { center: [number, number]; zoom
   return null;
 }
 
-function GeoJsonLayerWrapper({
-  data,
-  keyId,
-  sections,
-  status
-}: {
+function GeoJsonLayerWrapper({data, keyId, sections, status}: {
   data: any;
   keyId: string | number;
   sections: SectionItem[];
@@ -150,11 +145,7 @@ function GeoJsonLayerWrapper({
   };
 
   return (
-    <GeoJSON
-      key={`geojson-${keyId}`}
-      data={data}
-      style={styleFeature}
-    />
+    <GeoJSON key={`geojson-${keyId}`} data={data} style={styleFeature}/>
   );
 }
 

@@ -22,9 +22,9 @@ export class RestStopsService {
         return I18nContext.current()?.lang || 'en';
     }
 
-    async findOne(sectionId: number): Promise<RestStop> {
+    async findOne(id: number): Promise<RestStop> {
         const restStop = await this.restStopRepository.findOne({
-            where: { SectionId: sectionId },
+            where: { RestStopId: id },
         });
 
         if (!restStop) {
@@ -35,13 +35,21 @@ export class RestStopsService {
         return restStop;
     }
 
+    async findBySectionId(sectionId: number): Promise<RestStop[]> {
+        return await this.restStopRepository.find({
+            where: { SectionId: sectionId },
+        });
+    }
+
     async create(data: Partial<RestStop>): Promise<RestStop> {
         const newRestStop = this.restStopRepository.create(data);
         return this.restStopRepository.save(newRestStop);
     }
 
     async update(id: number, data: Partial<RestStop>): Promise<RestStop> {
-        await this.restStopRepository.update(id, data);
+        const { RestStopId, ...updateData } = data as any;
+        
+        await this.restStopRepository.update(id, updateData);
         return this.findOne(id);
     }
 
