@@ -1,5 +1,6 @@
 {
   "header": {
+    "": "",
     "homepage": "Home",
     "dashboard": "Dashboard",
     "expressway": "Expressway",
@@ -12,22 +13,35 @@
   "footer": {
     "bottom": "Expressway Management System in Vietnam"
   },
-  "landing": {
+  "home": {
     "title1": "Spatial Data Management System",
     "title2": "Vietnam's Expressway Infrastructure",
-    "text1": "The system supports digitalization, coordinate lookup, construction progress tracking, and visual management of infrastructure assets on a GIS map platform."
+    "text1": "The system supports digitalization, coordinate lookup, construction progress tracking, and visual management of infrastructure assets on a GIS map platform.",
+    "mapAccess": "Access the map",
+    "learnMore": "Learn more",
+    "totalLength": "Total lenght",
+    "progress": "Construction progress",
+    "infrastructure": "Technical Infrastructure",
+    "incident": "Incident Expressway",
+    "maintenance": "Maintenance Expressway",
+    "sectionName": "Section Name",
+    "route": "Route",
+    "length": "Length",
+    "mapSystem": "Visual mapping system",
+    "fullScreen": "Full Screen"
   },
-  "home": {},
   "dashboard": {},
   "expressway": {},
   "sign": {},
   "manageExpressway": {},
   "manageUser": {},
   "manageSign": {},
-  "map":{
-    "interchange":"Interchange",
-    "restStop":"Rest Stop",
-    "location":"Location",
+  "map": {
+    "locating": "Locating",
+    "yourLocation": "Your location",
+    "interchange": "Interchange",
+    "restStop": "Rest Stop",
+    "location": "Location",
     "toilet": "Toilet",
     "food": "Food",
     "petrol": "Petrol"

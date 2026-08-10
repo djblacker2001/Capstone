@@ -219,7 +219,7 @@ export default function ManageSignPage() {
             <MainLayout>
                 <div style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
                     <Card
-                        title={<span style={{ fontSize: "20px", fontWeight: "bold" }}>🛑 Quản lý danh mục biển báo cao tốc</span>}
+                        title={<span style={{ fontSize: "20px", fontWeight: "bold" }}>Quản lý danh mục biển báo cao tốc</span>}
                         extra={
                             <Button
                                 type="primary"
@@ -253,7 +253,7 @@ export default function ManageSignPage() {
                     </Card>
 
                     <Modal
-                        title={editingSign ? "✏️ Cập nhật thông tin biển báo" : "➕ Thêm biển báo mới vào hệ thống"}
+                        title={editingSign ? "Cập nhật thông tin biển báo" : "Thêm biển báo mới vào hệ thống"}
                         open={isModalOpen}
                         onOk={handleFormSubmit}
                         onCancel={() => setIsModalOpen(false)}
@@ -280,7 +280,7 @@ export default function ManageSignPage() {
                                     <Select.Option value={1}>Biển báo cấm</Select.Option>
                                     <Select.Option value={2}>Biển báo nguy hiểm và cảnh báo</Select.Option>
                                     <Select.Option value={3}>Biển báo hiệu lệnh</Select.Option>
-                                    <Select.Option value={4}>Biển chỉ dẫn (4)</Select.Option>
+                                    <Select.Option value={4}>Biển chỉ dẫn</Select.Option>
                                     <Select.Option value={5}>Biển chỉ dẫn trên đường cao tốc</Select.Option>
                                     <Select.Option value={6}>Biển phụ</Select.Option>
                                 </Select>

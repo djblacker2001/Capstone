@@ -18,10 +18,10 @@ export class Tunnel {
   @Column({ name: 'Height', type: 'float' })
   Height!: number;
 
-  @Column({ name: 'MaxSpeed', type: 'int' })
+  @Column({ name: 'MaxSpeed', type: 'int', nullable: true })
   MaxSpeed!: number;
 
-  @Column({ name: 'MinSpeed', type: 'int' })
+  @Column({ name: 'MinSpeed', type: 'int', nullable: true })
   MinSpeed!: number;
 
   @Column({ name: 'HasLighting', type: 'bit' })

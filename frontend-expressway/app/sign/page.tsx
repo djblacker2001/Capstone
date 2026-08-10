@@ -57,7 +57,6 @@ const SignPage = () => {
         return `${baseUrl}/${imagePath}`;
     };
 
-    // Xác định tên nhóm hiển thị trên Tag
     const getSignTypeName = (sign: Sign): string => {
         if (sign.signType?.NameSignType) {
             return sign.signType.NameSignType;
@@ -72,7 +71,6 @@ const SignPage = () => {
         return 'Biển báo khác';
     };
 
-    // Màu sắc cho Tag dựa trên SignTypeId trong DB
     const getTagColor = (typeId?: number) => {
         switch (typeId) {
             case 1: return 'red';
@@ -98,10 +96,10 @@ const SignPage = () => {
 
                     <div style={{ marginBottom: '32px', textAlign: 'center' }}>
                         <Title level={2} style={{ margin: 0, fontWeight: 700 }}>
-                            Hệ Thống Biển Báo Đường Bộ & Cao Tốc
+                            Road and Expressway Signage System
                         </Title>
                         <Text type="secondary" style={{ fontSize: '15px' }}>
-                            Tra cứu nhanh ký hiệu và ý nghĩa hệ thống biển chỉ dẫn quy chuẩn trên tuyến
+                            Quick reference for symbols and meanings of the standardized directional signage system along the route.
                         </Text>
                     </div>
 
@@ -125,13 +123,13 @@ const SignPage = () => {
                                     onChange={(value) => setSelectedTypeId(value)}
                                     size="large"
                                 >
-                                    <Option value="All">Tất cả nhóm biển báo</Option>
-                                    <Option value="1">Biển báo cấm</Option>
-                                    <Option value="2">Biển nguy hiểm & cảnh báo</Option>
-                                    <Option value="3">Biển hiệu lệnh</Option>
-                                    <Option value="4">Biển chỉ dẫn</Option>
-                                    <Option value="5">Biển chỉ dẫn cao tốc</Option>
-                                    <Option value="6">Biển phụ</Option>
+                                    <Option value="All">Tất cả nhóm biển báo (All sign)</Option>
+                                    <Option value="1">Biển cấm (Prohibition signs)</Option>
+                                    <Option value="2">Biển nguy hiểm (Hazard signs)</Option>
+                                    <Option value="3">Biển hiệu lệnh (Command signs)</Option>
+                                    <Option value="4">Biển chỉ dẫn (Signposts)</Option>
+                                    <Option value="5">Biển trên đường cao tốc (Expressway sign)</Option>
+                                    <Option value="6">Biển phụ (Supplementary sign)</Option>
                                 </Select>
                             </Col>
                         </Row>

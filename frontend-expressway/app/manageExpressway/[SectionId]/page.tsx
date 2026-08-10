@@ -70,8 +70,7 @@ export default function UpdateSectionPage() {
                 const targetId = Number(sectionId);
                 return rawList.filter((item: any) => Number(item.SectionId) === targetId);
             };
-
-            // 3. Set state hạ tầng đã lọc
+            
             setInterchanges(filterBySectionId(interchangeRes));
             setRestStops(filterBySectionId(restStopRes));
             setBridges(filterBySectionId(bridgeRes));
@@ -181,7 +180,6 @@ export default function UpdateSectionPage() {
                 });
             };
 
-            // 3. Gom requests
             const apiRequests = [
                 ...saveSubItems(interchanges, '/interchanges', 'InterchangeId'),
                 ...saveSubItems(restStops, '/rest-stops', 'RestStopId'),

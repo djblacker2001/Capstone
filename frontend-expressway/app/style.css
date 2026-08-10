@@ -4,18 +4,24 @@
 }
 
 .leaflet-routing-container {
-    display: none !important;
+  display: none !important;
 }
 
 .hero-text-section {
   text-align: center;
-  max-width: 800px;
   margin: 0 auto;
-  padding: 60px 20px 40px 20px;
+  padding: 150px; 
+  background-image: url(/backgroundhome.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .hero-title {
   font-weight: 800 !important;
+  color: white !important;
 }
 
 .text-emerald {
@@ -24,7 +30,7 @@
 
 .hero-desc {
   font-size: 16px !important;
-  color: #64748b !important;
+  color: #e6effd !important;
   line-height: 1.6;
 }
 
@@ -37,13 +43,22 @@
 
 .btn-emerald {
   background-color: #00a859 !important;
-  border-color: #00a859 !important;
+}
+
+.btn-emerald:hover {
+  background-color: #009751 !important;
 }
 
 .stats-cards-section {
   max-width: 1100px;
-  margin: 0 auto 60px auto;
-  padding: 0 20px;
+  margin: auto;
+  padding: 50px;
+}
+
+.tables-status-section {
+  padding: 50px;
+  max-width: 1500px;
+  margin: auto;
 }
 
 .antd-stat-card {
@@ -86,7 +101,8 @@
   transition: all 0.2s ease;
 }
 
-.route-list-item:hover, .route-list-item.item-active {
+.route-list-item:hover,
+.route-list-item.item-active {
   background: white;
   border-color: #00a859 !important;
   border-left-color: #00a859 !important;
@@ -98,21 +114,19 @@
   z-index: 10;
 }
 
-/* Trạng thái bình thường */
 .map-small {
   height: 380px;
   width: 100%;
   position: relative;
 }
 
-/* SỬA: Trạng thái phóng to toàn màn hình (Full screen) đè lên tất cả thành phần khác */
 .map-expanded {
   position: fixed !important;
   top: 0;
   left: 0;
   width: 100vw !important;
   height: 100vh !important;
-  z-index: 9999 !important; /* Đảm bảo nổi lên trên Header và Footer */
+  z-index: 9999 !important;
   background-color: #0f172a;
   padding: 10px;
 }
@@ -121,12 +135,13 @@
   position: absolute;
   top: 15px;
   right: 15px;
-  z-index: 1000; /* Nổi lên trên lớp layer của Leaflet */
+  z-index: 1000;
   background-color: rgba(15, 23, 42, 0.85) !important;
   color: white !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   backdrop-filter: blur(4px);
 }
+
 .leaflet-fullscreen-btn:hover {
   background-color: #00a859 !important;
   border-color: #00a859 !important;
@@ -157,8 +172,6 @@
   display: inline-block;
 }
 
-/* Thêm đoạn này vào file style.css của bạn */
-
 .map-container-holder {
   position: relative;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -188,7 +201,7 @@
   background: rgba(255, 255, 255, 0.9) !important;
   color: #1f2937 !important;
   border: 1px solid #d1d5db !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
   font-weight: 500;
   border-radius: 4px !important;
 }
@@ -212,14 +225,13 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Hiệu ứng nhấp nháy cho điểm định vị */
 .user-location-marker {
   width: 16px;
   height: 16px;
-  background-color: #2196F3; /* Màu xanh nước biển */
+  background-color: #2196F3;
   border: 3px solid #ffffff;
   border-radius: 50%;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
@@ -244,8 +256,36 @@
     transform: scale(0.5);
     opacity: 0.8;
   }
+
   100% {
     transform: scale(1.8);
     opacity: 0;
+  }
+}
+
+@media (max-width: 765px) {
+  .hero-text-section {
+    padding: 60px 16px;
+  }
+
+  .hero-title {
+    font-size: 22px !important;
+    line-height: 1.3 !important;
+  }
+
+  .hero-desc {
+    font-size: 14px !important;
+    margin-top: 12px !important;
+  }
+
+  .hero-btns-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .tables-status-section {
+    margin: 10px;
   }
 }

@@ -5,6 +5,7 @@ import { useMap, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import "./style.css";
 import { Button, message } from 'antd';
+import { t } from 'i18next';
 
 
 const userLocationIcon = L.divIcon({
@@ -57,12 +58,10 @@ export default function UserLocationControl() {
 
     return (
         <>
-            {/* Nút bấm nổi trên bản đồ */}
             <div style={{ position: 'absolute', bottom: '20px', right: '20px', zIndex: 1000 }}>
                 <Button 
                     type="primary" 
-                    shape="round" 
-                    icon={<span>📍</span>} 
+                    shape="round"  
                     loading={locating}
                     onClick={handleLocate}
                     style={{
@@ -70,16 +69,14 @@ export default function UserLocationControl() {
                         fontWeight: 'bold'
                     }}
                 >
-                    {locating ? 'Đang định vị...' : 'Vị trí của tôi'}
+                    {locating ? `${t("map.locating")}` : `${t("map.yourLocation")}`}
                 </Button>
             </div>
-
-            {/* Thả Marker nhấp nháy xanh tại vị trí người dùng */}
             {position && (
                 <Marker position={position} icon={userLocationIcon}>
                     <Popup>
                         <div style={{ textAlign: 'center', fontWeight: 'semibold' }}>
-                            📍 Bạn đang ở đây!
+                            {t("map.yourLocation")}
                         </div>
                     </Popup>
                 </Marker>

@@ -1,5 +1,6 @@
 {
     "header": {
+        "": "",
         "homepage": "Trang chủ",
         "dashboard": "Bảng điều khiển",
         "expressway": "Tuyến đường",
@@ -12,22 +13,35 @@
     "footer": {
         "bottom": "Hệ thống quản lý đường cao tốc tại Việt Nam"
     },
-    "landing": {
+    "home": {
         "title1": "Hệ Thống Quản Lý Dữ Liệu Không Gian",
         "title2": "Hạ Tầng Đường Cao Tốc Việt Nam",
-        "text1": "Hệ thống hỗ trợ số hóa, tra cứu tọa độ lý trình, theo dõi tiến độ thi công và quản lý các lớp tài sản hạ tầng kỹ thuật trực quan trên nền tảng bản đồ GIS."
+        "text1": "Hệ thống hỗ trợ số hóa, tra cứu tọa độ lý trình, theo dõi tiến độ thi công và quản lý các lớp tài sản hạ tầng kỹ thuật trực quan trên nền tảng bản đồ GIS.",
+        "mapAccess": "Truy cập bản đồ",
+        "learnMore": "Tìm hiểu thêm",
+        "totalLength": "Tổng chiều dài",
+        "progress": "Tiến độ thi công",
+        "infrastructure": "Hạ Tầng Kỹ Thuật",
+        "incident": "Tuyến Đường Đang Gặp Sự Cố",
+        "maintenance": "Tuyến Đường Đang Bảo Trì",
+        "sectionName": "Tên phân đoạn",
+        "route": "Lộ trình",
+        "length": "Chiều dài",
+        "mapSystem": "Hệ thống bản đồ trực quan",
+        "fullScreen": "Toàn màn hình"
     },
-    "home": {},
     "dashboard": {},
     "expressway": {},
     "sign": {},
     "manageExpressway": {},
     "manageUser": {},
     "manageSign": {},
-    "map":{
-        "interchange":"Nút giao",
-        "restStop":"Trạm dừng nghỉ",
-        "location":"Vị trí",
+    "map": {
+        "locating": "Đang định vị",
+        "yourLocation": "Vị trí của bạn",
+        "interchange": "Nút giao",
+        "restStop": "Trạm dừng nghỉ",
+        "location": "Vị trí",
         "toilet": "Vệ sinh",
         "food": "Ăn uống",
         "petrol": "Cây xăng"

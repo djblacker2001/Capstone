@@ -85,7 +85,6 @@ export class ExpresswaysService {
       this.signRepository.count(),
     ]);
 
-    // 5. Trả về kết quả
     return {
       totalExpressways: parseInt(sectionStats?.totalExpressways) || 0,
       totalSections: parseInt(sectionStats?.totalSections) || 0,
