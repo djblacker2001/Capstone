@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import './registerUser.css';
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export default function RegisterUserPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -18,7 +20,7 @@ export default function RegisterUserPage() {
                 return;
             }
 
-            const res = await fetch('http://localhost:8080/auth/register', {
+            const res = await fetch(`${baseUrl}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -10,11 +10,7 @@ type Props = {
     children: React.ReactNode;
 };
 
-const MainLayout: React.FC<Props> = ({ children }) => {
-    const [open, setOpen] = useState(false);
-    const [category, setCategory] = useState("");
-    const [searchText, setSearchText] = useState("");
-
+export default function MainLayout({ children }: Props){
     return (
         <div className="layout">
             <GoTopButton />
@@ -26,5 +22,3 @@ const MainLayout: React.FC<Props> = ({ children }) => {
         </div>
     );
 };
-
-export default MainLayout;

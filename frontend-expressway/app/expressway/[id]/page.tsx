@@ -5,7 +5,7 @@ import { Card, Row, Col, Typography, Badge, Descriptions, Space, Tabs, Table, Ta
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import "./style.css";
-import {CompassOutlined, SafetyCertificateOutlined, BranchesOutlined, CoffeeOutlined, EnvironmentOutlined} from '@ant-design/icons';
+import { CompassOutlined, SafetyCertificateOutlined, BranchesOutlined, CoffeeOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import MainLayout from '@/app/layout/Layout';
 import ProtectedRoute from '@/app/components/ProtectedRoute/ProtectedRoute';
 
@@ -110,13 +110,10 @@ export default function ExpresswayPage() {
                 setError(null);
 
                 const apiUrl = `${baseUrl}/sections/${currentId}`;
-                console.log("👉 [Public] URL API đang gọi:", apiUrl);
-
                 const response = await fetch(apiUrl);
                 if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
 
                 const result = await response.json();
-                console.log("👉 [Public] Dữ liệu thô từ API:", result);
                 const sectionData = result?.data || result;
 
                 if (Array.isArray(sectionData)) {
@@ -127,7 +124,6 @@ export default function ExpresswayPage() {
                 }
 
             } catch (err: any) {
-                console.error("❌ Lỗi Fetch:", err);
                 setError(err.message || 'Có lỗi xảy ra khi kết nối tới máy chủ');
             } finally {
                 setLoading(false);
@@ -150,14 +146,12 @@ export default function ExpresswayPage() {
         }
     };
 
-    // Helper ghép URL ảnh
     const getImageUrl = (path?: string | null) => {
         if (!path) return '';
         if (path.startsWith('http://') || path.startsWith('https://')) return path;
         return `${baseUrl}/${path.startsWith('/') ? path.slice(1) : path}`;
     };
 
-    // --- Cấu hình bảng Nút giao ---
     const interchangeColumns = [
         {
             title: 'Tên nút giao',
@@ -211,7 +205,6 @@ export default function ExpresswayPage() {
         },
     ];
 
-    // --- Cấu hình bảng Trạm dừng nghỉ ---
     const restStopColumns = [
         {
             title: 'Tên trạm dừng',
@@ -342,10 +335,8 @@ export default function ExpresswayPage() {
             <MainLayout>
                 <div style={{ padding: '20px', position: 'relative' }}>
                     <Row gutter={[24, 24]}>
-                        {/* Cột trái: Hình ảnh & Bản đồ */}
                         <Col xs={24} md={8} lg={6}>
                             <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
-                                {/* Ảnh tuyến đường */}
                                 {data.Image && (
                                     <div style={{ width: '100%', border: '1px solid #d9d9d9', borderRadius: '8px', overflow: 'hidden' }}>
                                         <img
@@ -355,8 +346,6 @@ export default function ExpresswayPage() {
                                         />
                                     </div>
                                 )}
-
-                                {/* Ảnh biển báo tốc độ (Lấy từ SpeedSign) */}
                                 {data.SpeedSign && (
                                     <div style={{ width: '100%', border: '1px solid #d9d9d9', borderRadius: '8px', overflow: 'hidden' }}>
                                         <img
@@ -366,8 +355,6 @@ export default function ExpresswayPage() {
                                         />
                                     </div>
                                 )}
-
-                                {/* Bản đồ */}
                                 <div className="map-wrapper" style={{ marginTop: '8px' }}>
                                     <div className={isFullscreen ? 'map-expanded' : 'map-small'}>
                                         <DynamicMapContainer
@@ -388,7 +375,6 @@ export default function ExpresswayPage() {
                             </div>
                         </Col>
 
-                        {/* Cột phải: Thông tin tổng quan & Bảng chi tiết */}
                         <Col xs={24} md={16} lg={18}>
                             <Space direction="vertical" size="large" style={{ width: '100%' }}>
                                 <Card style={{ width: '100%', border: 'none', background: '#ffffff' }}>
@@ -458,7 +444,6 @@ export default function ExpresswayPage() {
                                     </Descriptions>
                                 </Card>
 
-                                {/* Bảng thông tin chi tiết */}
                                 <Card style={{ width: '100%' }}>
                                     <Tabs defaultActiveKey="1" items={tabItems} />
                                 </Card>
