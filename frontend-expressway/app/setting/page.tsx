@@ -6,17 +6,24 @@ import { useRouter } from 'next/navigation';
 import "./setting.css";
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 import Header from "../components/Header/Header";
+import { useTranslation } from 'react-i18next';
+
+
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function SettingPage() {
+    
     const router = useRouter();
     const [formInfo] = Form.useForm();
     const [formPassword] = Form.useForm();
+    const { t } = useTranslation();
 
     const [user, setUser] = useState<any>(null);
     const [fileList, setFileList] = useState<any[]>([]);
     const [previewImage, setPreviewImage] = useState('');
     const [loadingInfo, setLoadingInfo] = useState(false);
     const [loadingPassword, setLoadingPassword] = useState(false);
+
     useEffect(() => {
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
@@ -32,8 +39,8 @@ export default function SettingPage() {
                 const fullAvatarUrl = currentAvatar.startsWith('http')
                     ? currentAvatar
                     : currentAvatar.includes('uploads/avatars')
-                        ? `http://localhost:8080/${currentAvatar}`
-                        : `http://localhost:8080/uploads/avatars/${currentAvatar}`;
+                        ? `${baseUrl}/${currentAvatar}`
+                        : `${baseUrl}/uploads/avatars/${currentAvatar}`;
 
                 setPreviewImage(fullAvatarUrl);
             }
@@ -49,7 +56,7 @@ export default function SettingPage() {
 
         const reader = new FileReader();
         reader.onload = (e: any) => {
-            setPreviewImage(e.target.result);
+            setPreviewImage(e.target.result as string);
         };
         reader.readAsDataURL(file);
         setFileList([file]);
@@ -78,7 +85,7 @@ export default function SettingPage() {
                 return;
             }
 
-            const res = await fetch(`http://localhost:8080/users/profile`, {
+            const res = await fetch(`${baseUrl}/users/profile`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -88,7 +95,9 @@ export default function SettingPage() {
 
             if (res.ok) {
                 const responseJson = await res.json();
-                const newToken = responseJson.accessToken;
+                const updatedData = responseJson.data || responseJson;
+
+                const newToken = responseJson.accessToken || updatedData.accessToken;
                 if (newToken) {
                     localStorage.setItem('accessToken', newToken);
                     localStorage.setItem('access_token', newToken);
@@ -97,10 +106,13 @@ export default function SettingPage() {
 
                 const mergedUser = {
                     ...user,
-                    Username: responseJson.Username || user?.Username,
-                    Email: responseJson.Email || user?.Email,
-                    Avatar: responseJson.Avatar || user?.Avatar,
-                    Role: responseJson.Role || user?.Role
+                    ...updatedData,
+                    Username: updatedData.Username || updatedData.username || user?.Username,
+                    Email: updatedData.Email || updatedData.email || user?.Email,
+                    Avatar: updatedData.Avatar || updatedData.avatar || user?.Avatar,
+                    Role: updatedData.Role || updatedData.role || user?.Role,
+                    RoleId: user?.RoleId ?? user?.roleId ?? updatedData.RoleId ?? updatedData.roleId,
+                    roleId: user?.RoleId ?? user?.roleId ?? updatedData.RoleId ?? updatedData.roleId,
                 };
 
                 localStorage.setItem('user', JSON.stringify(mergedUser));
@@ -131,7 +143,7 @@ export default function SettingPage() {
         try {
             const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token') || localStorage.getItem('token');
 
-            const res = await fetch(`http://localhost:8080/users/change-password`, {
+            const res = await fetch(`${baseUrl}/users/change-password`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -160,12 +172,12 @@ export default function SettingPage() {
         }
     };
 
-    if (!user) return <div style={{ textAlign: 'center', marginTop: 100 }}>Đang tải...</div>;
+    if (!user) return <div style={{ textAlign: 'center', marginTop: 100 }}>Loading...</div>;
 
     const tabItems = [
         {
             key: '1',
-            label: 'Thông tin cá nhân',
+            label: 'Personal Information',
             children: (
                 <Form form={formInfo} layout="vertical" onFinish={onUpdateInfo}>
                     <div style={{ textAlign: 'center', marginBottom: 25 }}>
@@ -181,13 +193,13 @@ export default function SettingPage() {
                                 showUploadList={false}
                                 accept="image/*"
                             >
-                                <Button icon={<UploadOutlined />}>Chọn ảnh mới</Button>
+                                <Button icon={<UploadOutlined />}>Choose new image</Button>
                             </Upload>
                         </div>
                     </div>
 
                     <Form.Item
-                        label="Tên đăng nhập"
+                        label="Username"
                         name="username"
                         rules={[{ required: true, message: 'Tên đăng nhập không được để trống!' }]}
                     >
@@ -206,14 +218,14 @@ export default function SettingPage() {
                     </Form.Item>
 
                     <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={loadingInfo} block size="large" style={{ marginTop: 10 }}>
-                        Lưu thông tin
+                        Save
                     </Button>
                 </Form>
             )
         },
         {
             key: '2',
-            label: 'Đổi mật khẩu',
+            label: 'Change Password',
             children: (
                 <Form form={formPassword} layout="vertical" onFinish={onChangePassword}>
                     <Form.Item
@@ -265,12 +277,25 @@ export default function SettingPage() {
     return (
         <ProtectedRoute>
             <Header />
-            <div className="expr">
-                <div className="form" style={{ maxWidth: 500, margin: '0 auto' }}>
-                    <h2 style={{ textAlign: 'center', marginBottom: 10 }}>Cài đặt tài khoản</h2>
-                    <Divider style={{ margin: '12px 0' }} />
+            <div className='setting-page-wrapper' style={{
+                backgroundImage: "url('/backgroundlogin.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                backgroundAttachment: "fixed",
+                width: "100%",
+                minHeight: "calc(100vh - 64px)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            }}>
+                <div className="expr">
+                    <div className="form" style={{ maxWidth: 500, margin: '0 auto' }}>
+                        <h2 style={{ textAlign: 'center', marginBottom: 10 }}>Setting Account</h2>
+                        <Divider style={{ margin: '12px 0' }} />
 
-                    <Tabs defaultActiveKey="1" items={tabItems} centered />
+                        <Tabs defaultActiveKey="1" items={tabItems} centered />
+                    </div>
                 </div>
             </div>
         </ProtectedRoute>

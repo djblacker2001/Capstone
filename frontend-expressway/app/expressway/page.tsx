@@ -211,10 +211,10 @@ export default function ExpresswayPage() {
                 <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', minHeight: '100vh', background: '#f8f9fa' }}>
                     <div style={{ marginBottom: '32px', textAlign: 'center' }}>
                         <Title level={2} style={{ fontWeight: 700, margin: 0 }}>
-                            🗺️ Danh Sách Phân Đoạn Cao Tốc
+                            List of Expressway Sections
                         </Title>
                         <Text type="secondary" style={{ fontSize: '15px' }}>
-                            Hệ thống tra cứu thông tin chi tiết các phân đoạn cao tốc Việt Nam
+                            System for looking up detailed information on Vietnam's expressway segments.
                         </Text>
                     </div>
 
@@ -307,7 +307,7 @@ export default function ExpresswayPage() {
 
                             <Col xs={24} sm={12} md={4}>
                                 <div style={{ marginBottom: '6px', fontWeight: 600, color: '#434343', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    Tìm theo số Km:
+                                    Km number
                                     <Tooltip title="Nhập số Km để tra cứu những tuyến đường bao trùm hoặc đi qua tọa độ Km này">
                                         <InfoCircleOutlined style={{ color: '#1890ff', cursor: 'pointer' }} />
                                     </Tooltip>
@@ -331,7 +331,7 @@ export default function ExpresswayPage() {
                                         onClick={handleSearch}
                                         style={{ background: '#004f9f', borderColor: '#004f9f' }}
                                     >
-                                        Tìm kiếm
+                                        Search
                                     </Button>
                                     <Button icon={<UndoOutlined />} onClick={handleReset}>
                                         Reset
@@ -371,7 +371,6 @@ export default function ExpresswayPage() {
                                                 height: '100%',
                                                 display: 'flex',
                                                 flexDirection: 'column',
-                                                boxShadow: '0 4px 14px rgba(0,0,0,0.04)',
                                                 border: '1px solid #eef0f2'
                                             }}
                                             bodyStyle={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}

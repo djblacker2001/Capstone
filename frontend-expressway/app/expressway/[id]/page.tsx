@@ -355,7 +355,7 @@ export default function ExpresswayPage() {
                                         />
                                     </div>
                                 )}
-                                <div className="map-wrapper" style={{ marginTop: '8px' }}>
+                                <div className="map-wrapper-expressway" style={{ marginTop: '8px' }}>
                                     <div className={isFullscreen ? 'map-expanded' : 'map-small'}>
                                         <DynamicMapContainer
                                             isFullscreen={isFullscreen}

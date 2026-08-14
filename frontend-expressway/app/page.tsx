@@ -33,8 +33,6 @@ interface Expressway {
   section?: any[];
 }
 
-
-
 export default function Home() {
   const [statsData, setStatsData] = useState<any>(null);
   const [incidents, setIncidents] = useState([]);
@@ -146,7 +144,7 @@ export default function Home() {
               <Button type="primary" size="large" icon={<CompassOutlined />} href="/map" className="btn-emerald">
                 {t("home.mapAccess")}
               </Button>
-              <Button type="default" size="large" icon={<ArrowRightOutlined />} href="#discover">
+              <Button type="default" size="large" icon={<ArrowRightOutlined />} href="#discover" className="btn-learnMore">
                 {t("home.learnMore")}
               </Button>
             </div>

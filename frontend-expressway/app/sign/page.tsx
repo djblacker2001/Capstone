@@ -123,7 +123,7 @@ const SignPage = () => {
                                     onChange={(value) => setSelectedTypeId(value)}
                                     size="large"
                                 >
-                                    <Option value="All">Tất cả nhóm biển báo (All sign)</Option>
+                                    <Option value="All">Tất cả nhóm biển báo (All signs)</Option>
                                     <Option value="1">Biển cấm (Prohibition signs)</Option>
                                     <Option value="2">Biển nguy hiểm (Hazard signs)</Option>
                                     <Option value="3">Biển hiệu lệnh (Command signs)</Option>

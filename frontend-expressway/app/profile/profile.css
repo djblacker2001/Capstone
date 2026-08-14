@@ -31,7 +31,7 @@
 }
 
 @media (max-width: 768px) {
-    .profile-page-wrapper .button {
-        flex-direction: column;
+    .profile-page-wrapper .expr {
+        padding: 50px 20px;
     }
 }

@@ -8,11 +8,20 @@ import "./profile.css";
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 import Header from "../components/Header/Header";
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 interface UserProfile {
     Username?: string;
+    username?: string;
     Email?: string;
+    email?: string;
     Role?: string;
+    role?: string;
+    RoleId?: number | string;
+    roleId?: number | string;
     Avatar?: string;
+    avatar?: string;
+    [key: string]: any;
 }
 
 export default function ProfilePage() {
@@ -20,20 +29,18 @@ export default function ProfilePage() {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(() => {
-        const loadUserFromStorage = () => {
-            try {
-                const savedUser = localStorage.getItem('user');
-                if (savedUser) {
-                    setUser(JSON.parse(savedUser));
-                }
-            } catch (error) {
-                console.error("Failed to parse user data:", error);
-            } finally {
-                setLoading(false);
+    const loadUserFromStorage = () => {
+        try {
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+                setUser(JSON.parse(savedUser));
             }
-        };
+        } catch (error) {
+            console.error("Failed to parse user data:", error);
+        }
+    };
 
+    useEffect(() => {
         loadUserFromStorage();
         const handleProfileUpdateEvent = () => {
             setTimeout(() => {
@@ -50,9 +57,10 @@ export default function ProfilePage() {
         const verifyAndLoadUser = async () => {
             if (typeof window === "undefined") return;
 
-            const savedUser = localStorage.getItem('user');
+            const savedUserStr = localStorage.getItem('user');
             const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-            if (!savedUser || savedUser === "undefined" || !token || token === "undefined") {
+
+            if (!savedUserStr || savedUserStr === "undefined" || !token || token === "undefined") {
                 localStorage.removeItem('user');
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('token');
@@ -62,9 +70,12 @@ export default function ProfilePage() {
                 return;
             }
 
+            const savedUser = JSON.parse(savedUserStr);
+
             try {
-                const res = await fetch(`http://localhost:8080/users/profile`, {
-                    method: 'PUT',
+                // ✅ ĐÃ SỬA: Đổi từ 'PUT' sang 'GET' để tránh ghi đè làm mất Role
+                const res = await fetch(`${baseUrl}/users/profile`, {
+                    method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -73,13 +84,21 @@ export default function ProfilePage() {
 
                 if (res.ok) {
                     const responseJson = await res.json();
-                    const freshUser = responseJson.data;
+                    const freshUser = responseJson.data || responseJson;
 
                     if (freshUser) {
-                        localStorage.setItem('user', JSON.stringify(freshUser));
-                        setUser(freshUser);
+                        const mergedUser = {
+                            ...savedUser,
+                            ...freshUser,
+                            RoleId: savedUser.RoleId ?? savedUser.roleId ?? freshUser.RoleId ?? freshUser.roleId,
+                            roleId: savedUser.RoleId ?? savedUser.roleId ?? freshUser.RoleId ?? freshUser.roleId
+                        };
+
+                        localStorage.setItem('user', JSON.stringify(mergedUser));
+                        setUser(mergedUser);
+                        window.dispatchEvent(new Event("userUpdate"));
                     } else {
-                        setUser(JSON.parse(savedUser));
+                        setUser(savedUser);
                     }
                 } else if (res.status === 401 || res.status === 403) {
                     message.error("Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại!");
@@ -91,29 +110,17 @@ export default function ProfilePage() {
                     router.push('/login');
                     return;
                 } else {
-                    setUser(JSON.parse(savedUser));
+                    setUser(savedUser);
                 }
             } catch (error) {
                 console.error("Lỗi kết nối xác thực phiên đăng nhập:", error);
-                setUser(JSON.parse(savedUser));
+                setUser(savedUser);
             } finally {
                 setLoading(false);
             }
         };
 
         verifyAndLoadUser();
-
-        const handleProfileUpdateEvent = () => {
-            const savedUser = localStorage.getItem('user');
-            if (savedUser) {
-                setUser(JSON.parse(savedUser));
-            }
-        };
-
-        window.addEventListener("userUpdate", handleProfileUpdateEvent);
-        return () => {
-            window.removeEventListener("userUpdate", handleProfileUpdateEvent);
-        };
     }, [router]);
 
     if (loading) {
@@ -127,13 +134,18 @@ export default function ProfilePage() {
     }
 
     if (!user) return null;
-    const currentAvatar = user.Avatar;
+
+    const username = user.Username || user.username || 'N/A';
+    const email = user.Email || user.email || 'N/A';
+    const roleName = user.Role || user.role || (Number(user.RoleId || user.roleId) === 1 ? 'Administrator' : 'User');
+    const currentAvatar = user.Avatar || user.avatar;
+
     const avatarSrc = currentAvatar
         ? currentAvatar.startsWith('http')
             ? currentAvatar
             : currentAvatar.includes('uploads/avatars')
-                ? `http://localhost:8080/${currentAvatar}`
-                : `http://localhost:8080/uploads/avatars/${currentAvatar}`
+                ? `${baseUrl}/${currentAvatar}`
+                : `${baseUrl}/uploads/avatars/${currentAvatar}`
         : undefined;
 
     return (
@@ -174,7 +186,7 @@ export default function ProfilePage() {
                         <div style={{ marginBottom: 20 }}>
                             <label style={{ fontWeight: 600, display: 'block', marginBottom: 8, color: '#434343' }}>Username</label>
                             <Input
-                                value={user.Username}
+                                value={username}
                                 disabled
                                 prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
                                 size="large"
@@ -184,7 +196,7 @@ export default function ProfilePage() {
                         <div style={{ marginBottom: 20 }}>
                             <label style={{ fontWeight: 600, display: 'block', marginBottom: 8, color: '#434343' }}>Email Address</label>
                             <Input
-                                value={user.Email}
+                                value={email}
                                 disabled
                                 prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
                                 size="large"
@@ -192,9 +204,9 @@ export default function ProfilePage() {
                         </div>
 
                         <div style={{ marginBottom: 10 }}>
-                            <label style={{ fontWeight: 600, display: 'block', marginBottom: 8, color: '#434343' }}>System Role</label>
+                            <label style={{ fontWeight: 600, display: 'block', marginBottom: 8, color: '#434343' }}>Role</label>
                             <Input
-                                value={user.Role}
+                                value={roleName}
                                 disabled
                                 prefix={<SafetyCertificateOutlined style={{ color: '#52c41a' }} />}
                                 size="large"

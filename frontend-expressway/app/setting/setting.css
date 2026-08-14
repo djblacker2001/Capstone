@@ -1,0 +1,23 @@
+.setting-page-wrapper .expr {
+    background-color: rgba(255, 255, 255, 0.5);
+    width: 100%;
+    min-height: calc(100vh - 58px);
+    padding: 100px;
+}
+
+.setting-page-wrapper .form {
+    max-width: 500;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 30px;
+    border: 1px solid #f0f0f0;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background-color: #fff;
+}
+
+@media (max-width: 768px) {
+    .setting-page-wrapper .expr {
+        padding: 50px 20px;
+    }
+}

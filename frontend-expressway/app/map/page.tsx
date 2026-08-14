@@ -4,8 +4,8 @@ import dynamic from 'next/dynamic';
 import { Spin } from 'antd';
 import Header from '../components/Header/Header';
 import "./map.css"
-
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
+import { t } from "i18next";
 
 const MapComponent = dynamic(() => import('./MapComponent'), {
     ssr: false,

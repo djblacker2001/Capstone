@@ -44,8 +44,7 @@ export default function UpdateSectionPage() {
                 axiosClient.get(`/bridges?sectionId=${sectionId}`),
                 axiosClient.get(`/tunnels?sectionId=${sectionId}`),
             ]);
-
-            // 1. Set dữ liệu Form chính
+            
             const data = sectionRes?.data?.data || sectionRes?.data || sectionRes;
             if (data) {
                 setSectionData(data);

@@ -49,6 +49,15 @@
   background-color: #009751 !important;
 }
 
+.btn-learnMore {
+  color: #00a859 !important;
+}
+
+.btn-learnMore:hover {
+  color: #009751 !important;
+  border: 1px solid #009751 !important;
+}
+
 .stats-cards-section {
   max-width: 1100px;
   margin: auto;
@@ -111,16 +120,17 @@
 
 .map-container-holder {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
   z-index: 10;
 }
 
-.map-small {
-  height: 380px;
+#discover .map-small {
+  height: 380px !important;
   width: 100%;
-  position: relative;
+  border: none;
 }
 
-.map-expanded {
+#discover .map-expanded {
   position: fixed !important;
   top: 0;
   left: 0;
@@ -170,27 +180,6 @@
   background-color: #00a859;
   border-radius: 50%;
   display: inline-block;
-}
-
-.map-container-holder {
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.map-small {
-  height: 420px;
-  width: 100%;
-}
-
-.map-expanded {
-  position: fixed !important;
-  top: 0;
-  left: 0;
-  width: 100vw !important;
-  height: 100vh !important;
-  z-index: 9999 !important;
-  background-color: #ffffff;
-  padding: 0;
 }
 
 .custom-map-fullscreen-btn {

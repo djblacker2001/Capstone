@@ -122,10 +122,7 @@ export default function MapComponent({
         <MapContainer
             center={[16.047079, 108.20623]}
             zoom={6}
-            style={{
-                height: '100%',
-                width: '100%',
-            }}
+            style={{height: '100%', width: '100%'}}
             zoomControl={isFullscreen}
             attributionControl={false}
         >
@@ -175,7 +172,6 @@ export default function MapComponent({
                     ESC
                 </button>
             )}
-
             <UserLocationControl />
         </MapContainer>
     );

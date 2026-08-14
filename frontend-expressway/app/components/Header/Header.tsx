@@ -10,11 +10,15 @@ import axiosClient from "@/api/axiosClient";
 import { useTranslation } from "react-i18next";
 
 const { Header } = Layout;
-
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 interface UserData {
   Username?: string;
-  RoleId?: number;
+  username?: string;
+  RoleId?: number | string;
+  roleId?: number | string;
   Avatar?: string;
+  avatar?: string;
+  [key: string]: any;
 }
 
 export default function MainHeader() {
@@ -23,28 +27,15 @@ export default function MainHeader() {
   const menuRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
-  
   const pathname = usePathname();
 
   const { t, i18n } = useTranslation();
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-  };
 
-  const languageItems: MenuProps['items'] = [
-    {
-      key: 'en',
-      label: 'English',
-      disabled: i18n.language === 'en',
-      onClick: () => changeLanguage('en'),
-    },
-    {
-      key: 'vi',
-      label: 'Tiếng Việt',
-      disabled: i18n.language === 'vi',
-      onClick: () => changeLanguage('vi'),
-    },
-  ];
+  const toggleLanguage = () => {
+    const currentLang = i18n.language;
+    const nextLang = currentLang === 'vi' ? 'en' : 'vi';
+    i18n.changeLanguage(nextLang);
+  };
 
   const isTokenExpired = (token: string | null) => {
     if (!token || token === "undefined") return true;
@@ -64,27 +55,43 @@ export default function MainHeader() {
     }
   };
 
-  useEffect(() => {
-    const loadUser = () => {
-      const raw = localStorage.getItem('user');
-      const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token') || localStorage.getItem('token');
-      if (!raw || isTokenExpired(token)) {
-        localStorage.removeItem('user');
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('token');
-        setUser(null);
-      } else {
-        setUser(JSON.parse(raw));
-      }
-    };
+  const loadUser = () => {
+    const raw = localStorage.getItem('user');
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token') || localStorage.getItem('token');
 
+    if (!raw || isTokenExpired(token)) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('token');
+      setUser(null);
+    } else {
+      try {
+        const parsed = JSON.parse(raw);
+        setUser((prevUser) => {
+          const currentRole = parsed.RoleId ?? parsed.roleId ?? prevUser?.RoleId ?? prevUser?.roleId;
+          return {
+            ...parsed,
+            RoleId: currentRole,
+            roleId: currentRole
+          };
+        });
+      } catch (e) {
+        setUser(null);
+      }
+    }
+  };
+
+  useEffect(() => {
     loadUser();
     window.addEventListener('userUpdate', loadUser);
+    window.addEventListener('storage', loadUser);
+
     return () => {
       window.removeEventListener('userUpdate', loadUser);
+      window.removeEventListener('storage', loadUser);
     };
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -111,10 +118,15 @@ export default function MainHeader() {
     } finally {
       localStorage.removeItem('user');
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('token');
       setUser(null);
       router.push('/');
     }
   };
+
+  const roleVal = user?.RoleId ?? user?.roleId;
+  const isAdmin = Number(roleVal) === 1;
 
   const items = [
     { key: "/", label: <Link href="/">{t("header.homepage")}</Link> },
@@ -122,7 +134,7 @@ export default function MainHeader() {
     { key: "/expressway", label: <Link href="/expressway">{t("header.expressway")}</Link> },
     { key: "/sign", label: <Link href="/sign">{t("header.sign")}</Link> },
 
-    ...(user?.RoleId === 1
+    ...(isAdmin
       ? [
         { key: "/manageExpressway", label: <Link href="/manageExpressway">{t("header.manageExpressway")}</Link> },
         { key: "/manageUser", label: <Link href="/manageUser">{t("header.manageUser")}</Link> },
@@ -132,10 +144,10 @@ export default function MainHeader() {
   ];
 
   const getSelectedKey = () => {
-    const matchedItem = items.find((item) => 
+    const matchedItem = items.find((item) =>
       pathname === item.key || (item.key !== "/" && pathname.startsWith(item.key))
     );
-    return matchedItem ? [matchedItem.key] : [pathname];
+    return matchedItem ? [matchedItem.key] : [];
   };
 
   const userMenu: MenuProps["items"] = [
@@ -145,13 +157,15 @@ export default function MainHeader() {
     { key: "logout", icon: <LogoutOutlined />, label: "Log out", onClick: handleLogout },
   ];
 
-  const currentAvatar = user?.Avatar;
+  const currentAvatar = user?.Avatar || user?.avatar;
+  const username = user?.Username || user?.username || 'Admin';
+
   const avatarSrc = currentAvatar
     ? currentAvatar.startsWith('http')
       ? currentAvatar
       : currentAvatar.includes('uploads/avatars')
-        ? `http://localhost:8080/${currentAvatar}`
-        : `http://localhost:8080/uploads/avatars/${currentAvatar}`
+        ? `${baseUrl}/${currentAvatar}`
+        : `${baseUrl}/uploads/avatars/${currentAvatar}`
     : undefined;
 
   return (
@@ -169,23 +183,22 @@ export default function MainHeader() {
           </Link>
         </div>
 
-        <Menu 
-          mode="horizontal" 
-          items={items} 
-          selectedKeys={getSelectedKey()} 
-          className="desktopMenu" 
+        <Menu
+          mode="horizontal"
+          items={items}
+          selectedKeys={getSelectedKey()}
+          className="desktopMenu"
         />
 
         <div className="right">
-          <Dropdown menu={{ items: languageItems }} placement="bottomRight">
-            <a onClick={(e) => e.preventDefault()} className="languages">
-              <Space>
-                <GlobalOutlined />
-                {i18n.language === 'vi' ? 'Tiếng Việt' : 'English'}
-                <DownOutlined />
-              </Space>
-            </a>
-          </Dropdown>
+          <Button
+            type="text"
+            onClick={toggleLanguage}
+            icon={<GlobalOutlined />}
+            className="languages-btn"
+          >
+            {i18n.language === 'vi' ? 'Tiếng Việt' : 'English'}
+          </Button>
           {user ? (
             <Dropdown menu={{ items: userMenu }} placement="bottomRight">
               <div className="userBox" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: "white" }}>
@@ -194,7 +207,7 @@ export default function MainHeader() {
                   icon={<UserOutlined />}
                 />
                 <span className="username">
-                  {user?.Username}
+                  {username}
                 </span>
               </div>
             </Dropdown>

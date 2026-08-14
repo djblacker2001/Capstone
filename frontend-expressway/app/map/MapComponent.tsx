@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMap } from 'react-l
 import L from 'leaflet';
 import { Spin, Select, Space, Card, Tag, Button, Drawer, Grid, Image, Divider, Typography } from 'antd';
 import 'leaflet/dist/leaflet.css';
-import { BranchesOutlined, CoffeeOutlined, FilterOutlined, PartitionOutlined, CompassOutlined } from '@ant-design/icons';
+import { BranchesOutlined, CoffeeOutlined, FilterOutlined, PartitionOutlined, CompassOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import axiosClient from '@/api/axiosClient';
 import { useTranslation } from 'react-i18next';
 
@@ -32,7 +32,7 @@ const getRouteColor = (status?: string) => {
 
   switch (statusVal) {
     case 'complete':
-    case 'Completed':
+    case 'completed':
       return '#237804';
 
     case 'under construction':
@@ -74,9 +74,9 @@ const userLocationIcon =
   typeof window !== 'undefined'
     ? L.divIcon({
       className: 'user-location-marker-container',
-      html: '<div class="user-location-marker" style="background:#1890ff;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 0 8px rgba(24,144,255,0.8);"></div>',
-      iconSize: [16, 16],
-      iconAnchor: [8, 8],
+      html: '<div class="user-location-marker"></div>',
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
     })
     : null;
 
@@ -105,7 +105,7 @@ function ChangeMapCenter({ center, zoom = 12 }: { center: [number, number]; zoom
   return null;
 }
 
-function GeoJsonLayerWrapper({data, keyId, sections, status}: {
+function GeoJsonLayerWrapper({ data, keyId, sections, status }: {
   data: any;
   keyId: string | number;
   sections: SectionItem[];
@@ -145,7 +145,7 @@ function GeoJsonLayerWrapper({data, keyId, sections, status}: {
   };
 
   return (
-    <GeoJSON key={`geojson-${keyId}`} data={data} style={styleFeature}/>
+    <GeoJSON key={`geojson-${keyId}`} data={data} style={styleFeature} />
   );
 }
 
@@ -187,6 +187,56 @@ function MultiSectionGeoJson({ sections, baseUrl }: { sections: SectionItem[]; b
     </>
   );
 }
+
+/* ========================================================= */
+/* COMPONENT NỘI DUNG CHÚ GIẢI (MAP LEGEND CONTENT)          */
+/* ========================================================= */
+const MapLegendContent = () => {
+  const statusItems = [
+    { label: 'Khai thác / Hoàn thành', color: '#237804' },
+    { label: 'Đang thi công', color: '#1890ff' },
+    { label: 'Mở rộng thi công', color: '#86c5ff' },
+    { label: 'Chưa thi công / Quy hoạch', color: '#faad14' },
+    { label: 'Sự cố / Úng ngập', color: '#ff4d4f' },
+    { label: 'Đang bảo trì', color: '#722ed1' },
+  ];
+
+  return (
+    <div style={{ fontSize: 12 }}>
+      <Text strong style={{ fontSize: 12, color: '#595959' }}>Trạng thái tuyến đường</Text>
+      <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {statusItems.map((item, index) => (
+          <div key={index} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span
+              style={{
+                width: 20,
+                height: 4,
+                backgroundColor: item.color,
+                borderRadius: 2,
+                display: 'inline-block',
+              }}
+            />
+            <span style={{ color: '#262626' }}>{item.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <Divider style={{ margin: '8px 0' }} />
+
+      <Text strong style={{ fontSize: 12, color: '#595959' }}>Địa điểm</Text>
+      <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: '#1890ff', color: 'white', width: 20, height: 20, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>🔀</div>
+          <span style={{ color: '#262626' }}>Nút giao (Interchange)</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: '#52c41a', color: 'white', width: 20, height: 20, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>☕</div>
+          <span style={{ color: '#262626' }}>Trạm dừng nghỉ (Rest Stop)</span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface ExpresswayItem {
   ExpresswayId: number;
@@ -239,6 +289,7 @@ export default function MapComponent() {
   const screens = useBreakpoint();
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [nearestDrawerOpen, setNearestDrawerOpen] = useState<boolean>(false);
+  const [legendCollapsed, setLegendCollapsed] = useState<boolean>(false);
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [targetCenter, setTargetCenter] = useState<[number, number] | null>(null);
   const [targetZoom, setTargetZoom] = useState<number>(12);
@@ -253,10 +304,7 @@ export default function MapComponent() {
   const [selectedInterchange, setSelectedInterchange] = useState<number | null>(null);
   const [selectedRestStop, setSelectedRestStop] = useState<number | null>(null);
 
-  const { t, i18n } = useTranslation();
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-  };
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -636,78 +684,118 @@ export default function MapComponent() {
           >
             Filter
           </Button>
-
           <Drawer
-            title="Bộ lọc bản đồ"
+            title="Bộ lọc & Chú giải"
             placement="left"
             onClose={() => setDrawerOpen(false)}
             open={drawerOpen}
             width={280}
           >
             {renderFilterControls()}
+            <Divider style={{ margin: '16px 0' }} />
+            <MapLegendContent />
           </Drawer>
         </>
       )}
 
-      {nearestInfo && (
-        screens.md ? (
+      {screens.md && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 24,
+            right: 12,
+            zIndex: 1000,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 12,
+            alignItems: 'flex-end',
+          }}
+        >
           <Card
             size="small"
             title={
-              <Space>
-                <CompassOutlined style={{ color: '#1890ff' }} />
-                <Text style={{ fontSize: 13 }}>Nearest route</Text>
-              </Space>
+              <div
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', gap: 12 }}
+                onClick={() => setLegendCollapsed(!legendCollapsed)}
+              >
+                <Space>
+                  <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                  <Text strong style={{ fontSize: 13 }}>Map Legend</Text>
+                </Space>
+                <Button type="text" size="small" style={{ padding: '0 4px', fontSize: 11, color: '#8c8c8c' }}>
+                  {legendCollapsed ? 'Appear' : 'Disappear'}
+                </Button>
+              </div>
             }
+            style={{
+              width: 260,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(6px)',
+              borderRadius: 8,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+            }}
+            styles={{ body: { padding: legendCollapsed ? 0 : 12, display: legendCollapsed ? 'none' : 'block' } }}
+          >
+            <MapLegendContent />
+          </Card>
+
+          {nearestInfo && (
+            <Card
+              size="small"
+              title={
+                <Space>
+                  <CompassOutlined style={{ color: '#1890ff' }} />
+                  <Text style={{ fontSize: 13 }}>Nearest route</Text>
+                </Space>
+              }
+              style={{
+                width: 260,
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(6px)',
+                borderRadius: 8,
+                boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+              }}
+            >
+              {renderNearestContent()}
+            </Card>
+          )}
+        </div>
+      )}
+
+      {!screens.md && nearestInfo && (
+        <>
+          <Button
+            type="primary"
+            shape="round"
+            icon={<CompassOutlined />}
+            onClick={() => setNearestDrawerOpen(true)}
             style={{
               position: 'absolute',
               bottom: 24,
               right: 12,
               zIndex: 1000,
-              width: 300,
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(6px)',
-              borderRadius: 10,
-              boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
             }}
           >
-            {renderNearestContent()}
-          </Card>
-        ) : (
-          <>
-            <Button
-              type="primary"
-              shape="round"
-              icon={<CompassOutlined />}
-              onClick={() => setNearestDrawerOpen(true)}
-              style={{
-                position: 'absolute',
-                bottom: 24,
-                right: 12,
-                zIndex: 1000,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
-              }}
-            >
-              Nearest route
-            </Button>
+            Nearest route
+          </Button>
 
-            <Drawer
-              title={
-                <Space>
-                  <CompassOutlined style={{ color: '#1890ff' }} />
-                  <span>Nearest route</span>
-                </Space>
-              }
-              placement="bottom"
-              height="auto"
-              onClose={() => setNearestDrawerOpen(false)}
-              open={nearestDrawerOpen}
-              styles={{ body: { padding: '12px 16px 24px' } }}
-            >
-              {renderNearestContent()}
-            </Drawer>
-          </>
-        )
+          <Drawer
+            title={
+              <Space>
+                <CompassOutlined style={{ color: '#1890ff' }} />
+                <span>Nearest route</span>
+              </Space>
+            }
+            placement="bottom"
+            height="auto"
+            onClose={() => setNearestDrawerOpen(false)}
+            open={nearestDrawerOpen}
+            styles={{ body: { padding: '12px 16px 24px' } }}
+          >
+            {renderNearestContent()}
+          </Drawer>
+        </>
       )}
 
       <MapContainer
@@ -722,6 +810,7 @@ export default function MapComponent() {
         />
 
         {targetCenter && <ChangeMapCenter center={targetCenter} zoom={targetZoom} />}
+
         {selectedSection === 'ALL' ? (
           <MultiSectionGeoJson sections={filteredSections} baseUrl={baseUrl} />
         ) : (
@@ -770,6 +859,7 @@ export default function MapComponent() {
           );
         })}
 
+        {/* Nút giao */}
         {currentInterchanges.map((ic) => (
           <Marker
             key={`ic-${ic.InterchangeId}`}
@@ -790,6 +880,7 @@ export default function MapComponent() {
           </Marker>
         ))}
 
+        {/* Trạm dừng nghỉ */}
         {currentRestStops.map((rs) => (
           <Marker
             key={`rs-${rs.RestStopId}`}

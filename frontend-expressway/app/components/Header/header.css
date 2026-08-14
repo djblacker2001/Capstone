@@ -58,13 +58,17 @@
     align-items: center;
 }
 
-.right .languages {
+.right .languages-btn {
     display: flex;
     align-items: center;
     gap: 5px;
     cursor: pointer;
     margin-right: 10px;
-    color: white;
+    color: white !important;
+}
+
+.right .languages-btn:hover {
+    background-color: #0ec45d !important;
 }
 
 .userBox:hover {
