@@ -188,22 +188,19 @@ function MultiSectionGeoJson({ sections, baseUrl }: { sections: SectionItem[]; b
   );
 }
 
-/* ========================================================= */
-/* COMPONENT NỘI DUNG CHÚ GIẢI (MAP LEGEND CONTENT)          */
-/* ========================================================= */
 const MapLegendContent = () => {
   const statusItems = [
-    { label: 'Khai thác / Hoàn thành', color: '#237804' },
-    { label: 'Đang thi công', color: '#1890ff' },
-    { label: 'Mở rộng thi công', color: '#86c5ff' },
-    { label: 'Chưa thi công / Quy hoạch', color: '#faad14' },
-    { label: 'Sự cố / Úng ngập', color: '#ff4d4f' },
-    { label: 'Đang bảo trì', color: '#722ed1' },
+    { label: 'Đang hoạt động / Operating', color: '#237804' },
+    { label: 'Đang thi công / Under Construction', color: '#1890ff' },
+    { label: 'Đang thi công mở rộng / Extend Under Construction', color: '#86c5ff' },
+    { label: 'Chưa thi công / Not yet Under Construction', color: '#faad14' },
+    { label: 'Sự cố / Incident', color: '#ff4d4f' },
+    { label: 'Đang bảo trì / Mantainance', color: '#722ed1' },
   ];
 
   return (
     <div style={{ fontSize: 12 }}>
-      <Text strong style={{ fontSize: 12, color: '#595959' }}>Trạng thái tuyến đường</Text>
+      <Text strong style={{ fontSize: 12, color: '#595959' }}>Trạng thái tuyến đường (Status)</Text>
       <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
         {statusItems.map((item, index) => (
           <div key={index} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -658,8 +655,8 @@ export default function MapComponent() {
           size="small"
           style={{
             position: 'absolute',
-            top: 12,
-            left: 50,
+            top: 20,
+            right: 20,
             zIndex: 1000,
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(4px)',
@@ -676,8 +673,8 @@ export default function MapComponent() {
             onClick={() => setDrawerOpen(true)}
             style={{
               position: 'absolute',
-              top: 12,
-              left: 50,
+              top: 20,
+              right: 20,
               zIndex: 1000,
               boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
             }}
@@ -802,7 +799,7 @@ export default function MapComponent() {
         center={position}
         zoom={11}
         style={{ width: '100%', height: '100%' }}
-        zoomControl={true}
+        zoomControl={false}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -859,7 +856,6 @@ export default function MapComponent() {
           );
         })}
 
-        {/* Nút giao */}
         {currentInterchanges.map((ic) => (
           <Marker
             key={`ic-${ic.InterchangeId}`}
@@ -880,7 +876,6 @@ export default function MapComponent() {
           </Marker>
         ))}
 
-        {/* Trạm dừng nghỉ */}
         {currentRestStops.map((rs) => (
           <Marker
             key={`rs-${rs.RestStopId}`}

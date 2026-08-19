@@ -1,6 +1,7 @@
 .main {
-    min-height: 500px;
+    min-height: 800px;
     background: none;
+    padding-top: 50px;
 }
 
 .goTopBtn {

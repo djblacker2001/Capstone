@@ -6,6 +6,7 @@ import { I18nContext, I18nService } from 'nestjs-i18n';
 import * as fs from 'fs';
 import * as path from 'path';
 import { UpdateSectionDto } from './dto/update-sections.dto';
+import { Province } from '../provinces/provinces.entity';
 
 @Injectable()
 export class SectionsService {
@@ -126,6 +127,7 @@ export class SectionsService {
         }
 
         const updatePayload: Partial<Section> = {};
+
         if (data.NameSection !== undefined) updatePayload.NameSection = data.NameSection;
         if (data.Length !== undefined) updatePayload.Length = Number(data.Length);
         if (data.StartLocation !== undefined) updatePayload.StartLocation = data.StartLocation;
@@ -133,7 +135,7 @@ export class SectionsService {
         if (data.EndLocation !== undefined) updatePayload.EndLocation = data.EndLocation;
         if (data.EndKm !== undefined) updatePayload.EndKm = Number(data.EndKm);
         if (data.SpeedLimit !== undefined) updatePayload.SpeedLimit = data.SpeedLimit;
-        if (data.TrafficLand !== undefined) updatePayload.TrafficLand = data.TrafficLand;
+        if (data.TrafficLand !== undefined) updatePayload.TrafficLand = Number(data.TrafficLand);
         if (data.HasEmergencyLand !== undefined) updatePayload.HasEmergencyLand = Boolean(data.HasEmergencyLand);
         if (data.Status !== undefined) updatePayload.Status = data.Status;
         if (newImagePath) {
@@ -157,9 +159,26 @@ export class SectionsService {
             }
         }
 
-        if (Object.keys(updatePayload).length > 0) {
-            await this.sectionRepository.update({ SectionId: id }, updatePayload);
+        const rawProvinceIds = data.provinceIds ?? (data as any).ProvinceIds;
+
+        if (rawProvinceIds !== undefined) {
+            let provinceIdsArray: number[] = [];
+            if (Array.isArray(rawProvinceIds)) {
+                provinceIdsArray = rawProvinceIds.map((pId) => Number(pId));
+            } else if (typeof rawProvinceIds === 'string') {
+                try {
+                    const parsed = JSON.parse(rawProvinceIds);
+                    provinceIdsArray = Array.isArray(parsed) ? parsed.map(Number) : [];
+                } catch {
+                    provinceIdsArray = rawProvinceIds.split(',').map((pId) => Number(pId.trim())).filter((n) => !isNaN(n));
+                }
+            }
+
+            updatePayload.province = provinceIdsArray.map((pId) => ({ ProvinceId: pId } as Province));
         }
+
+        const sectionToSave = this.sectionRepository.merge(existingSection, updatePayload);
+        await this.sectionRepository.save(sectionToSave);
 
         return this.findOneSection(id);
     }

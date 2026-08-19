@@ -8,19 +8,14 @@ import "./profile.css";
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 import Header from "../components/Header/Header";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 interface UserProfile {
     Username?: string;
-    username?: string;
     Email?: string;
-    email?: string;
     Role?: string;
-    role?: string;
     RoleId?: number | string;
-    roleId?: number | string;
     Avatar?: string;
-    avatar?: string;
     [key: string]: any;
 }
 
@@ -73,7 +68,6 @@ export default function ProfilePage() {
             const savedUser = JSON.parse(savedUserStr);
 
             try {
-                // ✅ ĐÃ SỬA: Đổi từ 'PUT' sang 'GET' để tránh ghi đè làm mất Role
                 const res = await fetch(`${baseUrl}/users/profile`, {
                     method: 'GET',
                     headers: {
@@ -90,8 +84,8 @@ export default function ProfilePage() {
                         const mergedUser = {
                             ...savedUser,
                             ...freshUser,
-                            RoleId: savedUser.RoleId ?? savedUser.roleId ?? freshUser.RoleId ?? freshUser.roleId,
-                            roleId: savedUser.RoleId ?? savedUser.roleId ?? freshUser.RoleId ?? freshUser.roleId
+                            RoleId: savedUser.RoleId ?? freshUser.RoleId,
+                            roleId: savedUser.RoleId ?? freshUser.RoleId,
                         };
 
                         localStorage.setItem('user', JSON.stringify(mergedUser));

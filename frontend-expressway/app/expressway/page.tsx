@@ -40,6 +40,11 @@ interface Section {
     interchangeCount?: number;
     restStopCount?: number;
 }
+interface Province {
+    ProvinceId: number;
+    ProvinceName: string;
+    Region: string;
+}
 
 export default function ExpresswayPage() {
     const [sections, setSections] = useState<Section[]>([]);

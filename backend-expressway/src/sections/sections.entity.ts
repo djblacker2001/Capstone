@@ -42,7 +42,7 @@ export class Section {
   SpeedLimit?: string;
 
   @Column({ name: 'TrafficLand', type: 'int' })
-  TrafficLand?: string;
+  TrafficLand?: number;
 
   @Column({ name: 'HasEmergencyLand', type: 'bit' })
   HasEmergencyLand?: boolean;

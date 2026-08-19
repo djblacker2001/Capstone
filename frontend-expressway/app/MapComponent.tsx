@@ -78,7 +78,7 @@ export default function MapComponent({
                     try {
                         setCurrentGeojson(JSON.parse(mapDataFromApi));
                     } catch (e) {
-                        console.error("❌ Lỗi parse JSON String:", e);
+                        console.error("Lỗi parse JSON String:", e);
                         setCurrentGeojson(null);
                     }
                 } else {

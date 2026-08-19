@@ -5,7 +5,6 @@ import { Spin } from 'antd';
 import Header from '../components/Header/Header';
 import "./map.css"
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
-import { t } from "i18next";
 
 const MapComponent = dynamic(() => import('./MapComponent'), {
     ssr: false,
@@ -20,7 +19,7 @@ export default function MapPage() {
     return (
         <ProtectedRoute>
             <Header />
-            <div style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, overflowY: 'hidden', position: 'relative' }}>
+            <div style={{ width: '100vw', height: '880px', margin: 0, padding: 0, overflowY: 'hidden', position: 'relative', marginTop: '50px' }}>
                 <MapComponent />
             </div>
         </ProtectedRoute>

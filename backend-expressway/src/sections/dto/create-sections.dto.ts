@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
+import { IsArray, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateSectionDto {
-    @ApiProperty()
-    SectionId!: number;
-
     @ApiProperty()
     ExpresswayId!: number;
 
@@ -19,30 +18,51 @@ export class CreateSectionDto {
     @ApiProperty()
     StartLocation!: string;
 
-    @ApiProperty()
+    @ApiProperty({required: false})
     StartKm?: number;
 
     @ApiProperty()
     EndLocation!: string;
 
-    @ApiProperty()
+    @ApiProperty({required: false})
     EndKm?: number;
 
     @ApiProperty({ type: 'string', format: 'binary', required: false})
     SpeedSign?: any;
 
-    @ApiProperty()
+    @ApiProperty({required: false})
     SpeedLimit?: string;
 
-    @ApiProperty()
-    TrafficLand?: string;
+    @ApiProperty({required: false})
+    TrafficLand?: number;
 
     @ApiProperty()
-    HasEmergencyLand?: boolean;
+    HasEmergencyLand!: boolean;
 
-    @ApiProperty()
+    @ApiProperty({required: false})
     Status?: string;
 
-    @ApiProperty({ type: 'string', format: 'binary', required: false, description: 'File JSON dữ liệu bản đồ (.json)' })
+    @ApiProperty({ type: 'string', format: 'binary', required: false})
     MapData?: any;
+
+    @ApiProperty({
+        type: [Number],
+        description: 'Danh sách ID các tỉnh thành đi qua',
+        required: false,
+    })
+    @IsOptional()
+    @IsArray()
+    @Type(() => Number)
+    @Transform(({ value }) => {
+        if (typeof value === 'string') {
+            try {
+                const parsed = JSON.parse(value);
+                return Array.isArray(parsed) ? parsed.map(Number) : [Number(value)];
+            } catch {
+                return value.split(',').map((v) => Number(v.trim()));
+            }
+        }
+        return Array.isArray(value) ? value.map(Number) : value;
+    })
+    provinceIds?: number[];
 }

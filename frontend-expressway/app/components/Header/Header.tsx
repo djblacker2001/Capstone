@@ -1,7 +1,7 @@
 "use client";
 import "./header.css";
-import { Layout, Menu, Button, Avatar, Dropdown, MenuProps, Space } from "antd";
-import { DownOutlined, GlobalOutlined, LogoutOutlined, MenuOutlined, SettingOutlined, UserOutlined } from "@ant-design/icons";
+import { Menu, Button, Avatar, Dropdown, MenuProps} from "antd";
+import { GlobalOutlined, LogoutOutlined, MenuOutlined, SettingOutlined, UserOutlined } from "@ant-design/icons";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,15 +9,11 @@ import { useRouter, usePathname } from "next/navigation";
 import axiosClient from "@/api/axiosClient";
 import { useTranslation } from "react-i18next";
 
-const { Header } = Layout;
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 interface UserData {
   Username?: string;
-  username?: string;
   RoleId?: number | string;
-  roleId?: number | string;
   Avatar?: string;
-  avatar?: string;
   [key: string]: any;
 }
 
@@ -130,12 +126,13 @@ export default function MainHeader() {
 
   const items = [
     { key: "/", label: <Link href="/">{t("header.homepage")}</Link> },
-    { key: "/dashboard", label: <Link href="/dashboard">{t("header.dashboard")}</Link> },
     { key: "/expressway", label: <Link href="/expressway">{t("header.expressway")}</Link> },
+    { key: "/map", label: <Link href="/map">{t("header.map")}</Link> },
     { key: "/sign", label: <Link href="/sign">{t("header.sign")}</Link> },
 
     ...(isAdmin
       ? [
+        { key: "/dashboard", label: <Link href="/dashboard">{t("header.dashboard")}</Link> },
         { key: "/manageExpressway", label: <Link href="/manageExpressway">{t("header.manageExpressway")}</Link> },
         { key: "/manageUser", label: <Link href="/manageUser">{t("header.manageUser")}</Link> },
         { key: "/manageSign", label: <Link href="/manageSign">{t("header.manageSign")}</Link> },
@@ -169,8 +166,8 @@ export default function MainHeader() {
     : undefined;
 
   return (
-    <header className="warp-header">
-      <Header className="mainHeader">
+    <div className="warp-header">
+      <header className="mainHeader">
         <div className="left">
           <Button
             ref={btnRef}
@@ -217,7 +214,7 @@ export default function MainHeader() {
             </Link>
           )}
         </div>
-      </Header>
+      </header>
 
       <div
         ref={menuRef}
@@ -230,6 +227,6 @@ export default function MainHeader() {
           onClick={() => setOpen(false)}
         />
       </div>
-    </header>
+    </div>
   );
 }

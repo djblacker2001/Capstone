@@ -136,7 +136,7 @@ export default function ExpresswayPage() {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'Complete':
-                return <Badge status="success" text="Hoàn thành / Đang hoạt động" />;
+                return <Badge status="success" text="Đang hoạt động" />;
             case 'Under construction':
                 return <Badge status="processing" text="Đang thi công" />;
             case 'Extend under construction':
@@ -299,7 +299,7 @@ export default function ExpresswayPage() {
                     <BranchesOutlined /> Nút giao ({data.interchange?.length || 0})
                 </span>
             ),
-            children: <Table dataSource={data.interchange || []} columns={interchangeColumns} rowKey="InterchangeId" pagination={false} size="small" locale={{ emptyText: 'Chưa có dữ liệu nút giao' }} />
+            children: <Table dataSource={data.interchange || []} columns={interchangeColumns} rowKey="InterchangeId" pagination={false} size="small" locale={{ emptyText: 'Chưa có dữ liệu nút giao' }} scroll={{ x: 'max-content' }}/>
         },
         {
             key: '2',
@@ -308,7 +308,7 @@ export default function ExpresswayPage() {
                     <CoffeeOutlined /> Trạm dừng nghỉ ({data.restStop?.length || 0})
                 </span>
             ),
-            children: <Table dataSource={data.restStop || []} columns={restStopColumns} rowKey="RestStopId" pagination={false} size="small" locale={{ emptyText: 'Chưa có trạm dừng nghỉ' }} />
+            children: <Table dataSource={data.restStop || []} columns={restStopColumns} rowKey="RestStopId" pagination={false} size="small" locale={{ emptyText: 'Chưa có trạm dừng nghỉ' }} scroll={{ x: 'max-content' }}/>
         },
         {
             key: '3',
@@ -317,7 +317,7 @@ export default function ExpresswayPage() {
                     <EnvironmentOutlined /> Cầu ({data.bridge?.length || 0})
                 </span>
             ),
-            children: <Table dataSource={data.bridge || []} columns={bridgeColumns} rowKey="BridgeId" pagination={false} size="small" locale={{ emptyText: 'Chưa có dữ liệu cầu' }} />
+            children: <Table dataSource={data.bridge || []} columns={bridgeColumns} rowKey="BridgeId" pagination={false} size="small" locale={{ emptyText: 'Chưa có dữ liệu cầu' }} scroll={{ x: 'max-content' }}/>
         },
         {
             key: '4',
@@ -326,7 +326,7 @@ export default function ExpresswayPage() {
                     <CompassOutlined /> Đường hầm ({data.tunnel?.length || 0})
                 </span>
             ),
-            children: <Table dataSource={data.tunnel || []} columns={tunnelColumns} rowKey="TunnelId" pagination={false} size="small" locale={{ emptyText: 'Tuyến đường không có hầm' }} />
+            children: <Table dataSource={data.tunnel || []} columns={tunnelColumns} rowKey="TunnelId" pagination={false} size="small" locale={{ emptyText: 'Tuyến đường không có hầm' }} scroll={{ x: 'max-content' }}/>
         },
     ];
 
@@ -444,8 +444,14 @@ export default function ExpresswayPage() {
                                     </Descriptions>
                                 </Card>
 
-                                <Card style={{ width: '100%' }}>
-                                    <Tabs defaultActiveKey="1" items={tabItems} />
+                                <Card style={{ width: '100%', overflow: 'hidden' }}>
+                                    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                                        <Tabs
+                                            defaultActiveKey="1"
+                                            items={tabItems}
+                                            moreIcon={null}
+                                        />
+                                    </div>
                                 </Card>
                             </Space>
                         </Col>

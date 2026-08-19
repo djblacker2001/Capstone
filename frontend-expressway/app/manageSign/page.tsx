@@ -139,7 +139,7 @@ export default function ManageSignPage() {
     };
 
     const columns = [
-        
+
         {
             title: "Hình ảnh",
             dataIndex: "Image",
@@ -247,7 +247,10 @@ export default function ManageSignPage() {
                             dataSource={filteredSigns}
                             rowKey="SignId"
                             loading={loading}
-                            pagination={{ pageSize: 6 }}
+                            pagination={{
+                                pageSize: 6,
+                                showSizeChanger: false
+                            }}
                             bordered
                         />
                     </Card>

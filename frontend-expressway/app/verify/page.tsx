@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { message } from 'antd';
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
 export default function VerifyPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -13,7 +15,7 @@ export default function VerifyPage() {
       if (!code) return;
 
       try {
-        const res = await fetch(`http://localhost:8080/auth/verify?code=${code}`);
+        const res = await fetch(`${baseUrl}/auth/verify?code=${code}`);
         const data = await res.json();
 
         if (data.success) {

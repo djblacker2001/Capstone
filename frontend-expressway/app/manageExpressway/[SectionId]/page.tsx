@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Form, Input, InputNumber, Select, Button, Card, Tabs, Table, Popconfirm, Space, Row, Col, Spin, message, Upload, Checkbox } from 'antd';
-import { ArrowLeftOutlined, SaveOutlined, PlusOutlined, EditOutlined, DeleteOutlined, CloseOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, SaveOutlined, PlusOutlined, EditOutlined, DeleteOutlined, CloseOutlined, UploadOutlined } from '@ant-design/icons';
 import axiosClient from '@/api/axiosClient';
 import ProtectedRoute from '@/app/components/ProtectedRoute/ProtectedRoute';
 import MainLayout from '@/app/layout/Layout';
@@ -28,9 +28,28 @@ export default function UpdateSectionPage() {
     const [isEditingSign, setIsEditingSign] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState<string>('interchange');
     const [editingSubIndex, setEditingSubIndex] = useState<number | null>(null);
+    const [provinces, setProvinces] = useState<any[]>([]);
+    const [loadingProvinces, setLoadingProvinces] = useState<boolean>(false);
+    const [mapDataFile, setMapDataFile] = useState<File | null>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null);
 
     const [mainForm] = Form.useForm();
     const [subForm] = Form.useForm();
+
+    const fetchProvinces = async () => {
+        setLoadingProvinces(true);
+        try {
+            const res = await axiosClient.get('/provinces');
+            const data = res?.data?.data || res?.data || res;
+            if (Array.isArray(data)) {
+                setProvinces(data);
+            }
+        } catch (error) {
+            console.error('Lỗi lấy danh sách tỉnh thành:', error);
+        } finally {
+            setLoadingProvinces(false);
+        }
+    };
 
     const fetchSectionData = useCallback(async () => {
         if (!sectionId || sectionId === 'undefined') return;
@@ -44,10 +63,15 @@ export default function UpdateSectionPage() {
                 axiosClient.get(`/bridges?sectionId=${sectionId}`),
                 axiosClient.get(`/tunnels?sectionId=${sectionId}`),
             ]);
-            
+
             const data = sectionRes?.data?.data || sectionRes?.data || sectionRes;
             if (data) {
                 setSectionData(data);
+                const selectedProvinceIds = Array.isArray(data.province)
+                    ? data.province.map((p: any) => p.ProvinceId)
+                    : Array.isArray(data.provinces)
+                        ? data.provinces.map((p: any) => p.ProvinceId)
+                        : [];
                 mainForm.setFieldsValue({
                     NameSection: data.NameSection,
                     Length: data.Length,
@@ -55,8 +79,11 @@ export default function UpdateSectionPage() {
                     StartKm: data.StartKm,
                     EndLocation: data.EndLocation,
                     EndKm: data.EndKm,
+                    TrafficLand: data.TrafficLand,
+                    HasEmergencyLand: data.HasEmergencyLand,
                     Status: data.Status,
                     SpeedLimit: data.SpeedLimit,
+                    ProvinceIds: selectedProvinceIds,
                 });
 
                 setSpeedSignUrl(data.SpeedSign || '');
@@ -69,7 +96,7 @@ export default function UpdateSectionPage() {
                 const targetId = Number(sectionId);
                 return rawList.filter((item: any) => Number(item.SectionId) === targetId);
             };
-            
+
             setInterchanges(filterBySectionId(interchangeRes));
             setRestStops(filterBySectionId(restStopRes));
             setBridges(filterBySectionId(bridgeRes));
@@ -85,7 +112,8 @@ export default function UpdateSectionPage() {
 
     useEffect(() => {
         fetchSectionData();
-    }, [fetchSectionData]);
+        fetchProvinces();
+    }, []);
 
     const handleStartEditSubItem = (record: any = null, index: number = -1) => {
         if (record && index !== -1) {
@@ -148,14 +176,27 @@ export default function UpdateSectionPage() {
             const mainValues = await mainForm.validateFields();
             setSubmitting(true);
             const formData = new FormData();
+
             Object.keys(mainValues).forEach((key) => {
                 if (mainValues[key] !== undefined && mainValues[key] !== null) {
                     formData.append(key, mainValues[key]);
                 }
             });
 
+            if (Array.isArray(mainValues.ProvinceIds)) {
+            mainValues.ProvinceIds.forEach((id: number) => {
+                formData.append('ProvinceIds', String(id));
+            });
+        }
+
             if (speedSignFile) {
                 formData.append('SpeedSign', speedSignFile);
+            }
+            if (mapDataFile) {
+                formData.append('MapData', mapDataFile);
+            }
+            if (imageFile) {
+                formData.append('Image', imageFile);
             }
 
             await axiosClient.put(`/sections/${sectionId}`, formData, {
@@ -167,9 +208,6 @@ export default function UpdateSectionPage() {
                     const itemId = item[idKey] || item._id || item.id;
                     const { [idKey]: currentId, _id, id, ...payloadWithoutId } = item;
                     const payload = { ...payloadWithoutId, SectionId: Number(sectionId) };
-                    const url = itemId ? `${endpoint}/${itemId}` : endpoint;
-                    const method = itemId ? 'PUT' : 'POST';
-                    console.log(`Sending ${method} to: ${url}`, payload);
 
                     if (itemId) {
                         return axiosClient.put(`${endpoint}/${itemId}`, payload);
@@ -291,9 +329,9 @@ export default function UpdateSectionPage() {
                         <Form form={mainForm} layout="vertical">
                             <Row gutter={16}>
                                 <Col xs={24} md={12}>
-                                <Form.Item name="NameSection" label="Tên phân đoạn" rules={[{ required: true }]}><Input /></Form.Item>
+                                    <Form.Item name="NameSection" label="Tên phân đoạn"><Input /></Form.Item>
                                 </Col>
-                                <Col xs={24} md={6}><Form.Item name="Length" label="Chiều dài toàn tuyến (Km)" rules={[{ required: true }]}><InputNumber style={{ width: '100%' }} min={0} /></Form.Item></Col>
+                                <Col xs={24} md={6}><Form.Item name="Length" label="Chiều dài toàn tuyến (Km)"><InputNumber style={{ width: '100%' }} min={0} /></Form.Item></Col>
                                 <Col xs={24} md={6}>
                                     <Form.Item name="Status" label="Trạng thái hoạt động">
                                         <Select options={[
@@ -312,14 +350,80 @@ export default function UpdateSectionPage() {
                                 <Col xs={24} md={6}><Form.Item name="StartKm" label="Km Bắt đầu"><InputNumber style={{ width: '100%' }} /></Form.Item></Col>
                                 <Col xs={24} md={6}><Form.Item name="EndLocation" label="Điểm cuối"><Input /></Form.Item></Col>
                                 <Col xs={24} md={6}><Form.Item name="EndKm" label="Km Kết thúc"><InputNumber style={{ width: '100%' }} /></Form.Item></Col>
+                                <Col xs={24} md={12}>
+                                    <Form.Item
+                                        name="ProvinceIds"
+                                        label="Tỉnh / Thành phố đi qua"
+                                    >
+                                        <Select
+                                            mode="multiple"
+                                            allowClear
+                                            loading={loadingProvinces}
+                                            placeholder="Chọn các tỉnh/thành phố đi qua"
+                                            maxTagCount="responsive"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option) =>
+                                                (option?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())
+                                            }
+                                            options={provinces.map((prov) => ({
+                                                value: prov.ProvinceId,
+                                                label: prov.ProvinceName,
+                                            }))}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} md={12}>
+                                    <Form.Item
+                                        label="Dữ liệu Bản đồ GIS (File JSON / GeoJSON)"
+                                        extra={
+                                            sectionData?.MapData && (
+                                                <div style={{ marginTop: 4, fontSize: 12, color: '#666' }}>
+                                                    File hiện tại: <b>{sectionData.MapData.split('/').pop()}</b>
+                                                </div>
+                                            )
+                                        }
+                                    >
+                                        <Upload
+                                            accept=".json,.geojson"
+                                            maxCount={1}
+                                            beforeUpload={(file) => {
+                                                setMapDataFile(file);
+                                                return false;
+                                            }}
+                                            onRemove={() => setMapDataFile(null)}
+                                        >
+                                            <Button icon={<UploadOutlined />}>Tải lên file MapData mới (JSON)</Button>
+                                        </Upload>
+                                    </Form.Item>
+                                </Col>
                             </Row>
                             <Row gutter={16}>
-                                <Col xs={24} md={12}><Form.Item name="SpeedLimit" label="Mô tả / Giới hạn tốc độ"><Input.TextArea rows={4} /></Form.Item></Col>
+                                <Col xs={24} md={12}>
+                                    <Row gutter={16}>
+                                        <Col xs={24} md={12}>
+                                            <Form.Item name="TrafficLand" label="Số làn xe chạy"><InputNumber style={{ width: '100%' }} /></Form.Item>
+                                        </Col>
+                                        <Col xs={24} md={12}>
+                                            <Form.Item
+                                                name="HasEmergencyLand"
+                                                label="Làn dừng khẩn cấp"
+                                                style={{ width: '100%' }}
+                                            >
+                                                <Select placeholder="Chọn trạng thái">
+                                                    <Select.Option value={true}>Có</Select.Option>
+                                                    <Select.Option value={false}>Không</Select.Option>
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col xs={24}><Form.Item name="SpeedLimit" label="Mô tả / Giới hạn tốc độ"><Input.TextArea rows={4} /></Form.Item></Col>
+                                    </Row>
+                                </Col>
+
                                 <Col xs={24} md={12}>
                                     <Form.Item label="Hình ảnh biển báo tốc độ (SpeedSign)">
                                         {!isEditingSign ? (
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                                                {speedSignUrl ? <img src={getImageUrl(speedSignUrl)} alt="Sign" style={{ width: 240, height: 140, objectFit: 'contain' }} /> : <span>Chưa có biển báo</span>}
+                                                {speedSignUrl ? <img src={getImageUrl(speedSignUrl)} alt="Sign" style={{ width: 300, height: 200, objectFit: 'contain' }} /> : <span>Chưa có biển báo</span>}
                                                 <Button icon={<EditOutlined />} onClick={() => setIsEditingSign(true)}>Thay đổi biển báo</Button>
                                             </div>
                                         ) : (

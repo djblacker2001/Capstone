@@ -9,7 +9,7 @@ import axiosClient from "@/api/axiosClient";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 interface Sign {
     SignId: number;
     Symbol: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import { AppstoreOutlined, ArrowRightOutlined, CheckCircleOutlined, CompassOutlined, DashboardOutlined, GlobalOutlined, InfoCircleOutlined, ToolOutlined, WarningOutlined } from "@ant-design/icons";
-import { useState, useEffect, JSXElementConstructor, ReactElement, ReactNode, ReactPortal } from 'react';
+import { useState, useEffect } from 'react';
 import { Typography, Button, Row, Col, Card, Statistic, List, Badge, Spin, message, Empty, Table, Tag } from 'antd';
 import Layout from "./layout/Layout";
 import "./style.css";
@@ -12,7 +12,7 @@ import { t } from "i18next";
 
 
 const { Title, Paragraph, Text } = Typography;
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 const DynamicMapContainer = dynamic(() => import('./MapComponent'), {
   ssr: false,
@@ -22,7 +22,6 @@ const DynamicMapContainer = dynamic(() => import('./MapComponent'), {
     </div>
   )
 });
-
 interface Expressway {
   ExpresswayId: number;
   NameExpressway: string;
@@ -73,7 +72,7 @@ export default function Home() {
       const [resStats, resIncident, resMaintenance] = await Promise.all([
         fetch(`${baseUrl}/expressways/statistics`),
         fetch(`${baseUrl}/sections/search?status=Incident`),
-        fetch(`${baseUrl}/sections/search?status=Maintainance`)
+        fetch(`${baseUrl}/sections/search?status=Maintenance`)
       ]);
 
       if (!resStats.ok) throw new Error('Không thể lấy dữ liệu thống kê');
@@ -212,7 +211,7 @@ export default function Home() {
                         {t("home.infrastructure")}
                       </p>
                       <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#00a859' }}>
-                        482 <span style={{ fontSize: '14px', fontWeight: 'normal' }}>Điểm</span>
+                        482 <span style={{ fontSize: '14px', fontWeight: 'normal' }}>{t("home.score")}</span>
                       </h2>
                     </div>
                     <div style={{ background: '#00a859', padding: '10px', borderRadius: '10px', color: '#fff', fontSize: '20px', display: 'flex' }}>
