@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Form, Input, InputNumber, Select, Button, Card, Space, message, Row, Col, Spin, Upload } from 'antd';
+import { Form, Input, InputNumber, Select, Button, Card, Space, message, Row, Col, Spin, Upload, Checkbox } from 'antd';
 import { ArrowLeftOutlined, PlusOutlined, SaveOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import axiosClient from '@/api/axiosClient';
@@ -306,6 +306,9 @@ export default function CreateExpresswayPage() {
                                             Location: '',
                                             Longitude: 0,
                                             Latitude: 0,
+                                            BOT: 'Nop',
+                                            Connection: '',
+                                            Status: 'Complete',
                                         })
                                     }
                                 >
@@ -368,6 +371,45 @@ export default function CreateExpresswayPage() {
                                             />
                                         </Col>
                                     </Row>
+                                    <Row gutter={[12, 12]} align="middle" style={{ marginTop: 12 }}>
+                                        <Col span={10}>
+                                            <p style={{ margin: '0 0 4px 0', fontWeight: 500 }}>Kết nối tới tuyến đường / QL</p>
+                                            <Input
+                                                placeholder="Ví dụ: QL1A, QL45, ĐT848..."
+                                                value={item.Connection}
+                                                onChange={(e) => handleSubItemChange(setInterchanges, index, 'Connection', e.target.value)}
+                                            />
+                                        </Col>
+
+                                        <Col span={7}>
+                                            <p style={{ margin: '0 0 4px 0', fontWeight: 500 }}>Trạng thái BOT / Thu phí</p>
+                                            <Select
+                                                style={{ width: '100%' }}
+                                                value={item.BOT || 'Nop'}
+                                                onChange={(val) => handleSubItemChange(setInterchanges, index, 'BOT', val)}
+                                                options={[
+                                                    { value: 'Nop', label: 'Nop (Không có)' },
+                                                    { value: 'Operating', label: 'Operating (Đang hoạt động)' },
+                                                    { value: 'Under construction', label: 'Under construction (Đang thi công)' },
+                                                    { value: 'Not yet construction', label: 'Not yet construction (Chưa thi công)' },
+                                                ]}
+                                            />
+                                        </Col>
+
+                                        <Col span={7}>
+                                            <p style={{ margin: '0 0 4px 0', fontWeight: 500 }}>Trạng thái Nút giao</p>
+                                            <Select
+                                                style={{ width: '100%' }}
+                                                value={item.Status || 'Complete'}
+                                                onChange={(val) => handleSubItemChange(setInterchanges, index, 'Status', val)}
+                                                options={[
+                                                    { value: 'Complete', label: 'Complete (Hoàn thành)' },
+                                                    { value: 'Under construction', label: 'Under construction (Đang thi công)' },
+                                                    { value: 'Not yet construction', label: 'Not yet construction (Chưa thi công)' },
+                                                ]}
+                                            />
+                                        </Col>
+                                    </Row>
                                 </div>
                             ))}
                             {interchanges.length === 0 && <p style={{ color: '#8c8c8c', margin: 0 }}>Chưa có nút giao nào được thêm.</p>}
@@ -386,6 +428,10 @@ export default function CreateExpresswayPage() {
                                             Location: '',
                                             Longitude: 0,
                                             Latitude: 0,
+                                            HasPetrol: false,
+                                            HasFood: false,
+                                            HasToilet: true,
+                                            Status: 'Complete',
                                         })
                                     }
                                 >
@@ -395,7 +441,7 @@ export default function CreateExpresswayPage() {
                         >
                             {restStops.map((item, index) => (
                                 <div key={item._tempId || index} style={{ marginBottom: 16, borderBottom: '1px dashed #ccc', paddingBottom: 16 }}>
-                                    <Row gutter={12} align="middle">
+                                    <Row gutter={[12, 12]} align="middle">
                                         <Col span={7}>
                                             <p style={{ margin: '0 0 4px 0', fontWeight: 500 }}>Tên trạm dừng nghỉ</p>
                                             <Input
@@ -404,7 +450,8 @@ export default function CreateExpresswayPage() {
                                                 onChange={(e) => handleSubItemChange(setRestStops, index, 'NameRestStop', e.target.value)}
                                             />
                                         </Col>
-                                        <Col span={5}>
+
+                                        <Col span={4}>
                                             <p style={{ margin: '0 0 4px 0', fontWeight: 500 }}>Vị trí (Km)</p>
                                             <Input
                                                 placeholder="Vị trí (Km)"
@@ -412,7 +459,8 @@ export default function CreateExpresswayPage() {
                                                 onChange={(e) => handleSubItemChange(setRestStops, index, 'Location', e.target.value)}
                                             />
                                         </Col>
-                                        <Col span={5}>
+
+                                        <Col span={4}>
                                             <p style={{ margin: '0 0 4px 0', fontWeight: 500 }}>Kinh độ</p>
                                             <InputNumber
                                                 style={{ width: '100%' }}
@@ -421,7 +469,8 @@ export default function CreateExpresswayPage() {
                                                 onChange={(val) => handleSubItemChange(setRestStops, index, 'Longitude', val || 0)}
                                             />
                                         </Col>
-                                        <Col span={5}>
+
+                                        <Col span={4}>
                                             <p style={{ margin: '0 0 4px 0', fontWeight: 500 }}>Vĩ độ</p>
                                             <InputNumber
                                                 style={{ width: '100%' }}
@@ -430,6 +479,21 @@ export default function CreateExpresswayPage() {
                                                 onChange={(val) => handleSubItemChange(setRestStops, index, 'Latitude', val || 0)}
                                             />
                                         </Col>
+
+                                        <Col span={3}>
+                                            <p style={{ margin: '0 0 4px 0', fontWeight: 500 }}>Trạng thái</p>
+                                            <Select
+                                                style={{ width: '100%' }}
+                                                value={item.Status || 'Complete'}
+                                                onChange={(val) => handleSubItemChange(setRestStops, index, 'Status', val)}
+                                                options={[
+                                                    { value: 'Complete', label: 'Complete (Hoàn thành)' },
+                                                    { value: 'Under construction', label: 'Under construction (Đang thi công)' },
+                                                    { value: 'Not yet construction', label: 'Not yet construction (Chưa thi công)' },
+                                                ]}
+                                            />
+                                        </Col>
+
                                         <Col span={2} style={{ textAlign: 'center' }}>
                                             <p style={{ margin: '0 0 4px 0', fontWeight: 500 }}>Xóa</p>
                                             <Button
@@ -440,8 +504,37 @@ export default function CreateExpresswayPage() {
                                             />
                                         </Col>
                                     </Row>
+
+                                    <Row gutter={[12, 12]} align="middle" style={{ marginTop: 12 }}>
+                                        <Col span={24}>
+                                            <p style={{ margin: '0 0 8px 0', fontWeight: 500 }}>Tiện ích / Dịch vụ sẵn có:</p>
+                                            <Space size="large">
+                                                <Checkbox
+                                                    checked={Boolean(item.HasPetrol)}
+                                                    onChange={(e) => handleSubItemChange(setRestStops, index, 'HasPetrol', e.target.checked)}
+                                                >
+                                                    Trạm xăng
+                                                </Checkbox>
+
+                                                <Checkbox
+                                                    checked={Boolean(item.HasFood)}
+                                                    onChange={(e) => handleSubItemChange(setRestStops, index, 'HasFood', e.target.checked)}
+                                                >
+                                                    Ăn uống
+                                                </Checkbox>
+
+                                                <Checkbox
+                                                    checked={Boolean(item.HasToilet)}
+                                                    onChange={(e) => handleSubItemChange(setRestStops, index, 'HasToilet', e.target.checked)}
+                                                >
+                                                    Nhà vệ sinh
+                                                </Checkbox>
+                                            </Space>
+                                        </Col>
+                                    </Row>
                                 </div>
                             ))}
+
                             {restStops.length === 0 && <p style={{ color: '#8c8c8c', margin: 0 }}>Chưa có trạm dừng nghỉ nào được thêm.</p>}
                         </Card>
 

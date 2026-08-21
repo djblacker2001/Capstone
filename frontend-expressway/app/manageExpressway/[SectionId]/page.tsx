@@ -184,10 +184,10 @@ export default function UpdateSectionPage() {
             });
 
             if (Array.isArray(mainValues.ProvinceIds)) {
-            mainValues.ProvinceIds.forEach((id: number) => {
-                formData.append('ProvinceIds', String(id));
-            });
-        }
+                mainValues.ProvinceIds.forEach((id: number) => {
+                    formData.append('ProvinceIds', String(id));
+                });
+            }
 
             if (speedSignFile) {
                 formData.append('SpeedSign', speedSignFile);
@@ -250,6 +250,7 @@ export default function UpdateSectionPage() {
                 { title: 'Vị trí (Km)', dataIndex: 'Location', render: (l: any) => l ? `Km ${l}` : '-' },
                 { title: 'Loại', dataIndex: 'Type' },
                 { title: 'Đường kết nối', dataIndex: 'Connection' },
+                { title: 'Trạng thái BOT', dataIndex: 'BOT' },
                 { title: 'Trạng thái', dataIndex: 'Status' }
             );
         } else if (type === 'restStop') {
@@ -292,7 +293,7 @@ export default function UpdateSectionPage() {
             align: 'center',
             render: (_: any, record: any, index: number) => (
                 <Space size="small">
-                    <Button type="primary" ghost size="small" icon={<EditOutlined />} onClick={() => handleStartEditSubItem(record, index)}>Sửa</Button>
+                    <Button type="primary" ghost size="small" icon={<EditOutlined />} onClick={() => handleStartEditSubItem(record, index)}></Button>
                     <Popconfirm title="Xóa hạ tầng này?" onConfirm={() => handleDeleteSubItemFromState(index)} okText="Xóa" cancelText="Hủy" okButtonProps={{ danger: true }}>
                         <Button danger size="small" icon={<DeleteOutlined />} />
                     </Popconfirm>
@@ -465,27 +466,85 @@ export default function UpdateSectionPage() {
                         {editingSubIndex !== null && (
                             <Card type="inner" title={editingSubIndex >= 0 ? "Cập nhật thông tin hạ tầng" : "Thêm hạ tầng mới"} style={{ marginTop: 24, backgroundColor: '#fafafa' }} extra={<Button icon={<CloseOutlined />} onClick={handleCancelSubEdit}>Hủy</Button>}>
                                 <Form form={subForm} layout="vertical">
+                                    {/* Form Nút Giao */}
                                     {activeTab === 'interchange' && (
                                         <Row gutter={16}>
-                                            <Col xs={24} md={12}><Form.Item name="NameInterchange" label="Tên nút giao" rules={[{ required: true }]}><Input /></Form.Item></Col>
-                                            <Col xs={24} md={6}><Form.Item name="Location" label="Vị trí (Km)"><Input placeholder="VD: 182" /></Form.Item></Col>
-                                            <Col xs={24} md={6}><Form.Item name="Type" label="Loại nút giao"><Input placeholder="VD: Trumpet" /></Form.Item></Col>
-                                            <Col xs={24} md={12}><Form.Item name="Connection" label="Đường kết nối"><Input placeholder="VD: Ring Road 3, AH1" /></Form.Item></Col>
-                                            <Col xs={24} md={12}><Form.Item name="Status" label="Trạng thái"><Input placeholder="VD: Complete" /></Form.Item></Col>
+                                            <Col xs={24} md={12}>
+                                                <Form.Item name="NameInterchange" label="Tên nút giao" rules={[{ required: true }]}>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={6}>
+                                                <Form.Item name="Location" label="Vị trí (Km)">
+                                                    <Input placeholder="VD: 182" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={6}>
+                                                <Form.Item name="Type" label="Loại nút giao">
+                                                    <Input placeholder="VD: Trumpet" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="Connection" label="Đường kết nối">
+                                                    <Input placeholder="VD: Ring Road 3, AH1" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="BOT" label="Trạng thái BOT" initialValue="Nop">
+                                                    <Select options={[
+                                                        { value: 'Nop', label: 'Nop (Không có)' },
+                                                        { value: 'Operating', label: 'Operating (Đang hoạt động)' },
+                                                        { value: 'Under construction', label: 'Under construction (Đang thi công)' },
+                                                        { value: 'Not yet construction', label: 'Not yet construction (Chưa thi công)' },
+                                                    ]} />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="Status" label="Trạng thái Nút giao" initialValue="Complete">
+                                                    <Select options={[
+                                                        { value: 'Complete', label: 'Complete (Hoàn thành)' },
+                                                        { value: 'Under construction', label: 'Under construction (Đang thi công)' },
+                                                        { value: 'Not yet construction', label: 'Not yet construction (Chưa thi công)' },
+                                                    ]} />
+                                                </Form.Item>
+                                            </Col>
                                         </Row>
                                     )}
 
+                                    {/* Form Trạm Dừng Nghỉ */}
                                     {activeTab === 'restStop' && (
                                         <Row gutter={16}>
-                                            <Col xs={24} md={12}><Form.Item name="NameRestStop" label="Tên trạm dừng" rules={[{ required: true }]}><Input /></Form.Item></Col>
-                                            <Col xs={24} md={6}><Form.Item name="Location" label="Vị trí (Km)"><Input placeholder="VD: 227.7" /></Form.Item></Col>
-                                            <Col xs={24} md={6}><Form.Item name="Status" label="Trạng thái"><Input placeholder="VD: Operating" /></Form.Item></Col>
+                                            <Col xs={24} md={10}>
+                                                <Form.Item name="NameRestStop" label="Tên trạm dừng" rules={[{ required: true }]}>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={6}>
+                                                <Form.Item name="Location" label="Vị trí (Km)">
+                                                    <Input placeholder="VD: 227.7" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={8}>
+                                                <Form.Item name="Status" label="Trạng thái Trạm dừng" initialValue="Complete">
+                                                    <Select options={[
+                                                        { value: 'Complete', label: 'Complete (Hoàn thành)' },
+                                                        { value: 'Under construction', label: 'Under construction (Đang thi công)' },
+                                                        { value: 'Not yet construction', label: 'Not yet construction (Chưa thi công)' },
+                                                    ]} />
+                                                </Form.Item>
+                                            </Col>
                                             <Col xs={24} md={24}>
                                                 <Form.Item label="Tiện ích trạm">
                                                     <Space size="large">
-                                                        <Form.Item name="HasPetrol" valuePropName="checked" noStyle><Checkbox>Cây xăng</Checkbox></Form.Item>
-                                                        <Form.Item name="HasFood" valuePropName="checked" noStyle><Checkbox>Khu ăn uống</Checkbox></Form.Item>
-                                                        <Form.Item name="HasToilet" valuePropName="checked" noStyle><Checkbox>Nhà vệ sinh</Checkbox></Form.Item>
+                                                        <Form.Item name="HasPetrol" valuePropName="checked" noStyle>
+                                                            <Checkbox>Cây xăng</Checkbox>
+                                                        </Form.Item>
+                                                        <Form.Item name="HasFood" valuePropName="checked" noStyle>
+                                                            <Checkbox>Khu ăn uống</Checkbox>
+                                                        </Form.Item>
+                                                        <Form.Item name="HasToilet" valuePropName="checked" noStyle>
+                                                            <Checkbox>Nhà vệ sinh</Checkbox>
+                                                        </Form.Item>
                                                     </Space>
                                                 </Form.Item>
                                             </Col>
