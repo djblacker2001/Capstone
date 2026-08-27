@@ -14,8 +14,7 @@ interface SignDataType {
     Description: string;
     SignTypeId?: number;
 }
-
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export default function ManageSignPage() {
     const [loading, setLoading] = useState<boolean>(false);

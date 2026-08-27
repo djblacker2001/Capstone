@@ -8,7 +8,7 @@ import axiosClient from '@/api/axiosClient';
 import ProtectedRoute from '@/app/components/ProtectedRoute/ProtectedRoute';
 import MainLayout from '@/app/layout/Layout';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export default function UpdateSectionPage() {
     const params = useParams();
@@ -158,14 +158,18 @@ export default function UpdateSectionPage() {
         }
     };
 
-    const handleDeleteSubItemFromState = (index: number) => {
-        const filterList = (prevList: any[]) => prevList.filter((_, i) => i !== index);
+    const handleDeleteSubItemFromState = (record: any) => {
+        const id = record.InterchangeId || record.RestStopId || record.BridgeId || record.TunnelId || record._id;
+        const filterById = (prev: any[]) => prev.filter((item) => {
+            const itemId = item.InterchangeId || item.RestStopId || item.BridgeId || item.TunnelId || item._id;
+            return itemId ? itemId !== id : item !== record;
+        });
 
         switch (activeTab) {
-            case 'interchange': setInterchanges(filterList); break;
-            case 'restStop': setRestStops(filterList); break;
-            case 'bridge': setBridges(filterList); break;
-            case 'tunnel': setTunnels(filterList); break;
+            case 'interchange': setInterchanges(filterById); break;
+            case 'restStop': setRestStops(filterById); break;
+            case 'bridge': setBridges(filterById); break;
+            case 'tunnel': setTunnels(filterById); break;
         }
 
         message.success('Đã xóa khỏi danh sách tạm thời!');
@@ -247,16 +251,38 @@ export default function UpdateSectionPage() {
         if (type === 'interchange') {
             baseColumns.push(
                 { title: 'Tên nút giao', dataIndex: 'NameInterchange', render: (t: string) => <b>{t}</b> },
-                { title: 'Vị trí (Km)', dataIndex: 'Location', render: (l: any) => l ? `Km ${l}` : '-' },
+                {
+                    title: 'Vị trí (Km)',
+                    dataIndex: 'Location',
+                    sorter: (a: any, b: any) => {
+                        const kmA = parseFloat(String(a.Location || '').replace(/[^\d.-]/g, '')) || 0;
+                        const kmB = parseFloat(String(b.Location || '').replace(/[^\d.-]/g, '')) || 0;
+                        return kmA - kmB;
+                    },
+                    defaultSortOrder: 'ascend',
+                    render: (l: any) => l ? (String(l).startsWith('Km') ? l : `Km ${l}`) : '-'
+                },
                 { title: 'Loại', dataIndex: 'Type' },
+                { title: 'Kinh độ', dataIndex: 'Longitude' },
+                { title: 'Vi độ', dataIndex: 'Latitude' },
                 { title: 'Đường kết nối', dataIndex: 'Connection' },
                 { title: 'Trạng thái BOT', dataIndex: 'BOT' },
-                { title: 'Trạng thái', dataIndex: 'Status' }
+                { title: 'Trạng thái', dataIndex: 'Status' },
             );
         } else if (type === 'restStop') {
             baseColumns.push(
                 { title: 'Tên trạm dừng', dataIndex: 'NameRestStop', render: (t: string) => <b>{t}</b> },
-                { title: 'Vị trí (Km)', dataIndex: 'Location', render: (l: any) => l ? `Km ${l}` : '-' },
+                {
+                    title: 'Vị trí (Km)',
+                    dataIndex: 'Location',
+                    sorter: (a: any, b: any) => {
+                        const kmA = parseFloat(String(a.Location || '').replace(/[^\d.-]/g, '')) || 0;
+                        const kmB = parseFloat(String(b.Location || '').replace(/[^\d.-]/g, '')) || 0;
+                        return kmA - kmB;
+                    },
+                    defaultSortOrder: 'ascend',
+                    render: (l: any) => l ? (String(l).startsWith('Km') ? l : `Km ${l}`) : '-'
+                },
                 {
                     title: 'Tiện ích',
                     key: 'facilities',
@@ -291,10 +317,10 @@ export default function UpdateSectionPage() {
             key: 'action',
             width: 140,
             align: 'center',
-            render: (_: any, record: any, index: number) => (
+            render: (_: any, record: any) => (
                 <Space size="small">
-                    <Button type="primary" ghost size="small" icon={<EditOutlined />} onClick={() => handleStartEditSubItem(record, index)}></Button>
-                    <Popconfirm title="Xóa hạ tầng này?" onConfirm={() => handleDeleteSubItemFromState(index)} okText="Xóa" cancelText="Hủy" okButtonProps={{ danger: true }}>
+                    <Button type="primary" ghost size="small" icon={<EditOutlined />} onClick={() => handleStartEditSubItem(record)}></Button>
+                    <Popconfirm title="Xóa hạ tầng này?" onConfirm={() => handleDeleteSubItemFromState(record)} okText="Xóa" cancelText="Hủy" okButtonProps={{ danger: true }}>
                         <Button danger size="small" icon={<DeleteOutlined />} />
                     </Popconfirm>
                 </Space>
@@ -466,10 +492,9 @@ export default function UpdateSectionPage() {
                         {editingSubIndex !== null && (
                             <Card type="inner" title={editingSubIndex >= 0 ? "Cập nhật thông tin hạ tầng" : "Thêm hạ tầng mới"} style={{ marginTop: 24, backgroundColor: '#fafafa' }} extra={<Button icon={<CloseOutlined />} onClick={handleCancelSubEdit}>Hủy</Button>}>
                                 <Form form={subForm} layout="vertical">
-                                    {/* Form Nút Giao */}
                                     {activeTab === 'interchange' && (
                                         <Row gutter={16}>
-                                            <Col xs={24} md={12}>
+                                            <Col xs={24} md={6}>
                                                 <Form.Item name="NameInterchange" label="Tên nút giao" rules={[{ required: true }]}>
                                                     <Input />
                                                 </Form.Item>
@@ -482,6 +507,16 @@ export default function UpdateSectionPage() {
                                             <Col xs={24} md={6}>
                                                 <Form.Item name="Type" label="Loại nút giao">
                                                     <Input placeholder="VD: Trumpet" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={3}>
+                                                <Form.Item name="Longitude" label="Kinh độ">
+                                                    <InputNumber style={{ width: '100%' }} />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={3}>
+                                                <Form.Item name="Latitude" label="Vĩ độ">
+                                                    <InputNumber style={{ width: '100%' }} />
                                                 </Form.Item>
                                             </Col>
                                             <Col xs={24} md={8}>
@@ -511,7 +546,6 @@ export default function UpdateSectionPage() {
                                         </Row>
                                     )}
 
-                                    {/* Form Trạm Dừng Nghỉ */}
                                     {activeTab === 'restStop' && (
                                         <Row gutter={16}>
                                             <Col xs={24} md={10}>

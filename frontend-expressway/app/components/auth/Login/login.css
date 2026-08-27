@@ -1,9 +1,3 @@
-/* ==========================================================================
-   🟢 CÔ LẬP TOÀN BỘ FILE BẰNG CLASS .login-page-wrapper
-   Tất cả các thuộc tính bên dưới CHỈ CÓ TÁC DỤNG khi nằm trong trang Đăng nhập.
-   Khi quay về trang đầu, các thuộc tính này sẽ tự động vô hiệu hóa!
-   ========================================================================== */
-
 .login-page-wrapper * {
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
@@ -22,7 +16,7 @@
 }
 
 .login-page-wrapper .expr {
-    background-color: rgba(255, 255, 255, 0.1); 
+    background-color: rgba(255, 255, 255, 0.5); 
     width: 100%;
     min-height: 100vh;
     display: flex;
@@ -51,19 +45,16 @@
     letter-spacing: 1px;
 }
 
-/* Label */
 .login-page-wrapper .ant-form-item-label>label {
     font-weight: 600;
     color: #333;
 }
 
-/* Input */
 .login-page-wrapper .ant-input,
 .login-page-wrapper .ant-input-password {
     border-radius: 8px;
 }
 
-/* Focus input */
 .login-page-wrapper .ant-input:focus,
 .login-page-wrapper .ant-input-password:focus,
 .login-page-wrapper .ant-input-focused {
@@ -75,14 +66,12 @@
     justify-content: space-around;
 }
 
-/* Button */
 .login-page-wrapper .login {
     display: flex;
     justify-content: space-between;
     gap: 15px;
 }
 
-/* Giờ đây nút bấm 150px này chỉ áp dụng cho riêng trang Đăng nhập */
 .login-page-wrapper button {
     width: 150px !important;
     height: 40px !important;
@@ -125,7 +114,6 @@
     font-size: 0.85rem;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .login-page-wrapper .ant-form {
         width: 350px;

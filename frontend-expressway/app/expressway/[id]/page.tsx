@@ -9,7 +9,7 @@ import { CompassOutlined, SafetyCertificateOutlined, BranchesOutlined, CoffeeOut
 import MainLayout from '@/app/layout/Layout';
 import ProtectedRoute from '@/app/components/ProtectedRoute/ProtectedRoute';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 const DynamicMapContainer = dynamic(() => import('./MapComponent'), {
     ssr: false,
@@ -163,7 +163,13 @@ export default function ExpresswayPage() {
             title: 'Vị trí',
             dataIndex: 'Location',
             key: 'Location',
-            render: (km: string) => <Tag color="blue">Km {km}</Tag>
+            sorter: (a: InterchangeItem, b: InterchangeItem) => {
+                const kmA = parseFloat(String(a.Location || '').replace(/[^\d.-]/g, '')) || 0;
+                const kmB = parseFloat(String(b.Location || '').replace(/[^\d.-]/g, '')) || 0;
+                return kmA - kmB;
+            },
+            defaultSortOrder: 'ascend' as const,
+            render: (km: string) => <Tag color="blue">{km?.startsWith('Km') ? km : `Km ${km}`}</Tag>
         },
         {
             title: 'Loại hình',
@@ -216,7 +222,13 @@ export default function ExpresswayPage() {
             title: 'Vị trí',
             dataIndex: 'Location',
             key: 'Location',
-            render: (km: string) => <Tag color="green">Km {km}</Tag>
+            sorter: (a: RestStopItem, b: RestStopItem) => {
+                const kmA = parseFloat(String(a.Location || '').replace(/[^\d.-]/g, '')) || 0;
+                const kmB = parseFloat(String(b.Location || '').replace(/[^\d.-]/g, '')) || 0;
+                return kmA - kmB;
+            },
+            defaultSortOrder: 'ascend' as const,
+            render: (km: string) => <Tag color="green">{km?.startsWith('Km') ? km : `Km ${km}`}</Tag>
         },
         {
             title: 'Tiện ích dịch vụ',
@@ -253,13 +265,65 @@ export default function ExpresswayPage() {
     ];
 
     const bridgeColumns = [
-        { title: 'Tên cầu', dataIndex: 'NameBridge', key: 'NameBridge', render: (text: string) => <Text strong>{text}</Text> },
-        { title: 'Vị trí', dataIndex: 'Location', key: 'Location', render: (km: string) => <Tag color="orange">Km {km}</Tag> },
+        {
+            title: 'Tên cầu',
+            dataIndex: 'NameBridge',
+            key: 'NameBridge',
+            render: (text: string) => <Text strong>{text}</Text>
+        },
+        {
+            title: 'Chiều dài (m)',
+            dataIndex: 'Length',
+            key: 'Length',
+            render: (len: number) => <Tag color="blue">{len} m</Tag>
+        },
+        {
+            title: 'Loại cầu',
+            dataIndex: 'Type',
+            key: 'Type',
+            render: (type: string) => <Tag color="orange">{type}</Tag>
+        },
+        {
+            title: 'Vượt qua',
+            dataIndex: 'Crossing',
+            key: 'Crossing'
+        },
     ];
 
     const tunnelColumns = [
-        { title: 'Tên đường hầm', dataIndex: 'NameTunnel', key: 'NameTunnel', render: (text: string) => <Text strong>{text}</Text> },
-        { title: 'Vị trí', dataIndex: 'Location', key: 'Location', render: (km: string) => <Tag color="purple">Km {km}</Tag> },
+        {
+            title: 'Tên đường hầm',
+            dataIndex: 'NameTunnel',
+            key: 'NameTunnel',
+            render: (text: string) => <Text strong>{text}</Text>
+        },
+        {
+            title: 'Chiều dài (m)',
+            dataIndex: 'Length',
+            key: 'Length',
+            render: (len: number) => <Tag color="purple">{len} m</Tag>
+        },
+        {
+            title: 'Chiều cao (m)',
+            dataIndex: 'Height',
+            key: 'Height',
+            render: (h: number) => `${h} m`
+        },
+        {
+            title: 'Tốc độ (Min - Max)',
+            key: 'Speed',
+            render: (_: any, record: any) => `${record.MinSpeed} - ${record.MaxSpeed} km/h`
+        },
+        {
+            title: 'Hệ thống chiếu sáng',
+            dataIndex: 'HasLighting',
+            key: 'HasLighting',
+            render: (hasLighting: boolean) => (
+                <Tag color={hasLighting ? 'green' : 'red'}>
+                    {hasLighting ? 'Có' : 'Không'}
+                </Tag>
+            )
+        },
     ];
 
     if (loading) {
@@ -299,7 +363,7 @@ export default function ExpresswayPage() {
                     <BranchesOutlined /> Nút giao ({data.interchange?.length || 0})
                 </span>
             ),
-            children: <Table dataSource={data.interchange || []} columns={interchangeColumns} rowKey="InterchangeId" pagination={false} size="small" locale={{ emptyText: 'Chưa có dữ liệu nút giao' }} scroll={{ x: 'max-content' }}/>
+            children: <Table dataSource={data.interchange || []} columns={interchangeColumns} rowKey="InterchangeId" pagination={false} size="small" locale={{ emptyText: 'Chưa có dữ liệu nút giao' }} scroll={{ x: 'max-content' }} />
         },
         {
             key: '2',
@@ -308,7 +372,7 @@ export default function ExpresswayPage() {
                     <CoffeeOutlined /> Trạm dừng nghỉ ({data.restStop?.length || 0})
                 </span>
             ),
-            children: <Table dataSource={data.restStop || []} columns={restStopColumns} rowKey="RestStopId" pagination={false} size="small" locale={{ emptyText: 'Chưa có trạm dừng nghỉ' }} scroll={{ x: 'max-content' }}/>
+            children: <Table dataSource={data.restStop || []} columns={restStopColumns} rowKey="RestStopId" pagination={false} size="small" locale={{ emptyText: 'Chưa có trạm dừng nghỉ' }} scroll={{ x: 'max-content' }} />
         },
         {
             key: '3',
@@ -317,7 +381,7 @@ export default function ExpresswayPage() {
                     <EnvironmentOutlined /> Cầu ({data.bridge?.length || 0})
                 </span>
             ),
-            children: <Table dataSource={data.bridge || []} columns={bridgeColumns} rowKey="BridgeId" pagination={false} size="small" locale={{ emptyText: 'Chưa có dữ liệu cầu' }} scroll={{ x: 'max-content' }}/>
+            children: <Table dataSource={data.bridge || []} columns={bridgeColumns} rowKey="BridgeId" pagination={false} size="small" locale={{ emptyText: 'Chưa có dữ liệu cầu' }} scroll={{ x: 'max-content' }} />
         },
         {
             key: '4',
@@ -326,7 +390,7 @@ export default function ExpresswayPage() {
                     <CompassOutlined /> Đường hầm ({data.tunnel?.length || 0})
                 </span>
             ),
-            children: <Table dataSource={data.tunnel || []} columns={tunnelColumns} rowKey="TunnelId" pagination={false} size="small" locale={{ emptyText: 'Tuyến đường không có hầm' }} scroll={{ x: 'max-content' }}/>
+            children: <Table dataSource={data.tunnel || []} columns={tunnelColumns} rowKey="TunnelId" pagination={false} size="small" locale={{ emptyText: 'Tuyến đường không có hầm' }} scroll={{ x: 'max-content' }} />
         },
     ];
 

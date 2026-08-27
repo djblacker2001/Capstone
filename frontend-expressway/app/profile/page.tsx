@@ -152,7 +152,7 @@ export default function ProfilePage() {
                 backgroundRepeat: "no-repeat",
                 backgroundAttachment: "fixed",
                 width: "100%",
-                minHeight: "calc(100vh - 64px)",
+                minHeight: "100vh",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center"

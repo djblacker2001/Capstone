@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThanOrEqual, LessThanOrEqual, Repository, Like } from 'typeorm';
+import { MoreThanOrEqual, LessThanOrEqual, Repository, Like, In } from 'typeorm';
 import { Section } from './sections.entity';
 import { I18nContext, I18nService } from 'nestjs-i18n';
 import * as fs from 'fs';
@@ -12,6 +12,7 @@ import { Province } from '../provinces/provinces.entity';
 export class SectionsService {
     constructor(
         @InjectRepository(Section) private readonly sectionRepository: Repository<Section>,
+        @InjectRepository(Province) private readonly provinceRepository: Repository<Province>,
         private readonly i18n: I18nService,
     ) { }
 
@@ -164,17 +165,23 @@ export class SectionsService {
         if (rawProvinceIds !== undefined) {
             let provinceIdsArray: number[] = [];
             if (Array.isArray(rawProvinceIds)) {
-                provinceIdsArray = rawProvinceIds.map((pId) => Number(pId));
+                provinceIdsArray = rawProvinceIds.map((pId) => Number(pId)).filter((n) => !isNaN(n));
             } else if (typeof rawProvinceIds === 'string') {
                 try {
                     const parsed = JSON.parse(rawProvinceIds);
-                    provinceIdsArray = Array.isArray(parsed) ? parsed.map(Number) : [];
+                    provinceIdsArray = Array.isArray(parsed) ? parsed.map(Number).filter((n) => !isNaN(n)) : [];
                 } catch {
                     provinceIdsArray = rawProvinceIds.split(',').map((pId) => Number(pId.trim())).filter((n) => !isNaN(n));
                 }
             }
-
-            updatePayload.province = provinceIdsArray.map((pId) => ({ ProvinceId: pId } as Province));
+            if (provinceIdsArray.length > 0) {
+                const existingProvinces = await this.provinceRepository.findBy({
+                    ProvinceId: In(provinceIdsArray),
+                });
+                updatePayload.province = existingProvinces;
+            } else {
+                updatePayload.province = [];
+            }
         }
 
         const sectionToSave = this.sectionRepository.merge(existingSection, updatePayload);
@@ -195,8 +202,16 @@ export class SectionsService {
     }
 
     async remove(id: number): Promise<void> {
-        await this.findOneSection(id);
-        await this.sectionRepository.delete(id);
+        const section = await this.sectionRepository.findOne({
+            where: { SectionId: id },
+            relations: ['province'],
+        });
+
+        if (!section) {
+            throw new NotFoundException(`Section with ID ${id} not found`);
+        }
+
+        await this.sectionRepository.remove(section);
     }
 
     async getSectionStatistics() {

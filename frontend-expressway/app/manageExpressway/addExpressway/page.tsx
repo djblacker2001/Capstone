@@ -9,6 +9,7 @@ import ProtectedRoute from '@/app/components/ProtectedRoute/ProtectedRoute';
 import MainLayout from '@/app/layout/Layout';
 import "./addExpressway.css";
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 interface Province {
     ProvinceId: number;
     ProvinceName: string;

@@ -68,8 +68,11 @@ export class Section {
 
   @OneToMany(() => Tunnel, (tunnel) => tunnel.section)
   tunnel!: Interchange[];
-  
-  @ManyToMany(() => Province, (province) => province.section)
+
+  @ManyToMany(() => Province, (province) => province.section, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinTable({
     name: 'SectionProvince',
     joinColumn: {

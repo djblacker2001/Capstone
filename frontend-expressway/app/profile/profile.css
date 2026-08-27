@@ -1,7 +1,7 @@
 .profile-page-wrapper .expr {
     background-color: rgba(255, 255, 255, 0.5);
     width: 100%;
-    min-height: calc(100vh - 58px);
+    min-height: 100vh;
     padding: 100px;
 }
 
@@ -33,5 +33,9 @@
 @media (max-width: 768px) {
     .profile-page-wrapper .expr {
         padding: 50px 20px;
+    }
+
+    .profile-page-wrapper .form {
+        margin-top: 40px;
     }
 }

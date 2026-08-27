@@ -56,7 +56,7 @@ export default function Footer() {
                 </div>
 
                 <div className="footer-bottom">
-                    &copy; {currentYear} Expressway Management System in Vietnam {t("fotter.bottom")}
+                    &copy; {currentYear} {t("footer.bottom")}
                 </div>
             </div>
         </footer>
