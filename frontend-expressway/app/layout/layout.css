@@ -28,3 +28,9 @@
   transform: scale(1.1);
   background-color: #07642f;
 }
+
+@media (max-width: 768px) {
+    .main {
+      margin-top: 40px;
+    }
+}

@@ -104,26 +104,14 @@ export default function ManageExpresswayPage() {
         fetchData();
     }, []);
 
-    const handleFormSubmit = async () => {
+    const handleDelete = async (sectionId: number | string) => {
         try {
-            const values = await form.validateFields();
-            setLoading(true);
-
-            if (editingSection) {
-                await axiosClient.put(`/sections/${editingSection.SectionId}`, values);
-                message.success('Cập nhật phân đoạn thành công!');
-            } else {
-                await axiosClient.post('/sections', { ...values, ExpresswayId: 100 });
-                message.success('Thêm phân đoạn mới thành công!');
-            }
-
-            setIsModalOpen(false);
+            await axiosClient.delete(`/sections/${sectionId}`);
+            message.success('Xóa tuyến đường thành công!');
             fetchData();
         } catch (error: any) {
-            console.error('Lỗi khi lưu phân đoạn:', error);
-            message.error(error?.response?.data?.message || 'Thao tác thất bại!');
-        } finally {
-            setLoading(false);
+            console.error('Lỗi khi xóa:', error);
+            message.error(error?.response?.data?.message || 'Không thể xóa tuyến đường này!');
         }
     };
 
@@ -216,20 +204,38 @@ export default function ManageExpresswayPage() {
         {
             title: 'Thao tác',
             key: 'action',
-            width: 180,
+            width: 220,
             align: 'center' as const,
-            render: (_: any, record: SectionType) => (
-                <Link href={`/manageExpressway/${(record as any).id || record.SectionId}`}>
-                    <Button
-                        type="primary"
-                        icon={<EditOutlined />}
-                        style={{ backgroundColor: '#1677ff' }}
-                    >
-                        Cập nhật tuyến đường
-                    </Button>
-                </Link>
-            ),
-        },
+            render: (_: any, record: SectionType) => {
+                const targetId = (record as any).id || record.SectionId;
+
+                return (
+                    <Space size="middle">
+                        <Link href={`/manageExpressway/${targetId}`}>
+                            <Button
+                                type="primary"
+                                icon={<EditOutlined />}
+                                style={{ backgroundColor: '#1677ff' }}
+                            >
+                                Cập nhật
+                            </Button>
+                        </Link>
+                        <Popconfirm
+                            title="Xóa tuyến đường"
+                            description="Bạn có chắc chắn muốn xóa tuyến đường này không?"
+                            onConfirm={() => handleDelete(targetId)}
+                            okText="Xóa"
+                            cancelText="Hủy"
+                            okButtonProps={{ danger: true }}
+                        >
+                            <Button danger icon={<DeleteOutlined />}>
+                                Xóa
+                            </Button>
+                        </Popconfirm>
+                    </Space>
+                );
+            },
+        }
     ];
 
     return (

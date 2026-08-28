@@ -92,9 +92,7 @@ export default function CreateExpresswayPage() {
             formData.append('SpeedLimit', values.SpeedLimit || '');
 
             if (Array.isArray(values.ProvinceIds)) {
-                values.ProvinceIds.forEach((id: any) => {
-                    formData.append('ProvinceIds', String(id));
-                });
+                formData.append('ProvinceIds', JSON.stringify(values.ProvinceIds.map(Number)));
             }
 
             if (imageFile) formData.append('Image', imageFile);
@@ -265,7 +263,7 @@ export default function CreateExpresswayPage() {
                                     </Col>
                                     <Col xs={24} md={6}>
                                         <Form.Item name="StartKm" label="Km Bắt đầu">
-                                            <InputNumber style={{width:"100%"}} />
+                                            <InputNumber style={{ width: "100%" }} />
                                         </Form.Item>
                                     </Col>
                                     <Col xs={24} md={6}>
@@ -275,7 +273,7 @@ export default function CreateExpresswayPage() {
                                     </Col>
                                     <Col xs={24} md={6}>
                                         <Form.Item name="EndKm" label="Km Kết thúc">
-                                            <InputNumber style={{width:"100%"}} />
+                                            <InputNumber style={{ width: "100%" }} />
                                         </Form.Item>
                                     </Col>
                                     <Col xs={24} md={12}>
