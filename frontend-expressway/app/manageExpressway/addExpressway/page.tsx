@@ -24,6 +24,10 @@ export default function CreateExpresswayPage() {
     const [bridges, setBridges] = useState<any[]>([]);
     const [restStops, setRestStops] = useState<any[]>([]);
     const [tunnels, setTunnels] = useState<any[]>([]);
+
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string>('');
+
     const [speedSignFile, setSpeedSignFile] = useState<File | null>(null);
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [loadingProvinces, setLoadingProvinces] = useState<boolean>(false);
@@ -74,44 +78,59 @@ export default function CreateExpresswayPage() {
         try {
             const values = await form.validateFields();
             setLoading(true);
-            let parsedMapData = null;
-            if (mapDataFile) {
-                try {
-                    const text = await mapDataFile.text();
-                    parsedMapData = JSON.parse(text);
-                } catch (err) {
-                    message.error('File MapData không đúng định dạng JSON!');
-                    setLoading(false);
-                    return;
+            const formData = new FormData();
+            formData.append('ExpresswayId', String(values.ExpresswayId));
+            formData.append('NameSection', values.NameSection);
+            formData.append('Length', String(values.Length));
+            formData.append('Status', values.Status);
+            formData.append('StartLocation', values.StartLocation || '');
+            formData.append('StartKm', String(values.StartKm || 0));
+            formData.append('EndLocation', values.EndLocation || '');
+            formData.append('EndKm', String(values.EndKm || 0));
+            formData.append('TrafficLand', String(values.TrafficLand ?? 4));
+            formData.append('HasEmergencyLand', String(values.HasEmergencyLand ?? false));
+            formData.append('SpeedLimit', values.SpeedLimit || '');
+
+            if (Array.isArray(values.ProvinceIds)) {
+                values.ProvinceIds.forEach((id: any) => {
+                    formData.append('ProvinceIds', String(id));
+                });
+            }
+
+            if (imageFile) formData.append('Image', imageFile);
+            if (speedSignFile) formData.append('SpeedSign', speedSignFile);
+            if (mapDataFile) formData.append('MapData', mapDataFile);
+
+            const sectionRes: any = await axiosClient.post('/sections', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+
+            const createdSection = sectionRes?.data?.data || sectionRes?.data || sectionRes;
+            const newSectionId = createdSection?.SectionId || createdSection?.id || createdSection?._id;
+            if (newSectionId) {
+                const cleanPayload = (items: any[]) =>
+                    items.map(({ _tempId, ...item }) => ({
+                        ...item,
+                        SectionId: Number(newSectionId),
+                    }));
+
+                const subItemRequests = [
+                    ...cleanPayload(interchanges).map((item) => axiosClient.post('/interchanges', item)),
+                    ...cleanPayload(restStops).map((item) => axiosClient.post('/rest-stops', item)),
+                    ...cleanPayload(bridges).map((item) => axiosClient.post('/bridges', item)),
+                    ...cleanPayload(tunnels).map((item) => axiosClient.post('/tunnels', item)),
+                ];
+
+                if (subItemRequests.length > 0) {
+                    await Promise.all(subItemRequests);
                 }
             }
 
-            const provinceIds = Array.isArray(values.ProvinceIds)
-                ? values.ProvinceIds.map((id: any) => Number(id))
-                : [];
-
-            const sectionPayload = {
-                ExpresswayId: Number(values.ExpresswayId),
-                NameSection: values.NameSection,
-                Length: Number(values.Length),
-                Status: values.Status,
-                StartLocation: values.StartLocation || '',
-                StartKm: Number(values.StartKm) || 0,
-                EndLocation: values.EndLocation || '',
-                EndKm: Number(values.EndKm) || 0,
-                TrafficLand: values.TrafficLand ? Number(values.TrafficLand) : 4,
-                HasEmergencyLand: values.HasEmergencyLand ?? false,
-                Description: values.Description || '',
-                MapData: parsedMapData,
-                ProvinceIds: provinceIds,
-            };
-
-            console.log('Payload gửi lên /sections:', sectionPayload);
-
-            const sectionRes = await axiosClient.post('/sections', sectionPayload);
-
+            message.success('Thêm mới phân đoạn thành công!');
+            router.push('/manageExpressway');
         } catch (error: any) {
             console.error('Lỗi khi thêm mới:', error);
+            message.error(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo mới!');
         } finally {
             setLoading(false);
         }
@@ -137,6 +156,53 @@ export default function CreateExpresswayPage() {
                         <Card title="Thông tin phân đoạn" style={{ marginBottom: 24 }}>
                             <Form form={form} layout="vertical">
                                 <Row gutter={16}>
+                                    <Col xs={24} md={24}>
+                                        <Form.Item label="Avatar Expressway">
+                                            <Upload
+                                                name="file"
+                                                listType="picture-card"
+                                                maxCount={1}
+                                                showUploadList={false}
+                                                accept="image/*"
+                                                beforeUpload={(file) => {
+                                                    setImageFile(file);
+                                                    setImagePreview(URL.createObjectURL(file));
+                                                    return false;
+                                                }}
+                                                onRemove={() => {
+                                                    setImageFile(null);
+                                                    setImagePreview('');
+                                                }}
+                                            >
+                                                {imagePreview ? (
+                                                    <img
+                                                        src={imagePreview}
+                                                        alt="Avatar Preview"
+                                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }}
+                                                    />
+                                                ) : (
+                                                    <div>
+                                                        <PlusOutlined />
+                                                        <div style={{ marginTop: 8 }}>Tải ảnh Avatar</div>
+                                                    </div>
+                                                )}
+                                            </Upload>
+
+                                            {imageFile && (
+                                                <Button
+                                                    type="link"
+                                                    danger
+                                                    onClick={() => {
+                                                        setImageFile(null);
+                                                        setImagePreview('');
+                                                    }}
+                                                    style={{ paddingLeft: 0, marginTop: 4 }}
+                                                >
+                                                    Xóa ảnh đã chọn
+                                                </Button>
+                                            )}
+                                        </Form.Item>
+                                    </Col>
                                     <Col xs={24} md={6}>
                                         <Form.Item
                                             name="ExpresswayId"
@@ -149,7 +215,7 @@ export default function CreateExpresswayPage() {
                                                 options={[
                                                     { value: 100, label: 'Cao tốc Bắc - Nam phía Đông (Eastern North South Expressway)' },
                                                     { value: 200, label: 'Cao tốc Bắc - Nam phía Tây (Western North South Expressway)' },
-                                                    { value: 300, label: 'Tuyến Cao tốc Độc lập (Unique Expressways)' },
+                                                    { value: 300, label: 'Các Tuyến Cao tốc Độc lập (Unique Expressways)' },
                                                 ]}
                                             />
                                         </Form.Item>
@@ -199,7 +265,7 @@ export default function CreateExpresswayPage() {
                                     </Col>
                                     <Col xs={24} md={6}>
                                         <Form.Item name="StartKm" label="Km Bắt đầu">
-                                            <Input placeholder="VD: 54+000" />
+                                            <InputNumber style={{width:"100%"}} />
                                         </Form.Item>
                                     </Col>
                                     <Col xs={24} md={6}>
@@ -209,7 +275,7 @@ export default function CreateExpresswayPage() {
                                     </Col>
                                     <Col xs={24} md={6}>
                                         <Form.Item name="EndKm" label="Km Kết thúc">
-                                            <Input placeholder="VD: 132+500" />
+                                            <InputNumber style={{width:"100%"}} />
                                         </Form.Item>
                                     </Col>
                                     <Col xs={24} md={12}>

@@ -23,15 +23,22 @@ export default function UpdateSectionPage() {
     const [restStops, setRestStops] = useState<any[]>([]);
     const [bridges, setBridges] = useState<any[]>([]);
     const [tunnels, setTunnels] = useState<any[]>([]);
+
     const [speedSignFile, setSpeedSignFile] = useState<File | null>(null);
     const [speedSignUrl, setSpeedSignUrl] = useState<string>('');
     const [isEditingSign, setIsEditingSign] = useState<boolean>(false);
+
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageUrl, setImageUrl] = useState<string>('');
+    const [isEditingImage, setIsEditingImage] = useState<boolean>(false);
+
     const [activeTab, setActiveTab] = useState<string>('interchange');
     const [editingSubIndex, setEditingSubIndex] = useState<number | null>(null);
     const [provinces, setProvinces] = useState<any[]>([]);
     const [loadingProvinces, setLoadingProvinces] = useState<boolean>(false);
     const [mapDataFile, setMapDataFile] = useState<File | null>(null);
-    const [imageFile, setImageFile] = useState<File | null>(null);
+
+
 
     const [mainForm] = Form.useForm();
     const [subForm] = Form.useForm();
@@ -85,6 +92,10 @@ export default function UpdateSectionPage() {
                     SpeedLimit: data.SpeedLimit,
                     ProvinceIds: selectedProvinceIds,
                 });
+
+                setImageUrl(data.Image || '');
+                setIsEditingImage(false);
+                setImageFile(null);
 
                 setSpeedSignUrl(data.SpeedSign || '');
                 setIsEditingSign(false);
@@ -182,7 +193,7 @@ export default function UpdateSectionPage() {
             const formData = new FormData();
 
             Object.keys(mainValues).forEach((key) => {
-                if (mainValues[key] !== undefined && mainValues[key] !== null) {
+                if (key !== 'ProvinceIds' && mainValues[key] !== undefined && mainValues[key] !== null) {
                     formData.append(key, mainValues[key]);
                 }
             });
@@ -355,10 +366,29 @@ export default function UpdateSectionPage() {
                     <Card title={`CẬP NHẬT THÔNG TIN: ${sectionData?.NameSection?.toUpperCase() || 'PHÂN ĐOẠN CAO TỐC'}`} style={{ marginBottom: 24, borderRadius: 8 }} extra={<Button type="primary" icon={<SaveOutlined />} loading={submitting} onClick={handleSaveAll} size="large">Lưu Tất Cả Thay Đổi</Button>}>
                         <Form form={mainForm} layout="vertical">
                             <Row gutter={16}>
+                                <Col xs={24} md={24}>
+                                    <Form.Item label="Avatar Expressway">
+                                        {!isEditingImage ? (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                                {imageUrl ? <img src={getImageUrl(imageUrl)} alt="Sign" style={{ width: 300, height: 200, objectFit: 'contain' }} /> : <span>No Image</span>}
+                                                <Button icon={<EditOutlined />} onClick={() => setIsEditingImage(true)}>Thay đổi avatar</Button>
+                                            </div>
+                                        ) : (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                                <Upload name="file" listType="picture-card" maxCount={1} beforeUpload={(f) => { setImageFile(f); return false; }} onRemove={() => setImageFile(null)}>
+                                                    {!speedSignFile && <div><PlusOutlined /><div style={{ marginTop: 8 }}>Chọn ảnh mới</div></div>}
+                                                </Upload>
+                                                <Button type="link" danger onClick={() => { setIsEditingImage(false); setImageFile(null); }}>Hủy</Button>
+                                            </div>
+                                        )}
+                                    </Form.Item>
+                                </Col>
                                 <Col xs={24} md={12}>
                                     <Form.Item name="NameSection" label="Tên phân đoạn"><Input /></Form.Item>
                                 </Col>
-                                <Col xs={24} md={6}><Form.Item name="Length" label="Chiều dài toàn tuyến (Km)"><InputNumber style={{ width: '100%' }} min={0} /></Form.Item></Col>
+                                <Col xs={24} md={6}>
+                                    <Form.Item name="Length" label="Chiều dài toàn tuyến (Km)"><InputNumber style={{ width: '100%' }} min={0} /></Form.Item>
+                                </Col>
                                 <Col xs={24} md={6}>
                                     <Form.Item name="Status" label="Trạng thái hoạt động">
                                         <Select options={[
