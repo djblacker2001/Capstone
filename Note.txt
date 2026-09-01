@@ -18,3 +18,15 @@ email: hoang.vu.cit23@eiu.edu.vn
 pass: hoang123456
 
 NEXT_PUBLIC_API_URL=http://localhost:8080
+
+1. Phát triển Ứng dụng Di động
+Tích hợp tính năng định vị GPS chạy ngầm dưới nền để theo dõi vị trí real-time của xe ngay cả khi tài xế tắt màn hình hoặc chuyển ứng dụng.
+Xây dựng tính năng phát cảnh báo bằng giọng nói (ví dụ: "Bạn đang chạy quá tốc độ 80km/h", "Sắp đến trạm dừng nghỉ cách 1km") dựa trên vị trí GPS và dữ liệu tốc độ/hạ tầng
+
+2. Tích hợp Bản đồ & Dẫn đường
+Tích hợp công cụ bản đồ Mapbox hoặc OSRM (Open Source Routing Machine) để hiển thị bản đồ trực quan.
+Tính toán lộ trình và chỉ đường từng chặng trực tiếp trên Mobile App.
+
+3. Deploy Hệ thống
+Đưa toàn bộ hệ thống lên môi trường Cloud.
+Cấu hình để Mobile App và Web Admin có thể truy cập, gọi API ổn định qua môi trường Internet thực tế.

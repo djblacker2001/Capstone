@@ -10,7 +10,6 @@ import { useTranslation } from "react-i18next";
 import axiosClient from "@/api/axiosClient";
 import { t } from "i18next";
 
-
 const { Title, Paragraph, Text } = Typography;
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
