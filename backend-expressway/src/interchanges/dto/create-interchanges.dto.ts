@@ -17,6 +17,12 @@ export class CreateInterchangeDto {
     Location?: string;
 
     @ApiProperty()
+    Longitude?: number;
+
+    @ApiProperty()
+    Latitude?: number;
+
+    @ApiProperty()
     BOT?: string;
 
     @ApiProperty()

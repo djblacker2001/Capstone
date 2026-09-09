@@ -169,18 +169,13 @@ export default function UpdateSectionPage() {
         }
     };
 
-    const handleDeleteSubItemFromState = (record: any) => {
-        const id = record.InterchangeId || record.RestStopId || record.BridgeId || record.TunnelId || record._id;
-        const filterById = (prev: any[]) => prev.filter((item) => {
-            const itemId = item.InterchangeId || item.RestStopId || item.BridgeId || item.TunnelId || item._id;
-            return itemId ? itemId !== id : item !== record;
-        });
-
+    const handleDeleteSubItemFromState = (indexToDelete: number) => {
+        const filterByIndex = (prev: any[]) => prev.filter((_, index) => index !== indexToDelete);
         switch (activeTab) {
-            case 'interchange': setInterchanges(filterById); break;
-            case 'restStop': setRestStops(filterById); break;
-            case 'bridge': setBridges(filterById); break;
-            case 'tunnel': setTunnels(filterById); break;
+            case 'interchange': setInterchanges(filterByIndex); break;
+            case 'restStop': setRestStops(filterByIndex); break;
+            case 'bridge': setBridges(filterByIndex); break;
+            case 'tunnel': setTunnels(filterByIndex); break;
         }
 
         message.success('Đã xóa khỏi danh sách tạm thời!');
@@ -328,10 +323,10 @@ export default function UpdateSectionPage() {
             key: 'action',
             width: 140,
             align: 'center',
-            render: (_: any, record: any) => (
+            render: (_: any, record: any, index: number) => (
                 <Space size="small">
-                    <Button type="primary" ghost size="small" icon={<EditOutlined />} onClick={() => handleStartEditSubItem(record)}></Button>
-                    <Popconfirm title="Xóa hạ tầng này?" onConfirm={() => handleDeleteSubItemFromState(record)} okText="Xóa" cancelText="Hủy" okButtonProps={{ danger: true }}>
+                    <Button type="primary" ghost size="small" icon={<EditOutlined />} onClick={() => handleStartEditSubItem(record, index)}></Button>
+                    <Popconfirm title="Xóa hạ tầng này?" onConfirm={() => handleDeleteSubItemFromState(index)} okText="Xóa" cancelText="Hủy" okButtonProps={{ danger: true }}>
                         <Button danger size="small" icon={<DeleteOutlined />} />
                     </Popconfirm>
                 </Space>
@@ -520,7 +515,12 @@ export default function UpdateSectionPage() {
                         />
 
                         {editingSubIndex !== null && (
-                            <Card type="inner" title={editingSubIndex >= 0 ? "Cập nhật thông tin hạ tầng" : "Thêm hạ tầng mới"} style={{ marginTop: 24, backgroundColor: '#fafafa' }} extra={<Button icon={<CloseOutlined />} onClick={handleCancelSubEdit}>Hủy</Button>}>
+                            <Card
+                                type="inner"
+                                title={editingSubIndex !== null && editingSubIndex >= 0 ? "Cập nhật thông tin hạ tầng" : "Thêm hạ tầng mới"}
+                                style={{ marginTop: 24, backgroundColor: '#fafafa' }}
+                                extra={<Button icon={<CloseOutlined />} onClick={handleCancelSubEdit}>Hủy</Button>}
+                            >
                                 <Form form={subForm} layout="vertical">
                                     {activeTab === 'interchange' && (
                                         <Row gutter={16}>

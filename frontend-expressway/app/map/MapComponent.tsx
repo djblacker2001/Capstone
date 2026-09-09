@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;

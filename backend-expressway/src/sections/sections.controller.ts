@@ -13,24 +13,26 @@ import * as fs from 'fs';
 
 const sectionMulterStorage = diskStorage({
   destination: (req, file, cb) => {
-    const isJson = extname(file.originalname).toLowerCase() === '.json';
-    const folderPath = isJson ? './uploads/maps' : './uploads/ways';
+    let subFolder = 'ways';
+    if (file.fieldname === 'MapData') {
+      subFolder = 'maps';
+    } else if (file.fieldname === 'SpeedSign') {
+      subFolder = 'signs';
+    } else if (file.fieldname === 'Image') {
+      subFolder = 'ways';
+    }
 
+    const folderPath = `./uploads/${subFolder}`;
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
     }
+
     cb(null, folderPath);
   },
 
   filename: (req, file, cb) => {
-    const isJson = extname(file.originalname).toLowerCase() === '.json';
-
-    if (isJson) {
-      cb(null, `${Date.now()}-${file.originalname}`);
-    } else {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      cb(null, `img-${uniqueSuffix}${extname(file.originalname)}`);
-    }
+    const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+    cb(null, originalName);
   },
 });
 

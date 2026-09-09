@@ -122,6 +122,9 @@
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   width: 100%;
   z-index: 10;
+  border: none !important;
+  outline: none !important;
+  overflow: hidden;
 }
 
 #discover .map-small {
@@ -138,7 +141,7 @@
   height: 100vh !important;
   z-index: 9999 !important;
   background-color: #0f172a;
-  padding: 10px;
+  padding: 0;
 }
 
 .leaflet-fullscreen-btn {

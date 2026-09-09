@@ -5,7 +5,8 @@ export default function HomeScreen() {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Expressway Management System</Text>
-            <Text style={styles.subtitle}>Hệ thống quản lý Đường cao tốc</Text>
+            <Text style={styles.subtitle}>Hệ thống quản lý không gian hạ tầng đường cao tốc VN</Text>
+            
         </View>
     );
 }

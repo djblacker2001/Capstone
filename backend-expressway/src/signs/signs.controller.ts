@@ -14,8 +14,8 @@ const multerOptions = {
   storage: diskStorage({
     destination: './uploads/signs',
     filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
+      const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+      cb(null, originalName);
     },
   }),
 };
@@ -55,7 +55,7 @@ export class SignsController {
       ...createSignDto,
       Image: file ? file.path.replace(/\\/g, '/') : undefined,
     };
-    return this.signsService.create(createSignDto);
+    return this.signsService.create(dataPayload);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
