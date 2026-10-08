@@ -3,18 +3,15 @@
 import React, { useEffect, useState } from 'react';
 import { Area } from '@ant-design/plots';
 import { Card, Spin, message } from 'antd';
+import { useTranslation } from 'react-i18next';
 
-interface ChartDataItem {
-    month: string;
-    vehicleCount: number;
-    revenue: number;
-}
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export default function RevenueChart() {
     const [data, setData] = useState<ChartDataItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
+    const { t, i18n } = useTranslation();
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -78,7 +75,7 @@ export default function RevenueChart() {
     if (loading) {
         return (
             <Card bordered={false} style={{ width: '100%', borderRadius: '12px', textAlign: 'center', padding: '40px' }}>
-                <Spin tip="Loading analytics chart data..." />
+                <Spin description="Loading analytics chart data..." />
             </Card>
         );
     }
@@ -122,7 +119,7 @@ export default function RevenueChart() {
         },
         axis: {
             y: {
-                title: 'Billion VND',
+                title: t("dashboard.billion"),
                 labelFormatter: (v: number) => `${v / 1000000000}`,
             },
             x: {
@@ -133,14 +130,9 @@ export default function RevenueChart() {
             items: [
                 {
                     channel: 'y',
-                    name: 'Revenue',
-                    valueFormatter: (v: number) => `${(v / 1000000000).toFixed(2)} Billion VND`
+                    name: t("dashboard.revenue"),
+                    valueFormatter: (v: number) => `${(v / 1000000000).toFixed(2)} ${t("dashboard.billion")}`
                 },
-                {
-                    name: 'Traffic Volume',
-                    field: 'vehicleCount',
-                    valueFormatter: (v: number) => `${v.toLocaleString()} vehicles`
-                }
             ],
         },
     };
@@ -164,12 +156,11 @@ export default function RevenueChart() {
                     color: '#000',
                     margin: 0
                 }}>
-                    Expressway Toll Collection Revenue Metrics
+                    {t("dashboard.expresswayRevenue")}
                 </h2>
             </div>
 
             <div style={{ height: '450px' }}>
-                {/* 🎯 Thay thế thẻ Line thành thẻ Area */}
                 {data.length > 0 ? <Area {...config} /> : <div style={{ textAlign: 'center', paddingTop: '200px', color: '#999' }}>Không có dữ liệu hiển thị</div>}
             </div>
         </Card>

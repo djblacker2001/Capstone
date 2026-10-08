@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, Put, Delete, Query, UseGuards, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, Put, Delete, Query, UseGuards, UseInterceptors, UploadedFiles, Patch } from '@nestjs/common';
 import { SectionsService } from './sections.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -7,12 +7,13 @@ import { ApiBearerAuth, ApiConsumes, ApiQuery } from '@nestjs/swagger';
 import { CreateSectionDto } from './dto/create-sections.dto';
 import { UpdateSectionDto } from './dto/update-sections.dto';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { join } from 'path';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
 
 const sectionMulterStorage = diskStorage({
   destination: (req, file, cb) => {
+    console.log('>>> [MULTER RUNNING] Đang xử lý file:', file.fieldname, file.originalname);
     let subFolder = 'ways';
     if (file.fieldname === 'MapData') {
       subFolder = 'maps';
@@ -22,19 +23,33 @@ const sectionMulterStorage = diskStorage({
       subFolder = 'ways';
     }
 
-    const folderPath = `./uploads/${subFolder}`;
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true });
+    const absolutePath = join(process.cwd(), 'uploads', subFolder);
+    if (!fs.existsSync(absolutePath)) {
+      fs.mkdirSync(absolutePath, { recursive: true });
     }
 
-    cb(null, folderPath);
+    cb(null, absolutePath);
   },
 
   filename: (req, file, cb) => {
-    const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
-    cb(null, originalName);
+    const cleanName = Buffer.from(file.originalname, 'latin1')
+      .toString('utf8')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+      .replace(/\s+/g, '-');
+
+    const randomPrefix = Math.random().toString(36).substring(2, 6);
+    cb(null, `${randomPrefix}-${cleanName}`);
   },
 });
+
+const getRelativeUploadPath = (file?: Express.Multer.File) => {
+  if (!file) return undefined;
+  const normalizedPath = file.path.replace(/\\/g, '/');
+  const uploadIndex = normalizedPath.indexOf('uploads/');
+  return uploadIndex !== -1 ? normalizedPath.substring(uploadIndex) : normalizedPath;
+};
 
 @ApiBearerAuth()
 @Controller('sections')
@@ -103,9 +118,9 @@ export class SectionsController {
       MapData?: Express.Multer.File[];
     }
   ) {
-    const imagePath = files?.Image?.[0] ? files.Image[0].path.replace(/\\/g, '/') : undefined;
-    const speedSignPath = files?.SpeedSign?.[0] ? files.SpeedSign[0].path.replace(/\\/g, '/') : undefined;
-    const mapPath = files?.MapData?.[0] ? files.MapData[0].path.replace(/\\/g, '/') : undefined;
+    const imagePath = getRelativeUploadPath(files?.Image?.[0]);
+    const speedSignPath = getRelativeUploadPath(files?.SpeedSign?.[0]);
+    const mapPath = getRelativeUploadPath(files?.MapData?.[0]);
 
     const dataPayload = {
       ...createSectionDto,
@@ -119,7 +134,7 @@ export class SectionsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  @Put(':id')
+  @Patch(':id')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileFieldsInterceptor([
@@ -137,9 +152,10 @@ export class SectionsController {
       MapData?: Express.Multer.File[];
     }
   ) {
-    const newImagePath = files?.Image?.[0] ? files.Image[0].path.replace(/\\/g, '/') : undefined;
-    const newSpeedSignPath = files?.SpeedSign?.[0] ? files.SpeedSign[0].path.replace(/\\/g, '/') : undefined;
-    const newMapPath = files?.MapData?.[0] ? files.MapData[0].path.replace(/\\/g, '/') : undefined;
+    console.log('>>> [CONTROLLER FILES]:', files);
+    const newImagePath = getRelativeUploadPath(files?.Image?.[0]);
+    const newSpeedSignPath = getRelativeUploadPath(files?.SpeedSign?.[0]);
+    const newMapPath = getRelativeUploadPath(files?.MapData?.[0]);
 
     return this.sectionsService.updateSectionWithFiles(
       id,

@@ -189,18 +189,20 @@ function MultiSectionGeoJson({ sections, baseUrl }: { sections: SectionItem[]; b
 }
 
 const MapLegendContent = () => {
+  const { t } = useTranslation();
+
   const statusItems = [
-    { label: 'Đang hoạt động / Operating', color: '#237804' },
-    { label: 'Đang thi công / Under Construction', color: '#1890ff' },
-    { label: 'Đang thi công mở rộng / Extend Under Construction', color: '#86c5ff' },
-    { label: 'Chưa thi công / Not yet Under Construction', color: '#faad14' },
-    { label: 'Sự cố / Incident', color: '#ff4d4f' },
-    { label: 'Đang bảo trì / Mantainance', color: '#722ed1' },
+    { label: t("expressway.complete"), color: '#237804' },
+    { label: t("expressway.underConstruction"), color: '#1890ff' },
+    { label: t("expressway.extendUnderConstruction"), color: '#86c5ff' },
+    { label: t("expressway.notYetConstruction"), color: '#faad14' },
+    { label: t("expressway.incident"), color: '#ff4d4f' },
+    { label: t("expressway.maintenance"), color: '#722ed1' },
   ];
 
   return (
     <div style={{ fontSize: 12 }}>
-      <Text strong style={{ fontSize: 12, color: '#595959' }}>Trạng thái tuyến đường (Status)</Text>
+      <Text strong style={{ fontSize: 12, color: '#595959' }}>{t("expressway.status")}</Text>
       <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
         {statusItems.map((item, index) => (
           <div key={index} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -220,67 +222,22 @@ const MapLegendContent = () => {
 
       <Divider style={{ margin: '8px 0' }} />
 
-      <Text strong style={{ fontSize: 12, color: '#595959' }}>Địa điểm</Text>
+      <Text strong style={{ fontSize: 12, color: '#595959' }}>{t("map.location")}</Text>
       <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ background: '#1890ff', color: 'white', width: 20, height: 20, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>🔀</div>
-          <span style={{ color: '#262626' }}>Nút giao (Interchange)</span>
+          <span style={{ color: '#262626' }}>{t("map.interchange")}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ background: '#52c41a', color: 'white', width: 20, height: 20, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>☕</div>
-          <span style={{ color: '#262626' }}>Trạm dừng nghỉ (Rest Stop)</span>
+          <span style={{ color: '#262626' }}>{t("map.restStop")}</span>
         </div>
       </div>
     </div>
   );
 };
 
-interface ExpresswayItem {
-  ExpresswayId: number;
-  NameExpressway: string;
-  Symbol: string;
-  Description?: string;
-  Tag?: string;
-  MapData?: string;
-}
 
-interface SectionItem {
-  SectionId: number;
-  ExpresswayId: number;
-  NameSection: string;
-  MapData: string;
-  SpeedSign?: string;
-  SpeedLimit?: string;
-  lat?: number;
-  lng?: number;
-  interchange?: InterchangeItem[];
-  restStop?: RestStopItem[];
-}
-
-interface InterchangeItem {
-  InterchangeId: number;
-  SectionId: number;
-  NameInterchange: string;
-  Location: string;
-  Latitude: number | null;
-  Longitude: number | null;
-  Type?: string;
-  Connection?: string;
-  Status?: string;
-}
-
-interface RestStopItem {
-  RestStopId: number;
-  SectionId: number;
-  NameRestStop: string;
-  Location: string;
-  Latitude: number | null;
-  Longitude: number | null;
-  HasPetrol: boolean;
-  HasFood: boolean;
-  HasToilet: boolean;
-  Status?: string;
-}
 
 export default function MapComponent() {
   const screens = useBreakpoint();
@@ -509,12 +466,12 @@ export default function MapComponent() {
       <div>
         {nearestInfo.nearestSec && (
           <div style={{ marginBottom: 8 }}>
-            <div style={{ fontSize: 11, color: '#8c8c8c' }}>Nearest Route:</div>
+            <div style={{ fontSize: 11, color: '#8c8c8c' }}>{t("map.nearestRoute")}:</div>
             <Text strong style={{ color: '#1890ff', fontSize: 13 }}>
               {(nearestInfo.nearestSec as any).item.NameSection}
             </Text>
             <div style={{ fontSize: 11, color: '#595959' }}>
-              Distance about: <b>{(nearestInfo.nearestSec as any).dist.toFixed(1)} km</b>
+              {t("map.distance")}: <b>{(nearestInfo.nearestSec as any).dist.toFixed(1)} km</b>
             </div>
           </div>
         )}
@@ -524,12 +481,12 @@ export default function MapComponent() {
         {nearestInfo.nearestIC && (
           <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: 11, color: '#8c8c8c' }}>Nearest Interchange:</div>
+              <div style={{ fontSize: 11, color: '#8c8c8c' }}>{t("map.nearestInterchange")}:</div>
               <div style={{ fontWeight: 600, fontSize: 12 }}>
                 {(nearestInfo.nearestIC as any).item.NameInterchange}
               </div>
               <div style={{ fontSize: 11, color: '#ff4d4f' }}>
-                Distance <b>{(nearestInfo.nearestIC as any).dist.toFixed(1)} km</b> (Km {(nearestInfo.nearestIC as any).item.Location})
+                {t("map.distance")}: <b>{(nearestInfo.nearestIC as any).dist.toFixed(1)} km</b> (Km {(nearestInfo.nearestIC as any).item.Location})
               </div>
             </div>
             <Button
@@ -555,12 +512,12 @@ export default function MapComponent() {
         {nearestInfo.nearestRS && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: 11, color: '#8c8c8c' }}>Nearest Rest Stop:</div>
+              <div style={{ fontSize: 11, color: '#8c8c8c' }}>{t("map.nearestRestStop")}:</div>
               <div style={{ fontWeight: 600, fontSize: 12 }}>
                 {(nearestInfo.nearestRS as any).item.NameRestStop}
               </div>
               <div style={{ fontSize: 11, color: '#52c41a' }}>
-                Distance <b>{(nearestInfo.nearestRS as any).dist.toFixed(1)} km</b> (Km {(nearestInfo.nearestRS as any).item.Location})
+                {t("map.distance")}: <b>{(nearestInfo.nearestRS as any).dist.toFixed(1)} km</b> (Km {(nearestInfo.nearestRS as any).item.Location})
               </div>
             </div>
             <Button
@@ -585,7 +542,7 @@ export default function MapComponent() {
   };
 
   const renderFilterControls = () => (
-    <Space direction={screens.md ? 'horizontal' : 'vertical'} style={{ width: '100%' }} size="small">
+    <Space orientation={screens.md ? 'horizontal' : 'vertical'} style={{ width: '100%' }} size="small">
       <Select
         style={{ width: screens.md ? 200 : '100%' }}
         value={selectedExpressway}
@@ -643,7 +600,7 @@ export default function MapComponent() {
   if (loadingLocation || !position) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
-        <Spin size="large" tip="Đang tải bản đồ..." />
+        <Spin size="large" description="Đang tải bản đồ..." />
       </div>
     );
   }
@@ -679,10 +636,10 @@ export default function MapComponent() {
               boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
             }}
           >
-            Filter
+            {t("map.filter")}
           </Button>
           <Drawer
-            title="Bộ lọc & Chú giải"
+            title={t("map.filter")}
             placement="left"
             onClose={() => setDrawerOpen(false)}
             open={drawerOpen}
@@ -717,10 +674,10 @@ export default function MapComponent() {
               >
                 <Space>
                   <InfoCircleOutlined style={{ color: '#1890ff' }} />
-                  <Text strong style={{ fontSize: 13 }}>Map Legend</Text>
+                  <Text strong style={{ fontSize: 13 }}>{t("map.legend")}</Text>
                 </Space>
                 <Button type="text" size="small" style={{ padding: '0 4px', fontSize: 11, color: '#8c8c8c' }}>
-                  {legendCollapsed ? 'Appear' : 'Disappear'}
+                  {legendCollapsed ? t("map.appear") : t("map.disappear")}
                 </Button>
               </div>
             }
@@ -742,7 +699,7 @@ export default function MapComponent() {
               title={
                 <Space>
                   <CompassOutlined style={{ color: '#1890ff' }} />
-                  <Text style={{ fontSize: 13 }}>Nearest route</Text>
+                  <Text style={{ fontSize: 13 }}>{t("map.nearestLocation")}</Text>
                 </Space>
               }
               style={{
@@ -774,14 +731,14 @@ export default function MapComponent() {
               boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
             }}
           >
-            Nearest route
+            {t("map.nearestLocation")}
           </Button>
 
           <Drawer
             title={
               <Space>
                 <CompassOutlined style={{ color: '#1890ff' }} />
-                <span>Nearest route</span>
+                <span>{t("map.nearestLocation")}</span>
               </Space>
             }
             placement="bottom"
@@ -817,7 +774,7 @@ export default function MapComponent() {
         {userLocationIcon && (
           <Marker position={position} icon={userLocationIcon}>
             <Popup>
-              <b>Your location</b>
+              <b>{t("map.yourLocation")}</b>
             </Popup>
           </Marker>
         )}
@@ -840,7 +797,7 @@ export default function MapComponent() {
             >
               <Popup>
                 <div style={{ textAlign: 'center', minWidth: 180 }}>
-                  <Tag color="red">Speed Sign</Tag>
+                  <Tag color="red">{t("map.speedSign")}</Tag>
                   <h4 style={{ margin: '8px 0 4px 0' }}>{sec.NameSection}</h4>
                   {signImageUrl && (
                     <Image
@@ -868,9 +825,9 @@ export default function MapComponent() {
                   {t("map.interchange")}
                 </Tag>
                 <h4 style={{ margin: '6px 0 2px 0' }}>{ic.NameInterchange}</h4>
-                <div><b>Vị trí:</b> Km {ic.Location}</div>
-                {ic.Connection && <div><b>Connection:</b> {ic.Connection}</div>}
-                {ic.Status && <div><b>Status:</b> {ic.Status}</div>}
+                <div><b>{t("map.location")}:</b> Km {ic.Location}</div>
+                {ic.Connection && <div><b>{t("map.connection")}:</b> {ic.Connection}</div>}
+                {ic.Status && <div><b>{t("expressway.status")}:</b> {ic.Status}</div>}
               </div>
             </Popup>
           </Marker>

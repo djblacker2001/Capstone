@@ -29,7 +29,6 @@
 }
 
 .desktopMenu {
-    margin-right: 50px;
     font-size: large;
     flex: 1;
     justify-content: end;
@@ -38,27 +37,84 @@
     text-decoration-line: none;
 }
 
-.desktopMenu .ant-menu-item {
+.desktopMenu.ant-menu-horizontal > .ant-menu-item,
+.desktopMenu.ant-menu-horizontal > .ant-menu-submenu {
+    padding: 0;
+    border-radius: 0 !important;
+    height: 100% !important;
+}
+
+.desktopMenu .ant-menu-item,
+.desktopMenu .ant-menu-submenu-title {
     color: white !important;
-    padding: 10px 15px;
+    padding: 10px 15px !important;
+    display: flex !important;
+    align-items: center !important;
+    border-radius: 0 !important;
     transition: background-color 0.3s ease;
 }
 
-.desktopMenu .ant-menu-item::after {
+.desktopMenu .ant-menu-submenu-arrow {
+    color: white !important;
+}
+
+.desktopMenu .ant-menu-item::after,
+.desktopMenu .ant-menu-submenu::after {
     display: none !important;
 }
 
-.desktopMenu .ant-menu-item:hover {
-    background: #0ec45d !important;
+.desktopMenu .ant-menu-item:hover,
+.desktopMenu .ant-menu-submenu-title:hover,
+.desktopMenu .ant-menu-submenu-open .ant-menu-submenu-title {
+    border-radius: 0 !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
 }
 
-.desktopMenu .ant-menu-item-selected {
-    background: #0ec45d !important;
+.desktopMenu .ant-menu-item-selected,
+.desktopMenu .ant-menu-submenu-selected .ant-menu-submenu-title {
+    border-radius: 0 !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: white !important;
     font-weight: 600;
 }
 
 .desktopMenu .ant-menu-item-selected a {
     color: white !important;
+}
+
+.ant-menu-submenu-popup {
+    padding-top: 0 !important;
+    background-color: #0A9646;
+}
+
+.ant-menu-submenu-popup .ant-menu-sub {
+    background-color: #0A9646 !important;
+    border-radius: 0 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    padding: 0 !important;
+    color: white !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-item {
+    border-radius: 0 !important;
+    color: white !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-item a {
+    color: white !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-item-active,
+.ant-menu-submenu-popup .ant-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-item-selected {
+    background-color: rgba(255, 255, 255, 0.25) !important;
+    color: white !important;
+    font-weight: 600;
 }
 
 .right {
@@ -73,6 +129,7 @@
     cursor: pointer;
     margin-right: 10px;
     color: white;
+    justify-content: center;
 }
 
 .right .languages-btn:hover {
@@ -98,13 +155,16 @@
     background: #0A9646 !important;
 }
 
-.mobileMenu .ant-menu-item {
+.mobileMenu .ant-menu-item,
+.mobileMenu .ant-menu-submenu-title {
     color: white !important;
     font-size: large;
 }
 
-.mobileMenu .ant-menu-item:hover {
+.mobileMenu .ant-menu-item:hover,
+.mobileMenu .ant-menu-submenu-title:hover {
     background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
 }
 
 .mobileMenu .ant-menu-item-selected {

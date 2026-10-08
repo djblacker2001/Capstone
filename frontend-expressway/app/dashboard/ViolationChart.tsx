@@ -3,16 +3,17 @@
 import React, { useEffect, useState } from 'react';
 import { Column } from '@ant-design/plots';
 import { Card, Spin, message } from 'antd';
+import { useTranslation } from 'react-i18next';
 
-interface ChartDataItem {
-    month: string;
-    violationCount: number;
-}
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export default function ViolationChart() {
     const [data, setData] = useState<ChartDataItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
+    const { t } = useTranslation();
+    const [currentYear, setCurrentYear] = useState<number>(() => new Date().getFullYear());
+    const lastYear = currentYear - 1;
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -28,8 +29,6 @@ export default function ViolationChart() {
         try {
             const parsedUser = JSON.parse(savedUser);
             const userRoleId = parsedUser?.RoleId || parsedUser?.roleId;
-            
-            // Bảo mật: Chỉ cho phép Admin (RoleId === 1) tải dữ liệu vi phạm
             if (Number(userRoleId) === 1) {
                 setIsAdmin(true);
             } else {
@@ -44,7 +43,6 @@ export default function ViolationChart() {
             return;
         }
 
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
         fetch(`${baseUrl}/dashboard/dashboard-admin`, {
             method: 'GET',
             headers: {
@@ -72,20 +70,16 @@ export default function ViolationChart() {
     if (loading) {
         return (
             <Card bordered={false} style={{ width: '100%', borderRadius: '12px', textAlign: 'center', padding: '40px' }}>
-                <Spin tip="Loading violation analysis..." />
+                <Spin description="Loading violation analysis..." />
             </Card>
         );
     }
-
-    // Nếu không phải admin, ẩn hoàn toàn component này đi
     if (!isAdmin) return null;
 
-    // ⚙️ Cấu hình cấu trúc biểu đồ cột Ant Design Plots
     const config = {
         data,
         xField: 'month',
         yField: 'violationCount',
-        // Hiển thị số ca trực tiếp trên đỉnh mỗi cột để Admin không cần rê chuột vẫn đọc được số liệu
         label: {
             text: (d: ChartDataItem) => `${d.violationCount}`,
             position: 'element-top',
@@ -96,16 +90,15 @@ export default function ViolationChart() {
                 fontWeight: 'bold',
             },
         },
-        // Định dạng hình khối cột
         style: {
-            fill: '#E65100', // Màu cam đậm (Cảnh báo vi phạm giao thông)
-            radiusTopLeft: 4,  // Bo tròn nhẹ góc trên bên trái của cột
-            radiusTopRight: 4, // Bo tròn nhẹ góc trên bên phải của cột
-            maxWidth: 40,      // Giới hạn độ rộng tối đa để cột không bị bè ngang
+            fill: '#E65100',
+            radiusTopLeft: 4,
+            radiusTopRight: 4,
+            maxWidth: 40,
         },
         axis: {
             y: {
-                title: 'Cases',
+                title: t("dashboard.cases"),
             },
             x: {
                 title: null,
@@ -115,8 +108,8 @@ export default function ViolationChart() {
             items: [
                 {
                     channel: 'y',
-                    name: 'Total Violations',
-                    valueFormatter: (v: number) => `${v.toLocaleString()} cases`
+                    name: t("dashboard.violation"),
+                    valueFormatter: (v: number) => `${v.toLocaleString()} ${t("dashboard.cases")}`
                 }
             ],
         },
@@ -138,10 +131,9 @@ export default function ViolationChart() {
                     fontFamily: '"Times New Roman", Times, serif',
                     fontWeight: 'bold',
                     fontSize: '26px',
-                    color: '#E65100',
                     margin: 0
                 }}>
-                    Monthly Traffic Violation Analytics
+                    {t("dashboard.expresswayViolation")}
                 </h2>
             </div>
 

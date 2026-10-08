@@ -21,14 +21,14 @@ export class RestStop {
   @Column({ name: 'Latitude', type: 'float' })
   Latitude?: number;
 
-  @Column({ name: 'HasPetrol', type: 'bit' })
-  HasPetrol!: boolean;
+  @Column({ name: 'HasPetrol', type: 'bit', default: false })
+  HasPetrol: boolean = false;
 
-  @Column({ name: 'HasFood', type: 'bit' })
-  HasFood!: boolean;
+  @Column({ name: 'HasFood', type: 'bit', default: false })
+  HasFood: boolean = false;
 
-  @Column({ name: 'HasToilet', type: 'bit' })
-  HasToilet!: boolean;
+  @Column({ name: 'HasToilet', type: 'bit', default: false })
+  HasToilet: boolean = false;
 
   @Column({ name: 'Status', type: 'nvarchar', length: 50, nullable: true })
   Status?: string;

@@ -3,10 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, ReactNode } from 'react';
 
-// CẬP NHẬT: Định nghĩa lại prop `role` nhận vào là RoleId dạng số (1 hoặc 2)
 type Props = {
     children: ReactNode;
-    role?: 1 | 2; // 1: admin, 2: user
+    role?: 1 | 2;
 };
 
 const isTokenExpired = (token: string | null) => {
@@ -47,12 +46,10 @@ export default function ProtectedRoute({ children, role }: Props) {
 
         const user = JSON.parse(raw);
 
-        // Debug log mới cho dễ theo dõi
         console.log('USER:', user);
         console.log('ROLE ID:', user.RoleId);
         console.log('CHECK ROLE ID:', user.RoleId, role);
-        
-        // CẬP NHẬT: Thay đổi điều kiện check từ user.Role sang user.RoleId
+
         if (role && Number(user.RoleId) !== Number(role)) {
             router.replace('/login');
             return;

@@ -8,43 +8,11 @@ import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 import { CompassOutlined, InfoCircleOutlined, EnvironmentOutlined, CarOutlined, SearchOutlined, UndoOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from "react-i18next";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-interface RestStop {
-    RestStopId: number;
-    NameRestStop: string;
-    Status?: string;
-}
-
-interface Interchange {
-    InterchangeId: number;
-    NameInterchange: string;
-}
-
-interface Section {
-    SectionId: number;
-    NameSection: string;
-    Image?: string;
-    Length: number;
-    StartLocation: string;
-    StartKm?: number;
-    EndLocation: string;
-    EndKm?: number;
-    Status?: string;
-    restStops?: RestStop[];
-    restStop?: RestStop[];
-    interchange?: Interchange[];
-    interchangeCount?: number;
-    restStopCount?: number;
-}
-interface Province {
-    ProvinceId: number;
-    ProvinceName: string;
-    Region: string;
-}
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export default function ExpresswayPage() {
     const [sections, setSections] = useState<Section[]>([]);
@@ -54,6 +22,7 @@ export default function ExpresswayPage() {
     const [filterProvince, setFilterProvince] = useState<string>('');
     const [filterKm, setFilterKm] = useState<string>('');
     const router = useRouter();
+    const { t } = useTranslation();
 
     const fetchAllSections = async () => {
         setLoading(true);
@@ -180,30 +149,17 @@ export default function ExpresswayPage() {
     const getSectionStatusProps = (status: string | undefined) => {
         switch (status) {
             case 'Not yet construction':
-            case 'Chưa thi công':
-                return { text: 'Chưa thi công', color: 'yellow' };
-
+                return { color: '#faad14', text: t("expressway.notYetConstruction") };
             case 'Complete':
-            case 'Operating':
-            case 'Đang hoạt động':
-                return { text: 'Đang hoạt động', color: 'green' };
-
+                return { color: '#237804', text: t("expressway.complete") };
             case 'Under construction':
-            case 'Đang thi công':
-                return { text: 'Đang thi công', color: 'orange' };
-
+                return { color: '#1890ff', text: t("expressway.underConstruction") };
             case 'Extend under construction':
-            case 'Đang thi công mở rộng':
-                return { text: 'Đang thi công mở rộng', color: 'purple' };
-
-            case 'Accident':
+                return { color: '#86c5ff', text: t("expressway.extendUnderConstruction") };
             case 'Incident':
-            case 'Đang gặp sự cố':
-                return { text: 'Đang gặp sự cố', color: 'red' };
-
+                return { color: '#ff4d4f', text: t("expressway.incident") };
             case 'Maintenance':
-            case 'Đang bảo trì':
-                return { text: 'Đang bảo trì', color: 'blue' };
+                return { color: '#722ed1', text: t("expressway.maintenance") };
 
             default:
                 return { text: status || 'Chưa xác định', color: 'default' };
@@ -216,19 +172,19 @@ export default function ExpresswayPage() {
                 <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', minHeight: '100vh', background: '#f8f9fa' }}>
                     <div style={{ marginBottom: '32px', textAlign: 'center' }}>
                         <Title level={2} style={{ fontWeight: 700, margin: 0 }}>
-                            List of Expressway Sections
+                            {t("expressway.title")}
                         </Title>
                         <Text type="secondary" style={{ fontSize: '15px' }}>
-                            System for looking up detailed information on Vietnam's expressway segments.
+                            {t("expressway.text")}
                         </Text>
                     </div>
 
                     <Card style={{ marginBottom: '32px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
                         <Row gutter={[16, 16]} align="bottom">
                             <Col xs={24} sm={12} md={6}>
-                                <div style={{ marginBottom: '6px', fontWeight: 600, color: '#434343' }}>Tên đoạn đường:</div>
+                                <div style={{ marginBottom: '6px', fontWeight: 600, color: '#434343' }}>{t("expressway.name")}:</div>
                                 <Input
-                                    placeholder="Nhập tên đoạn đường..."
+                                    placeholder={t("expressway.name")}
                                     value={filterName}
                                     disabled={!!filterKm}
                                     onChange={(e) => setFilterName(e.target.value)}
@@ -238,93 +194,94 @@ export default function ExpresswayPage() {
                             </Col>
 
                             <Col xs={24} sm={12} md={5}>
-                                <div style={{ marginBottom: '6px', fontWeight: 600, color: '#434343' }}>Trạng thái:</div>
+                                <div style={{ marginBottom: '6px', fontWeight: 600, color: '#434343' }}>{t("expressway.status")}:</div>
                                 <Select
-                                    placeholder="Chọn trạng thái..."
+                                    placeholder={t("expressway.status")}
                                     style={{ width: '100%' }}
                                     value={filterStatus}
                                     disabled={!!filterKm}
                                     onChange={(value) => setFilterStatus(value)}
                                     allowClear
                                 >
-                                    <Option value="Not yet construction">Chưa thi công</Option>
-                                    <Option value="Complete">Đang hoạt động</Option>
-                                    <Option value="Under construction">Đang thi công</Option>
-                                    <Option value="Extend under construction">Đang thi công mở rộng</Option>
-                                    <Option value="Incident">Đang gặp sự cố</Option>
-                                    <Option value="Maintenance">Đang bảo trì</Option>
+                                    <Option value="Not yet construction">{t("expressway.notYetConstruction")}</Option>
+                                    <Option value="Complete">{t("expressway.complete")}</Option>
+                                    <Option value="Under construction">{t("expressway.underConstruction")}</Option>
+                                    <Option value="Extend under construction">{t("expressway.extendUnderConstruction")}</Option>
+                                    <Option value="Incident">{t("expressway.incident")}</Option>
+                                    <Option value="Maintenance">{t("expressway.maintenance")}</Option>
                                 </Select>
                             </Col>
 
                             <Col xs={24} sm={12} md={5}>
-                                <div style={{ marginBottom: '6px', fontWeight: 600, color: '#434343' }}>Đi qua tỉnh/thành:</div>
+                                <div style={{ marginBottom: '6px', fontWeight: 600, color: '#434343' }}>{t("expressway.province")}:</div>
                                 <Select
                                     showSearch
-                                    placeholder="Chọn tỉnh/thành..."
+                                    placeholder={t("expressway.province")}
                                     style={{ width: '100%' }}
                                     value={filterProvince || undefined}
                                     disabled={!!filterKm}
                                     onChange={(value) => setFilterProvince(value)}
                                     allowClear
-                                    optionFilterProp="children"
+                                    optionFilterProp="label"
                                     filterOption={(input, option) =>
-                                        (option?.children as unknown as string)
-                                            ?.toLowerCase()
+                                        (option?.label ?? '')
+                                            .toLowerCase()
                                             .includes(input.toLowerCase())
                                     }
-                                >
-                                    <Select.Option value="Hà Nội City">Hà Nội</Select.Option>
-                                    <Select.Option value="Cao Bằng Province">Cao Bằng</Select.Option>
-                                    <Select.Option value="Tuyên Quang Province">Tuyên Quang</Select.Option>
-                                    <Select.Option value="Điện Biên Province">Điện Biên</Select.Option>
-                                    <Select.Option value="Lai Châu Province">Lai Châu</Select.Option>
-                                    <Select.Option value="Sơn La Province">Sơn La</Select.Option>
-                                    <Select.Option value="Lào Cai Province">Lào Cai</Select.Option>
-                                    <Select.Option value="Thái Nguyên Province">Thái Nguyên</Select.Option>
-                                    <Select.Option value="Lạng Sơn Province">Lạng Sơn</Select.Option>
-                                    <Select.Option value="Quảng Ninh Province">Quảng Ninh</Select.Option>
-                                    <Select.Option value="Bắc Ninh Province">Bắc Ninh</Select.Option>
-                                    <Select.Option value="Phú Thọ Province">Phú Thọ</Select.Option>
-                                    <Select.Option value="Hải Phòng City">Hải Phòng</Select.Option>
-                                    <Select.Option value="Hưng Yên Province">Hưng Yên</Select.Option>
-                                    <Select.Option value="Ninh Bình Province">Ninh Bình</Select.Option>
-                                    <Select.Option value="Thanh Hóa Province">Thanh Hóa</Select.Option>
-                                    <Select.Option value="Nghệ An Province">Nghệ An</Select.Option>
-                                    <Select.Option value="Hà Tĩnh Province">Hà Tĩnh</Select.Option>
-                                    <Select.Option value="Quảng Trị Province">Quảng Trị</Select.Option>
-                                    <Select.Option value="Huế City">Huế</Select.Option>
-                                    <Select.Option value="Đà Nẵng City">Đà Nẵng</Select.Option>
-                                    <Select.Option value="Quảng Ngãi Province">Quảng Ngãi</Select.Option>
-                                    <Select.Option value="Gia Lai Province">Gia Lai</Select.Option>
-                                    <Select.Option value="Khánh Hòa Province">Khánh Hòa</Select.Option>
-                                    <Select.Option value="Đắk Lắk Province">Đắk Lắk</Select.Option>
-                                    <Select.Option value="Lâm Đồng Province">Lâm Đồng</Select.Option>
-                                    <Select.Option value="Đồng Nai City">Đồng Nai</Select.Option>
-                                    <Select.Option value="Hồ Chí Minh City">Hồ Chí Minh</Select.Option>
-                                    <Select.Option value="Tây Ninh Province">Tây Ninh</Select.Option>
-                                    <Select.Option value="Đồng Tháp Province">Đồng Tháp</Select.Option>
-                                    <Select.Option value="Vĩnh Long Province">Vĩnh Long</Select.Option>
-                                    <Select.Option value="An Giang Province">An Giang</Select.Option>
-                                    <Select.Option value="Cần Thơ City">Cần Thơ</Select.Option>
-                                    <Select.Option value="Cà Mau Province">Cà Mau</Select.Option>
-                                </Select>
+                                    options={[
+                                        { value: "Hà Nội City", label: "Hà Nội" },
+                                        { value: "Cao Bằng Province", label: "Cao Bằng" },
+                                        { value: "Tuyên Quang Province", label: "Tuyên Quang" },
+                                        { value: "Điện Biên Province", label: "Điện Biên" },
+                                        { value: "Lai Châu Province", label: "Lai Châu" },
+                                        { value: "Sơn La Province", label: "Sơn La" },
+                                        { value: "Lào Cai Province", label: "Lào Cai" },
+                                        { value: "Thái Nguyên Province", label: "Thái Nguyên" },
+                                        { value: "Lạng Sơn Province", label: "Lạng Sơn" },
+                                        { value: "Quảng Ninh Province", label: "Quảng Ninh" },
+                                        { value: "Bắc Ninh Province", label: "Bắc Ninh" },
+                                        { value: "Phú Thọ Province", label: "Phú Thọ" },
+                                        { value: "Hải Phòng City", label: "Hải Phòng" },
+                                        { value: "Hưng Yên Province", label: "Hưng Yên" },
+                                        { value: "Ninh Bình Province", label: "Ninh Bình" },
+                                        { value: "Thanh Hóa Province", label: "Thanh Hóa" },
+                                        { value: "Nghệ An Province", label: "Nghệ An" },
+                                        { value: "Hà Tĩnh Province", label: "Hà Tĩnh" },
+                                        { value: "Quảng Trị Province", label: "Quảng Trị" },
+                                        { value: "Huế City", label: "Huế" },
+                                        { value: "Đà Nẵng City", label: "Đà Nẵng" },
+                                        { value: "Quảng Ngãi Province", label: "Quảng Ngãi" },
+                                        { value: "Gia Lai Province", label: "Gia Lai" },
+                                        { value: "Khánh Hòa Province", label: "Khánh Hòa" },
+                                        { value: "Đắk Lắk Province", label: "Đắk Lắk" },
+                                        { value: "Lâm Đồng Province", label: "Lâm Đồng" },
+                                        { value: "Đồng Nai City", label: "Đồng Nai" },
+                                        { value: "Hồ Chí Minh City", label: "Hồ Chí Minh" },
+                                        { value: "Tây Ninh Province", label: "Tây Ninh" },
+                                        { value: "Đồng Tháp Province", label: "Đồng Tháp" },
+                                        { value: "Vĩnh Long Province", label: "Vĩnh Long" },
+                                        { value: "An Giang Province", label: "An Giang" },
+                                        { value: "Cần Thơ City", label: "Cần Thơ" },
+                                        { value: "Cà Mau Province", label: "Cà Mau" },
+                                    ]}
+                                />
                             </Col>
 
                             <Col xs={24} sm={12} md={4}>
                                 <div style={{ marginBottom: '6px', fontWeight: 600, color: '#434343', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    Km number
-                                    <Tooltip title="Nhập số Km để tra cứu những tuyến đường bao trùm hoặc đi qua tọa độ Km này">
+                                    {t("expressway.kilometer")}
+                                    <Tooltip title={t("expressway.kilometerInformation")}>
                                         <InfoCircleOutlined style={{ color: '#1890ff', cursor: 'pointer' }} />
                                     </Tooltip>
                                 </div>
                                 <Input
                                     type="number"
-                                    placeholder="Nhập số km (VD: 250)..."
+                                    placeholder={t("expressway.kilometer")}
                                     value={filterKm}
                                     disabled={!!(filterName || filterStatus || filterProvince)}
                                     onChange={(e) => setFilterKm(e.target.value)}
                                     onPressEnter={handleSearch}
-                                    allowClear
+
                                 />
                             </Col>
 
@@ -336,10 +293,10 @@ export default function ExpresswayPage() {
                                         onClick={handleSearch}
                                         style={{ background: '#004f9f', borderColor: '#004f9f' }}
                                     >
-                                        Search
+                                        {t("expressway.search")}
                                     </Button>
                                     <Button icon={<UndoOutlined />} onClick={handleReset}>
-                                        Reset
+                                        {t("expressway.reset")}
                                     </Button>
                                 </Space>
                             </Col>
@@ -348,7 +305,7 @@ export default function ExpresswayPage() {
 
                     {loading ? (
                         <div style={{ textAlign: 'center', padding: '80px 0' }}>
-                            <Spin size="large" tip="Đang truy xuất dữ liệu..." />
+                            <Spin size="large" description="Đang truy xuất dữ liệu..." />
                         </div>
                     ) : sections.length > 0 ? (
                         <Row gutter={[24, 24]}>
@@ -378,7 +335,14 @@ export default function ExpresswayPage() {
                                                 flexDirection: 'column',
                                                 border: '1px solid #eef0f2'
                                             }}
-                                            bodyStyle={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}
+                                            styles={{
+                                                body: {
+                                                    padding: '20px',
+                                                    flex: 1,
+                                                    display: 'flex',
+                                                    flexDirection: 'column'
+                                                }
+                                            }}
                                             cover={
                                                 <div style={{
                                                     height: '100%',
@@ -389,7 +353,7 @@ export default function ExpresswayPage() {
                                                 }}>
                                                     <img
                                                         alt={section.NameSection}
-                                                        src={section.Image ? fullImageUrl : 'https://placehold.co/400x200?text=L%E1%BB%90I+V%C3%80O'}
+                                                        src={section.Image ? fullImageUrl : 'https://www.landuse-ca.org/wp-content/uploads/2019/04/no-photo-available.png'}
                                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                         onError={(e) => {
                                                             (e.target as HTMLImageElement).style.display = 'none';
@@ -401,10 +365,6 @@ export default function ExpresswayPage() {
                                                             display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
                                                             color: '#fff', borderBottom: '6px solid #fff'
                                                         }}>
-                                                            <span style={{ fontSize: '12px', letterSpacing: '2px', border: '1px solid #fff', padding: '2px 6px', marginBottom: '8px', borderRadius: '4px' }}>
-                                                                CT.01
-                                                            </span>
-                                                            <span style={{ fontSize: '24px', fontWeight: 'bold', letterSpacing: '4px' }}>LỐI VÀO</span>
                                                         </div>
                                                     )}
                                                 </div>
@@ -412,37 +372,37 @@ export default function ExpresswayPage() {
                                         >
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px', gap: '8px' }}>
                                                 <Title level={5} style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#1a3353', flex: 1 }}>
-                                                    Đường cao tốc {section.NameSection}
+                                                    {t("expressway.expressway")} {section.NameSection}
                                                 </Title>
                                             </div>
 
                                             <div style={{ marginBottom: '16px' }}>
                                                 <Tag color="blue" style={{ fontSize: '13px', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
-                                                    Chiều dài: {section.Length} km
+                                                    {t("expressway.length")}: {section.Length} km
                                                 </Tag>
                                             </div>
 
-                                            <Space direction="vertical" size={6} style={{ width: '100%', marginBottom: '16px', fontSize: '13px' }}>
+                                            <Space orientation="vertical" size={6} style={{ width: '100%', marginBottom: '16px', fontSize: '13px' }}>
                                                 <div>
                                                     <EnvironmentOutlined style={{ color: '#52c41a', marginRight: '6px' }} />
-                                                    <Text type="secondary">Đầu: </Text>
-                                                    <Text strong>Nút giao {section.StartLocation}</Text>
+                                                    <Text type="secondary">{t("expressway.start")}: </Text>
+                                                    <Text strong>{t("expressway.interchange")} {section.StartLocation}</Text>
                                                     {section.StartKm !== undefined && <Text type="secondary"> (Km {section.StartKm})</Text>}
                                                 </div>
                                                 <div>
                                                     <EnvironmentOutlined style={{ color: '#f5222d', marginRight: '6px' }} />
-                                                    <Text type="secondary">Cuối: </Text>
-                                                    <Text strong>Nút giao {section.EndLocation}</Text>
+                                                    <Text type="secondary">{t("expressway.end")}: </Text>
+                                                    <Text strong>{t("expressway.interchange")} {section.EndLocation}</Text>
                                                     {section.EndKm !== undefined && <Text type="secondary"> (Km {section.EndKm})</Text>}
                                                 </div>
                                                 <div>
                                                     <CompassOutlined style={{ color: '#1890ff', marginRight: '6px' }} />
-                                                    <Text type="secondary">Số nút giao: </Text>
+                                                    <Text type="secondary">{t("expressway.interchange")}: </Text>
                                                     <Text strong>{displayInterchanges}</Text>
                                                 </div>
                                                 <div>
                                                     <CarOutlined style={{ color: '#595959', marginRight: '6px' }} />
-                                                    <Text type="secondary">Trạm dừng nghỉ: </Text>
+                                                    <Text type="secondary">{t("expressway.restStop")}: </Text>
                                                     <Text strong>{displayRestStops}</Text>
                                                 </div>
                                                 <Tag

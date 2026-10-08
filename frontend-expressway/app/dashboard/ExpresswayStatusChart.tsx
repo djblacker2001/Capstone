@@ -1,22 +1,27 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Card, Spin, message } from 'antd';
 import { Pie } from '@ant-design/plots';
 import "./style.css";
+import { useTranslation } from 'react-i18next';
 
-interface ChartDataItem {
-    type: string;
-    value: number;
-}
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const STATUS_COLORS: Record<string, string> = {
+    notYetConstruction: '#faad14',
+    underConstruction: '#1890ff',
+    complete: '#237804',
+    extendUnderConstruction: '#ff7a45',
+    maintenance: '#722ed1',
+    incident: '#ff4d4f',
+};
 
 export default function ExpresswayStatusChart() {
-    const [chartData, setChartData] = useState<ChartDataItem[]>([]);
+    const [rawStats, setRawStats] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    const [total, setTotal] = useState<number>(0);
     const [isMobileSize, setIsMobileSize] = useState<boolean>(false);
+    const { t, i18n } = useTranslation();
 
     useEffect(() => {
         const checkMobile = () => {
@@ -35,21 +40,7 @@ export default function ExpresswayStatusChart() {
             })
             .then((resData) => {
                 if (resData.success && resData.data) {
-                    const stats = resData.data;
-                    const formattedData: ChartDataItem[] = [
-                        { type: 'Not Yet Under Construction', value: stats.totalSectionsNotYetUnderConstruction || 0 },
-                        { type: 'Under Construction', value: stats.totalSectionsUnderConstruction || 0 },
-                        { type: 'Completed / Operating', value: stats.totalSectionsCompleted || 0 },
-                        { type: 'Extending under Construction', value: stats.totalSectionsExtendConstruction || 0 },
-                        { type: 'Maintenance', value: stats.totalSectionsMaintenance || 0 },
-                        { type: 'Incident', value: stats.totalSectionsIncident || 0 },
-                    ];
-
-                    const filteredData = formattedData.filter(item => item.value > 0);
-                    const sum = filteredData.reduce((acc, curr) => acc + curr.value, 0);
-
-                    setTotal(sum);
-                    setChartData(filteredData);
+                    setRawStats(resData.data);
                 }
                 setLoading(false);
             })
@@ -59,17 +50,45 @@ export default function ExpresswayStatusChart() {
             });
     }, []);
 
+    const { chartData, colorMap, total } = useMemo(() => {
+        if (!rawStats) return { chartData: [], colorMap: [], total: 0 };
+        const items = [
+            { key: 'notYetConstruction', label: t("expressway.notYetConstruction"), value: rawStats.totalSectionsNotYetUnderConstruction || 0 },
+            { key: 'underConstruction', label: t("expressway.underConstruction"), value: rawStats.totalSectionsUnderConstruction || 0 },
+            { key: 'complete', label: t("expressway.complete"), value: rawStats.totalSectionsCompleted || 0 },
+            { key: 'extendUnderConstruction', label: t("expressway.extendUnderConstruction"), value: rawStats.totalSectionsExtendConstruction || 0 },
+            { key: 'maintenance', label: t("expressway.maintenance"), value: rawStats.totalSectionsMaintenance || 0 },
+            { key: 'incident', label: t("expressway.incident"), value: rawStats.totalSectionsIncident || 0 },
+        ];
+
+        const filtered = items.filter(item => item.value > 0);
+        const sum = filtered.reduce((acc, curr) => acc + curr.value, 0);
+
+        const data = filtered.map(item => ({
+            type: item.label,
+            value: item.value,
+        }));
+
+        const colors = filtered.map(item => STATUS_COLORS[item.key] || '#1890ff');
+
+        return { chartData: data, colorMap: colors, total: sum };
+    }, [rawStats, t, i18n.language]);
+
     const config = useMemo(() => {
         return {
             data: chartData,
             angleField: 'value',
             colorField: 'type',
-            color: ['#faad14', '#1890ff', '#237804', '#86c5ff', '#722ed1', '#ff4d4f'],
+            scale: {
+                color: {
+                    range: colorMap,
+                },
+            },
             radius: isMobileSize ? 0.8 : 0.7,
             label: isMobileSize
                 ? false
                 : {
-                    text: (d: ChartDataItem) => {
+                    text: (d: any) => {
                         const percent = total > 0 ? ((d.value / total) * 100).toFixed(1) : '0';
                         return `${d.type}: ${d.value} (${percent}%)`;
                     },
@@ -99,14 +118,13 @@ export default function ExpresswayStatusChart() {
                 },
             },
             tooltip: {
-                items: [{ field: 'value', name: 'Số đoạn' }],
+                items: [{ field: 'value', name: t("dashboard.sectionNumber") }],
             },
         };
-    }, [chartData, total, isMobileSize]);
+    }, [chartData, colorMap, total, isMobileSize]);
 
     return (
         <Card
-            title="Highway Segment Status Statistics"
             style={{
                 width: '100%',
                 borderRadius: '12px',
@@ -115,9 +133,23 @@ export default function ExpresswayStatusChart() {
                 height: '100%',
             }}
         >
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                <h2 
+                    suppressHydrationWarning
+                    style={{
+                        fontFamily: '"Times New Roman", Times, serif',
+                        fontWeight: 'bold',
+                        fontSize: '28px',
+                        color: '#000',
+                        margin: 0
+                    }}
+                >
+                    {t("dashboard.expresswayStatus")}
+                </h2>
+            </div>
             {loading ? (
                 <div className="chart-loading-wrapper">
-                    <Spin tip="Đang tính toán biểu đồ..." />
+                    <Spin description="Loading..." />
                 </div>
             ) : (
                 <div className="pie-chart-container">

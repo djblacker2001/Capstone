@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './style.css';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 interface MapProps {
   isFullscreen: boolean;
   setIsFullscreen: (val: boolean) => void;

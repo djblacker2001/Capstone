@@ -1,6 +1,6 @@
 'use client';
 
-import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PictureOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, Input, InputNumber, Modal, Popconfirm, Row, Select, Space, Table, Tag, message } from "antd";
 import { useEffect, useState } from "react";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
@@ -9,56 +9,14 @@ import axiosClient from "@/api/axiosClient";
 import Link from "next/link";
 import "./manageExpressway.css"
 import { useRouter } from "next/navigation";
-
-interface SectionType {
-    SectionId: number;
-    ExpresswayId?: number;
-    NameSection: string;
-    expresswayName?: string;
-    Length: number;
-    StartLocation?: string;
-    StartKm?: number;
-    EndLocation?: string;
-    EndKm?: number;
-    SpeedImage?: string;
-    SpeedLimit?: string;
-    TrafficLand?: number;
-    HasEmergencyLane?: boolean;
-    Status?: string;
-    bridgeCount?: number;
-    tunnelCount?: number;
-    interchangeCount?: number;
-    totalSectionLength?: number;
-}
-interface ExpresswayStatistics {
-    totalExpressways: number;
-    totalSections: number;
-    totalSystemLength: number;
-    totalSectionsCompleted: number;
-    totalSectionsNotYetUnderConstruction: number;
-    totalSectionsUnderConstruction: number;
-    totalSectionsExtendConstruction: number;
-    totalSectionsIncident: number;
-    totalSectionsMaintenance: number;
-    totalRestStops: number;
-    restStopUnderConstruction: number;
-    restStopNotYetConstruction: number;
-    restStopOperating: number;
-    totalUniqueInterchanges: number;
-    interchangeUnderConstruction: number;
-    interchangeNotYetConstruction: number;
-    interchangeComplete: number;
-    totalBridges: number;
-    totalTunnels: number;
-    totalSigns: number;
-}
+import ManageHeroImagesModal from "./ManageHeroImagesModal";
 
 export default function ManageExpresswayPage() {
     const [data, setData] = useState<SectionType[]>([]);
     const [stats, setStats] = useState<ExpresswayStatistics | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [searchText, setSearchText] = useState<string>('');
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
     const [editingSection, setEditingSection] = useState<SectionType | null>(null);
     const [form] = Form.useForm();
     const router = useRouter();
@@ -294,6 +252,12 @@ export default function ManageExpresswayPage() {
                     </Row>
                 </div>
 
+                <ManageHeroImagesModal
+                    open={isBannerModalOpen}
+                    onClose={() => setIsBannerModalOpen(false)}
+                />
+
+
                 <div style={{ padding: '0 24px 24px 24px', maxWidth: '2000px', margin: '0 auto' }}>
                     <Card style={{ marginBottom: '16px', borderRadius: '8px' }}>
                         <Row justify="space-between" align="middle">
@@ -308,14 +272,25 @@ export default function ManageExpresswayPage() {
                                 />
                             </Col>
                             <Col>
-                                <Button
-                                    type="primary"
-                                    size="large"
-                                    className="addExpressway"
-                                    onClick={() => router.push('/manageExpressway/addExpressway')}
-                                >
-                                    Thêm Phân Đoạn Mới
-                                </Button>
+                                <Space>
+                                    <Button
+                                        size="large"
+                                        icon={<PictureOutlined />}
+                                        onClick={() => setIsBannerModalOpen(true)}
+                                    >
+                                        Quản Lý Ảnh Hero
+                                    </Button>
+
+                                    <Button
+                                        type="primary"
+                                        size="large"
+                                        className="addExpressway"
+                                        icon={<PlusOutlined />}
+                                        onClick={() => router.push('/manageExpressway/addExpressway')}
+                                    >
+                                        Thêm Phân Đoạn Mới
+                                    </Button>
+                                </Space>
                             </Col>
                         </Row>
                     </Card>

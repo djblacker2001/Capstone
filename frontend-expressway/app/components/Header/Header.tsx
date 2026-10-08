@@ -1,6 +1,6 @@
 "use client";
 import "./header.css";
-import { Menu, Button, Avatar, Dropdown, MenuProps} from "antd";
+import { Menu, Button, Avatar, Dropdown, MenuProps } from "antd";
 import { GlobalOutlined, LogoutOutlined, MenuOutlined, SettingOutlined, UserOutlined } from "@ant-design/icons";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
@@ -9,7 +9,8 @@ import { useRouter, usePathname } from "next/navigation";
 import axiosClient from "@/api/axiosClient";
 import { useTranslation } from "react-i18next";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
 interface UserData {
   Username?: string;
   RoleId?: number | string;
@@ -20,12 +21,17 @@ interface UserData {
 export default function MainHeader() {
   const [open, setOpen] = useState<boolean>(false);
   const [user, setUser] = useState<UserData | null>(null);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
   const pathname = usePathname();
 
   const { t, i18n } = useTranslation();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const toggleLanguage = () => {
     const currentLang = i18n.language;
@@ -124,34 +130,46 @@ export default function MainHeader() {
   const roleVal = user?.RoleId ?? user?.roleId;
   const isAdmin = Number(roleVal) === 1;
 
+  const renderText = (key: string) => (
+    <span suppressHydrationWarning>
+      {isMounted ? t(key) : ''}
+    </span>
+  );
+
   const items = [
-    { key: "/", label: <Link href="/">{t("header.homepage")}</Link> },
-    { key: "/expressway", label: <Link href="/expressway">{t("header.expressway")}</Link> },
-    { key: "/map", label: <Link href="/map">{t("header.map")}</Link> },
-    { key: "/sign", label: <Link href="/sign">{t("header.sign")}</Link> },
+    { key: "/", label: <Link href="/">{renderText("header.homepage")}</Link> },
+    { key: "/expressway", label: <Link href="/expressway">{renderText("header.expressway")}</Link> },
+    { key: "/map", label: <Link href="/map">{renderText("header.map")}</Link> },
+    { key: "/sign", label: <Link href="/sign">{renderText("header.sign")}</Link> },
 
     ...(isAdmin
       ? [
-        { key: "/dashboard", label: <Link href="/dashboard">{t("header.dashboard")}</Link> },
-        { key: "/manageExpressway", label: <Link href="/manageExpressway">{t("header.manageExpressway")}</Link> },
-        { key: "/manageUser", label: <Link href="/manageUser">{t("header.manageUser")}</Link> },
-        { key: "/manageSign", label: <Link href="/manageSign">{t("header.manageSign")}</Link> },
+        { key: "/dashboard", label: <Link href="/dashboard">{renderText("header.dashboard")}</Link> },
+        {
+          key: "manage-group",
+          label: <span>{renderText("header.manage")}</span>,
+          children: [
+            { key: "/manageExpressway", label: <Link href="/manageExpressway">{renderText("header.manageExpressway")}</Link> },
+            { key: "/manageUser", label: <Link href="/manageUser">{renderText("header.manageUser")}</Link> },
+            { key: "/manageSign", label: <Link href="/manageSign">{renderText("header.manageSign")}</Link> },
+          ],
+        },
       ]
       : []),
   ];
 
   const getSelectedKey = () => {
     const matchedItem = items.find((item) =>
-      pathname === item.key || (item.key !== "/" && pathname.startsWith(item.key))
+      pathname === item.key || (item.key !== "/" && item.key && pathname.startsWith(item.key))
     );
-    return matchedItem ? [matchedItem.key] : [];
+    return matchedItem ? [matchedItem.key] : [pathname];
   };
 
   const userMenu: MenuProps["items"] = [
-    { key: "profile", icon: <UserOutlined />, label: <Link href="/profile">Personal information</Link> },
-    { key: "settings", icon: <SettingOutlined />, label: <Link href="/setting">Setting</Link> },
+    { key: "profile", icon: <UserOutlined />, label: <Link href="/profile">{renderText("header.personalinformation")}</Link> },
+    { key: "settings", icon: <SettingOutlined />, label: <Link href="/setting">{renderText("header.setting")}</Link> },
     { type: "divider" },
-    { key: "logout", icon: <LogoutOutlined />, label: "Log out", onClick: handleLogout },
+    { key: "logout", icon: <LogoutOutlined />, label: renderText("header.logout"), onClick: handleLogout },
   ];
 
   const currentAvatar = user?.Avatar || user?.avatar;
@@ -185,6 +203,7 @@ export default function MainHeader() {
           items={items}
           selectedKeys={getSelectedKey()}
           className="desktopMenu"
+          getPopupContainer={() => document.querySelector('.warp-header') || document.body}
         />
 
         <div className="right">
@@ -194,7 +213,7 @@ export default function MainHeader() {
             icon={<GlobalOutlined />}
             className="languages-btn"
           >
-            {i18n.language === 'vi' ? 'Tiếng Việt' : 'English'}
+            {isMounted ? (i18n.language === 'vi' ? 'Tiếng Việt' : 'English') : ''}
           </Button>
           {user ? (
             <Dropdown menu={{ items: userMenu }} placement="bottomRight">
@@ -210,7 +229,7 @@ export default function MainHeader() {
             </Dropdown>
           ) : (
             <Link href="/login">
-              <Button type="primary">{t("header.login")}</Button>
+              <Button type="primary">{renderText("header.login")}</Button>
             </Link>
           )}
         </div>

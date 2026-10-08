@@ -7,22 +7,15 @@ import { useRouter } from 'next/navigation';
 import "./profile.css";
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 import Header from "../components/Header/Header";
+import { useTranslation } from 'react-i18next';
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-
-interface UserProfile {
-    Username?: string;
-    Email?: string;
-    Role?: string;
-    RoleId?: number | string;
-    Avatar?: string;
-    [key: string]: any;
-}
 
 export default function ProfilePage() {
     const router = useRouter();
     const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const { t } = useTranslation();
 
     const loadUserFromStorage = () => {
         try {

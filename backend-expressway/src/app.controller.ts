@@ -23,15 +23,11 @@ export class AppController {
     return I18nContext.current()?.lang || 'en';
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
   @Get()
   async getFileList() {
     return await this.appService.getAllUploadedFiles();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
   @Get('images/:filename')
   async viewUploadedFile(
     @Param('filename') filename: string,

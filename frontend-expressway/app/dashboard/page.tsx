@@ -9,12 +9,14 @@ import ExpresswayStatusChart from "./ExpresswayStatusChart";
 import ViolationChart from "./ViolationChart";
 import { useEffect, useState } from "react";
 import { AppstoreOutlined, DashboardOutlined, BlockOutlined, NodeIndexOutlined, EnvironmentOutlined, WarningOutlined } from '@ant-design/icons';
+import { useTranslation } from "react-i18next";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-//${baseUrl}
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
 export default function DashboardPage() {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(false);
+    const { t } = useTranslation();
     const fetchStatistics = async () => {
         setLoading(true);
         try {
@@ -69,9 +71,9 @@ export default function DashboardPage() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <p style={{ color: '#0050b3', margin: 0, fontSize: '13px', fontWeight: 600 }}>Expressway segment</p>
+                                    <p style={{ color: '#0050b3', margin: 0, fontSize: '13px', fontWeight: 600 }}>{t("dashboard.expresswaySegment")}</p>
                                     <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#002c8c' }}>
-                                        {totalSections} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>sections</span>
+                                        {totalSections} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>{t("dashboard.sections")}</span>
                                     </h2>
                                 </div>
                                 <div style={{ background: '#1890ff', padding: '10px', borderRadius: '10px', color: '#ffffff', fontSize: '20px', display: 'flex', boxShadow: '0 4px 8px rgba(24, 144, 255, 0.3)' }}>
@@ -95,7 +97,7 @@ export default function DashboardPage() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <p style={{ color: '#531dab', margin: 0, fontSize: '13px', fontWeight: 600 }}>Management length</p>
+                                    <p style={{ color: '#531dab', margin: 0, fontSize: '13px', fontWeight: 600 }}>{t("dashboard.managementLength")}</p>
                                     <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#22075e' }}>
                                         {totalLength} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>km</span>
                                     </h2>
@@ -121,7 +123,7 @@ export default function DashboardPage() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <p style={{ color: '#d46b08', margin: 0, fontSize: '13px', fontWeight: 600 }}>Structures (Bridges/Tunnels)</p>
+                                    <p style={{ color: '#d46b08', margin: 0, fontSize: '13px', fontWeight: 600 }}>{t("dashboard.structures")} ({t("dashboard.bridge")} / {t("dashboard.tunnel")})</p>
                                     <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#612500' }}>
                                         {totalBridges} <span style={{ fontSize: '16px', color: '#8c8c8c', fontWeight: '300' }}>/</span> {totalTunnels}
                                     </h2>
@@ -147,9 +149,9 @@ export default function DashboardPage() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <p style={{ color: '#389e0d', margin: 0, fontSize: '13px', fontWeight: 600 }}>Interchange</p>
+                                    <p style={{ color: '#389e0d', margin: 0, fontSize: '13px', fontWeight: 600 }}>{t("expressway.interchange")}</p>
                                     <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#135200' }}>
-                                        {totalInterchange} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>interchanges</span>
+                                        {totalInterchange} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>{t("dashboard.interchange")}</span>
                                     </h2>
                                 </div>
                                 <div style={{ background: '#52c41a', padding: '10px', borderRadius: '10px', color: '#ffffff', fontSize: '20px', display: 'flex', boxShadow: '0 4px 8px rgba(82, 196, 26, 0.3)' }}>
@@ -172,9 +174,9 @@ export default function DashboardPage() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <p style={{ color: '#c41d7f', margin: 0, fontSize: '13px', fontWeight: 600 }}>Rest Stop</p>
+                                    <p style={{ color: '#c41d7f', margin: 0, fontSize: '13px', fontWeight: 600 }}>{t("expressway.restStop")}</p>
                                     <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#5c0038' }}>
-                                        {totalRestStops} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>rest stops</span>
+                                        {totalRestStops} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>{t("dashboard.restStop")}</span>
                                     </h2>
                                 </div>
                                 <div style={{ background: '#eb2f96', padding: '10px', borderRadius: '10px', color: '#ffffff', fontSize: '20px', display: 'flex', boxShadow: '0 4px 8px rgba(235, 47, 150, 0.3)' }}>
@@ -197,9 +199,9 @@ export default function DashboardPage() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <p style={{ color: '#cf1322', margin: 0, fontSize: '13px', fontWeight: 600 }}>Sign</p>
+                                    <p style={{ color: '#cf1322', margin: 0, fontSize: '13px', fontWeight: 600 }}>{t("header.sign")}</p>
                                     <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#5c0011' }}>
-                                        {totalSigns} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>signs</span>
+                                        {totalSigns} <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#434343' }}>{t("dashboard.sign")}</span>
                                     </h2>
                                 </div>
                                 <div style={{ background: '#f5222d', padding: '10px', borderRadius: '10px', color: '#ffffff', fontSize: '20px', display: 'flex', boxShadow: '0 4px 8px rgba(245, 34, 45, 0.3)' }}>

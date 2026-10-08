@@ -3,15 +3,15 @@
 import React, { useEffect, useState } from 'react';
 import { Column } from '@ant-design/plots';
 import { Card, Spin, message } from 'antd';
+import { useTranslation } from "react-i18next";
 
-interface ChartDataItem {
-    month: string; 
-    vehicleCount: number;
-}
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 export default function VehicleTrafficChart() {
     const [data, setData] = useState<ChartDataItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const { t } = useTranslation();
+    const [currentYear, setCurrentYear] = useState<number>(() => new Date().getFullYear());
+    const lastYear = currentYear - 1;
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -23,7 +23,7 @@ export default function VehicleTrafficChart() {
             return;
         }
 
-        
+
         fetch(`${baseUrl}/dashboard/traffic`, {
             method: 'GET',
             headers: {
@@ -55,8 +55,8 @@ export default function VehicleTrafficChart() {
 
     const config = {
         data,
-        xField: 'month', 
-        yField: 'vehicleCount', 
+        xField: 'month',
+        yField: 'vehicleCount',
         label: {
             text: (d: ChartDataItem) => {
                 if (d.vehicleCount >= 1000000) {
@@ -82,8 +82,8 @@ export default function VehicleTrafficChart() {
 
         axis: {
             y: {
-                title: 'Vehicles',
-                labelFormatter: (v: number) => `${v.toLocaleString()}`, 
+                title: t("dashboard.vehicles"),
+                labelFormatter: (v: number) => `${v.toLocaleString()}`,
             },
             x: {
                 title: null,
@@ -94,8 +94,8 @@ export default function VehicleTrafficChart() {
             items: [
                 {
                     channel: 'y',
-                    name: 'Traffic Volume',
-                    valueFormatter: (v: number) => `${v.toLocaleString()} vehicles`
+                    name: t("dashboard.trafficVolume"),
+                    valueFormatter: (v: number) => `${v.toLocaleString()} ${t("dashboard.vehicles")}`
                 },
             ],
         },
@@ -108,7 +108,7 @@ export default function VehicleTrafficChart() {
                 width: '100%',
                 borderRadius: '12px',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-                padding: '12px', 
+                padding: '12px',
                 height: "100%"
             }}
         >
@@ -120,11 +120,11 @@ export default function VehicleTrafficChart() {
                     color: '#000',
                     margin: 0
                 }}>
-                    Expressway Annual Traffic Volume Metrics in 2025
+                    {t("dashboard.expresswayTraffic")} <span suppressHydrationWarning>{lastYear}</span>
                 </h2>
             </div>
 
-            <Spin spinning={loading} tip="Loading traffic analytics data...">
+            <Spin spinning={loading} description="Loading traffic analytics data...">
                 <div style={{ height: '450px' }}>
                     {data.length > 0 ? (
                         <Column {...config} />

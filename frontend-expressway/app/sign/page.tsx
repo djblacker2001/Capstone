@@ -6,6 +6,7 @@ import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import MainLayout from "../layout/Layout";
 import { useState, useEffect } from "react";
 import axiosClient from "@/api/axiosClient";
+import { useTranslation } from "react-i18next";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -26,6 +27,7 @@ const SignPage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [searchText, setSearchText] = useState<string>('');
     const [selectedTypeId, setSelectedTypeId] = useState<string>('All');
+    const { t } = useTranslation();
     const fetchSigns = async (typeId: string) => {
         setLoading(true);
         try {
@@ -96,10 +98,10 @@ const SignPage = () => {
 
                     <div style={{ marginBottom: '32px', textAlign: 'center' }}>
                         <Title level={2} style={{ margin: 0, fontWeight: 700 }}>
-                            Road and Expressway Signage System
+                            {t("sign.title")}
                         </Title>
                         <Text type="secondary" style={{ fontSize: '15px' }}>
-                            Quick reference for symbols and meanings of the standardized directional signage system along the route.
+                            {t("sign.text")}
                         </Text>
                     </div>
 
@@ -107,7 +109,7 @@ const SignPage = () => {
                         <Row gutter={[16, 16]}>
                             <Col xs={24} md={16}>
                                 <Input
-                                    placeholder="Tìm kiếm theo mã ký hiệu hoặc nội dung ý nghĩa (Ví dụ: P.101, W.201, Exit...)"
+                                    placeholder={t("sign.search")}
                                     prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
                                     value={searchText}
                                     onChange={(e) => setSearchText(e.target.value)}
@@ -123,13 +125,13 @@ const SignPage = () => {
                                     onChange={(value) => setSelectedTypeId(value)}
                                     size="large"
                                 >
-                                    <Option value="All">Tất cả nhóm biển báo (All signs)</Option>
-                                    <Option value="1">Biển cấm (Prohibition signs)</Option>
-                                    <Option value="2">Biển nguy hiểm (Hazard signs)</Option>
-                                    <Option value="3">Biển hiệu lệnh (Command signs)</Option>
-                                    <Option value="4">Biển chỉ dẫn (Signposts)</Option>
-                                    <Option value="5">Biển trên đường cao tốc (Expressway sign)</Option>
-                                    <Option value="6">Biển phụ (Supplementary sign)</Option>
+                                    <Option value="All">{t("sign.allSigns")}</Option>
+                                    <Option value="1">{t("sign.prohibitionSigns")}</Option>
+                                    <Option value="2">{t("sign.hazardSigns")}</Option>
+                                    <Option value="3">{t("sign.commandSigns")}</Option>
+                                    <Option value="4">{t("sign.signposts")}</Option>
+                                    <Option value="5">{t("sign.expresswaySigns")}</Option>
+                                    <Option value="6">{t("sign.supplementarySigns")}</Option>
                                 </Select>
                             </Col>
                         </Row>
@@ -137,7 +139,7 @@ const SignPage = () => {
 
                     {loading ? (
                         <div style={{ textAlign: 'center', padding: '80px 0' }}>
-                            <Spin size="large" tip="Đang kết nối cơ sở dữ liệu..." />
+                            <Spin size="large" description="Loading" />
                         </div>
                     ) : filteredSigns.length > 0 ? (
                         <Row gutter={[20, 20]}>

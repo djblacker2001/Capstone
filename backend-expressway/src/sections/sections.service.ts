@@ -129,16 +129,40 @@ export class SectionsService {
 
         const updatePayload: Partial<Section> = {};
 
-        if (data.NameSection !== undefined) updatePayload.NameSection = data.NameSection;
-        if (data.Length !== undefined) updatePayload.Length = Number(data.Length);
-        if (data.StartLocation !== undefined) updatePayload.StartLocation = data.StartLocation;
-        if (data.StartKm !== undefined) updatePayload.StartKm = Number(data.StartKm);
-        if (data.EndLocation !== undefined) updatePayload.EndLocation = data.EndLocation;
-        if (data.EndKm !== undefined) updatePayload.EndKm = Number(data.EndKm);
-        if (data.SpeedLimit !== undefined) updatePayload.SpeedLimit = data.SpeedLimit;
-        if (data.TrafficLand !== undefined) updatePayload.TrafficLand = Number(data.TrafficLand);
-        if (data.HasEmergencyLand !== undefined) updatePayload.HasEmergencyLand = Boolean(data.HasEmergencyLand);
-        if (data.Status !== undefined) updatePayload.Status = data.Status;
+        const isValidValue = (val: any) => val !== undefined && val !== null && val !== '';
+
+        const parseValidNumber = (val: any) => {
+            if (!isValidValue(val)) return undefined;
+            const num = Number(val);
+            return isNaN(num) ? undefined : num;
+        };
+
+        // 1. Cập nhật các trường Chuỗi
+        if (isValidValue(data.NameSection)) updatePayload.NameSection = data.NameSection;
+        if (isValidValue(data.StartLocation)) updatePayload.StartLocation = data.StartLocation;
+        if (isValidValue(data.EndLocation)) updatePayload.EndLocation = data.EndLocation;
+        if (isValidValue(data.SpeedLimit)) updatePayload.SpeedLimit = data.SpeedLimit;
+        if (isValidValue(data.Status)) updatePayload.Status = data.Status;
+
+        // 2. Cập nhật các trường Số
+        const length = parseValidNumber(data.Length);
+        if (length !== undefined) updatePayload.Length = length;
+
+        const startKm = parseValidNumber(data.StartKm);
+        if (startKm !== undefined) updatePayload.StartKm = startKm;
+
+        const endKm = parseValidNumber(data.EndKm);
+        if (endKm !== undefined) updatePayload.EndKm = endKm;
+
+        const trafficLand = parseValidNumber(data.TrafficLand);
+        if (trafficLand !== undefined) updatePayload.TrafficLand = trafficLand;
+
+        // 3. Cập nhật Boolean
+        if (isValidValue(data.HasEmergencyLand)) {
+            updatePayload.HasEmergencyLand = String(data.HasEmergencyLand) === 'true' || data.HasEmergencyLand === true;
+        }
+
+        // 4. Xử lý File upload
         if (newImagePath) {
             updatePayload.Image = newImagePath;
             if (existingSection.Image) {
@@ -160,33 +184,45 @@ export class SectionsService {
             }
         }
 
+        // 5. Merge các trường cơ bản trước vào entity cũ
+        this.sectionRepository.merge(existingSection, updatePayload);
+
+        // 6. XỬ LÝ RIÊNG QUAN HỆ PROVINCE (Gán trực tiếp vào existingSection)
         const rawProvinceIds = data.provinceIds ?? (data as any).ProvinceIds;
 
-        if (rawProvinceIds !== undefined) {
+        if (isValidValue(rawProvinceIds)) {
             let provinceIdsArray: number[] = [];
+
             if (Array.isArray(rawProvinceIds)) {
                 provinceIdsArray = rawProvinceIds.map((pId) => Number(pId)).filter((n) => !isNaN(n));
             } else if (typeof rawProvinceIds === 'string') {
                 try {
                     const parsed = JSON.parse(rawProvinceIds);
-                    provinceIdsArray = Array.isArray(parsed) ? parsed.map(Number).filter((n) => !isNaN(n)) : [];
+                    provinceIdsArray = Array.isArray(parsed)
+                        ? parsed.map(Number).filter((n) => !isNaN(n))
+                        : [Number(parsed)].filter((n) => !isNaN(n));
                 } catch {
-                    provinceIdsArray = rawProvinceIds.split(',').map((pId) => Number(pId.trim())).filter((n) => !isNaN(n));
+                    provinceIdsArray = rawProvinceIds
+                        .split(',')
+                        .map((pId) => Number(pId.trim()))
+                        .filter((n) => !isNaN(n));
                 }
             }
+
             if (provinceIdsArray.length > 0) {
                 const existingProvinces = await this.provinceRepository.findBy({
                     ProvinceId: In(provinceIdsArray),
                 });
-                updatePayload.province = existingProvinces;
+                // Gán trực tiếp danh sách tỉnh mới vào Entity
+                existingSection.province = existingProvinces;
             } else {
-                updatePayload.province = [];
+                // Trường hợp client gửi mảng rỗng [] muốn xóa hết tỉnh
+                existingSection.province = [];
             }
         }
 
-        const sectionToSave = this.sectionRepository.merge(existingSection, updatePayload);
-        await this.sectionRepository.save(sectionToSave);
-
+        // 7. Save Entity đã có đầy đủ thông tin relation
+        await this.sectionRepository.save(existingSection);
         return this.findOneSection(id);
     }
 

@@ -1,14 +1,13 @@
 "use client";
 
 import { AppstoreOutlined, ArrowRightOutlined, CheckCircleOutlined, CompassOutlined, DashboardOutlined, GlobalOutlined, InfoCircleOutlined, ToolOutlined, WarningOutlined } from "@ant-design/icons";
-import { useState, useEffect } from 'react';
-import { Typography, Button, Row, Col, Card, Statistic, List, Badge, Spin, message, Empty, Table, Tag } from 'antd';
+import { useState, useEffect, useMemo } from 'react';
+import { Typography, Button, Row, Col, Card, Statistic, List, Badge, Spin, message, Empty, Table, Tag, Flex, Carousel } from 'antd';
 import Layout from "./layout/Layout";
 import "./style.css";
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
 import axiosClient from "@/api/axiosClient";
-import { t } from "i18next";
 
 const { Title, Paragraph, Text } = Typography;
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
@@ -17,10 +16,11 @@ const DynamicMapContainer = dynamic(() => import('./MapComponent'), {
   ssr: false,
   loading: () => (
     <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6' }}>
-      Đang tải dữ liệu bản đồ GIS từ Server...
+      Loading...
     </div>
   )
 });
+
 interface Expressway {
   ExpresswayId: number;
   NameExpressway: string;
@@ -32,6 +32,8 @@ interface Expressway {
 }
 
 export default function Home() {
+  const [images, setImages] = useState<string[]>([]);
+  const [imageLoading, setImageLoading] = useState<boolean>(true);
   const [statsData, setStatsData] = useState<any>(null);
   const [incidents, setIncidents] = useState([]);
   const [maintenances, setMaintenances] = useState([]);
@@ -40,15 +42,16 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { t } = useTranslation();
-  const sectionColumns = [
+
+  const sectionColumns = useMemo(() => [
     {
-      title: `${t("home.sectionName")}`,
+      title: <span suppressHydrationWarning>{t("home.sectionName")}</span>,
       dataIndex: 'NameSection',
       key: 'NameSection',
       render: (text: any) => <strong>{text || 'Chưa cập nhật'}</strong>,
     },
     {
-      title: `${t("home.route")}`,
+      title: <span suppressHydrationWarning>{t("home.route")}</span>,
       key: 'route',
       render: (_: any, record: { StartLocation: any; EndLocation: any; }) => (
         <span>
@@ -57,13 +60,42 @@ export default function Home() {
       ),
     },
     {
-      title: `${t("home.length")}`,
+      title: <span suppressHydrationWarning>{t("home.length")}</span>,
       dataIndex: 'Length',
       key: 'Length',
       width: 100,
       render: (len: any) => (len ? `${len} km` : '-'),
     },
-  ];
+  ], [t]);
+
+  const fetchHeroImages = async () => {
+    try {
+      setImageLoading(true);
+      const response = await fetch(`${baseUrl}/uploads/`);
+      const result = await response.json();
+
+      if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+        let rawData: string[] = result.data;
+        const savedOrder = localStorage.getItem('hero_images_order');
+        if (savedOrder) {
+          const parsedOrder: string[] = JSON.parse(savedOrder);
+          const ordered = parsedOrder.filter((filename) => rawData.includes(filename));
+          const rest = rawData.filter((filename) => !ordered.includes(filename));
+          rawData = [...ordered, ...rest];
+        }
+
+        const fullImageUrls = rawData.map((fileName: string) => `${baseUrl}/uploads/images/${fileName}`);
+        setImages(fullImageUrls);
+      } else {
+        setImages(['/backgroundhome.png', '/backgroundhome2.png']);
+      }
+    } catch (error) {
+      console.error("Lỗi lấy danh sách ảnh hero background:", error);
+      setImages(['/backgroundhome.png', '/backgroundhome2.png']);
+    } finally {
+      setImageLoading(false);
+    }
+  };
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -83,7 +115,6 @@ export default function Home() {
       setStatsData(resultStats.data || resultStats);
       setIncidents(dataIncident?.data?.data || []);
       setMaintenances(dataMaintenance?.data?.data || []);
-
     } catch (error) {
       console.error('Lỗi kết nối API:', error);
       message.error('Lỗi khi tải dữ liệu trang chủ');
@@ -94,7 +125,6 @@ export default function Home() {
 
   const fetchExpressways = async () => {
     try {
-      setLoading(true);
       const res = await axiosClient.get("/expressways");
       const data: Expressway[] = Array.isArray(res)
         ? res
@@ -109,14 +139,13 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Lỗi khi tải danh sách cao tốc:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchAllData();
     fetchExpressways();
+    fetchHeroImages();
   }, []);
 
   const selectedExpressway = routesData.find(item => item.ExpresswayId === activeRouteId);
@@ -131,20 +160,42 @@ export default function Home() {
       <Layout>
         <main className="landing-body-container">
           <section className="hero-text-section">
-            <Typography>
-              <Title level={1} className="hero-title">
-                {t("home.title1")}<br />
-                <span className="text-emerald">{t("home.title2")}</span>
-              </Title>
-              <Paragraph className="hero-desc">{t("home.text1")}</Paragraph>
-            </Typography>
-            <div className="hero-btns-group">
-              <Button type="primary" size="large" icon={<CompassOutlined />} href="/map" className="btn-emerald">
-                {t("home.mapAccess")}
-              </Button>
-              <Button type="default" size="large" icon={<ArrowRightOutlined />} href="#discover" className="btn-learnMore">
-                {t("home.learnMore")}
-              </Button>
+            <div className="hero-bg-carousel">
+              {imageLoading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                  <Spin size="large" />
+                </div>
+              ) : (
+                <Carousel autoplay dots={true} speed={800} autoplaySpeed={4000}>
+                  {images.map((imgSrc, index) => (
+                    <div key={index} style={{ height: '100%' }}>
+                      <div
+                        className="carousel-slide-item"
+                        style={{ backgroundImage: `url(${imgSrc})` }}
+                      />
+                    </div>
+                  ))}
+                </Carousel>
+              )}
+            </div>
+            <div className="hero-overlay" />
+            <div className="hero-content">
+              <Typography>
+                <Title level={1} className="hero-title">
+                  <span suppressHydrationWarning>{t("home.title1")}</span>
+                  <br />
+                  <span className="text-emerald" suppressHydrationWarning>{t("home.title2")}</span>
+                </Title>
+                <Paragraph className="hero-desc"><span suppressHydrationWarning>{t("home.text1")}</span></Paragraph>
+              </Typography>
+              <div className="hero-btns-group">
+                <Button type="primary" size="large" icon={<CompassOutlined />} href="/map" className="btn-emerald">
+                  <span suppressHydrationWarning>{t("home.mapAccess")}</span>
+                </Button>
+                <Button type="default" size="large" icon={<ArrowRightOutlined />} href="#discover" className="btn-learnMore">
+                  <span suppressHydrationWarning>{t("home.learnMore")}</span>
+                </Button>
+              </div>
             </div>
           </section>
 
@@ -161,7 +212,7 @@ export default function Home() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
                       <p style={{ color: '#00a859', margin: 0, fontSize: '13px', fontWeight: 600 }}>
-                        {t("home.totalLength")}
+                        <span suppressHydrationWarning>{t("home.totalLength")}</span>
                       </p>
                       <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#00a859' }}>
                         {totalLength} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>Km</span>
@@ -184,7 +235,7 @@ export default function Home() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
                       <p style={{ color: '#00a859', margin: 0, fontSize: '13px', fontWeight: 600 }}>
-                        {t("home.progress")}
+                        <span suppressHydrationWarning>{t("home.progress")}</span>
                       </p>
                       <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#00a859' }}>
                         {operationalRate} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>%</span>
@@ -207,10 +258,10 @@ export default function Home() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
                       <p style={{ color: '#00a859', margin: 0, fontSize: '13px', fontWeight: 600 }}>
-                        {t("home.infrastructure")}
+                        <span suppressHydrationWarning>{t("home.infrastructure")}</span>
                       </p>
                       <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#00a859' }}>
-                        482 <span style={{ fontSize: '14px', fontWeight: 'normal' }}>{t("home.score")}</span>
+                        482 <span suppressHydrationWarning style={{ fontSize: '14px', fontWeight: 'normal' }}>{t("home.score")}</span>
                       </h2>
                     </div>
                     <div style={{ background: '#00a859', padding: '10px', borderRadius: '10px', color: '#fff', fontSize: '20px', display: 'flex' }}>
@@ -227,7 +278,7 @@ export default function Home() {
               <Col xs={24} md={12}>
                 <Card
                   title={
-                    <span style={{ color: '#ff4d4f', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span suppressHydrationWarning style={{ color: '#ff4d4f', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <WarningOutlined /> {t("home.incident")} ({incidents.length})
                     </span>
                   }
@@ -247,7 +298,7 @@ export default function Home() {
               <Col xs={24} md={12}>
                 <Card
                   title={
-                    <span style={{ color: '#722ed1', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span suppressHydrationWarning style={{ color: '#722ed1', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <ToolOutlined /> {t("home.maintenance")} ({maintenances.length})
                     </span>
                   }
@@ -264,69 +315,68 @@ export default function Home() {
                   />
                 </Card>
               </Col>
-
             </Row>
           </section>
 
           <section id="discover" className="gis-preview-section">
             <div className="section-header">
-              <Title level={2}>{t("home.mapSystem")}</Title>
+              <Title suppressHydrationWarning level={2}>{t("home.mapSystem")}</Title>
             </div>
 
             <Row gutter={[24, 24]} className="gis-layout-grid">
               <Col xs={24} md={8}>
                 {loading ? (
                   <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                    <Spin tip="Đang kết nối API cao tốc..." />
+                    <Spin description="Đang kết nối API cao tốc..." />
                   </div>
                 ) : (
-                  <List
-                    dataSource={routesData}
-                    style={{ maxHeight: '480px', overflowY: 'auto', paddingRight: '8px' }}
-                    renderItem={(item) => {
-                      const isActive = activeRouteId === item.ExpresswayId;
+                  <div style={{ maxHeight: '480px', overflowY: 'auto', paddingRight: '8px' }}>
+                    <Flex vertical gap={0}>
+                      {routesData?.map((item) => {
+                        const isActive = activeRouteId === item.ExpresswayId;
 
-                      return (
-                        <List.Item
-                          key={item.ExpresswayId}
-                          className={`route-list-item ${isActive ? 'item-active' : ''}`}
-                          onClick={() => setActiveRouteId(item.ExpresswayId)}
-                          style={{
-                            cursor: 'pointer',
-                            transition: 'all 0.3s',
-                            borderRadius: '8px',
-                            marginBottom: '8px',
-                            padding: '12px'
-                          }}
-                        >
-                          <div style={{ width: '100%' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                              <Text strong style={{ color: isActive ? '#0A9646' : '#262626', fontSize: '14px', flex: 1 }}>
-                                {item.NameExpressway}
-                              </Text>
-                              {item.Symbol && (
-                                <Badge
-                                  count={item.Symbol}
-                                  style={{
-                                    backgroundColor: isActive ? '#0A9646' : '#52c41a',
-                                    fontWeight: 600
-                                  }}
-                                />
-                              )}
-                            </div>
+                        return (
+                          <div
+                            key={item.ExpresswayId}
+                            className={`route-list-item ${isActive ? 'item-active' : ''}`}
+                            onClick={() => setActiveRouteId(item.ExpresswayId)}
+                            style={{
+                              cursor: 'pointer',
+                              transition: 'all 0.3s',
+                              borderRadius: '8px',
+                              marginBottom: '8px',
+                              padding: '12px'
+                            }}
+                          >
+                            <div style={{ width: '100%' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                                <Text strong style={{ color: isActive ? '#0A9646' : '#262626', fontSize: '14px', flex: 1 }}>
+                                  {item.NameExpressway}
+                                </Text>
+                                {item.Symbol && (
+                                  <Badge
+                                    count={item.Symbol}
+                                    style={{
+                                      backgroundColor: isActive ? '#0A9646' : '#52c41a',
+                                      fontWeight: 600
+                                    }}
+                                  />
+                                )}
+                              </div>
 
-                            <div style={{ marginTop: '6px' }}>
-                              <Text type="secondary" style={{ fontSize: '12px' }}>
-                                {item.Description || (item.section && item.section.length > 0
-                                  ? `Gồm ${item.section.length} phân đoạn tuyến`
-                                  : 'Tuyến đường cao tốc quốc gia')}
-                              </Text>
+                              <div style={{ marginTop: '6px' }}>
+                                <Text type="secondary" style={{ fontSize: '12px' }}>
+                                  {item.Description || (item.section && item.section.length > 0
+                                    ? `Gồm ${item.section.length} phân đoạn tuyến`
+                                    : 'Tuyến đường cao tốc quốc gia')}
+                                </Text>
+                              </div>
                             </div>
                           </div>
-                        </List.Item>
-                      );
-                    }}
-                  />
+                        );
+                      })}
+                    </Flex>
+                  </div>
                 )}
 
                 {!isFullscreen && (
@@ -336,7 +386,7 @@ export default function Home() {
                       onClick={(e) => { e.preventDefault(); setIsFullscreen(true); }}
                       style={{ color: '#0A9646', textDecoration: 'underline', fontSize: '14px', fontWeight: 500 }}
                     >
-                      {t("home.fullScreen")}
+                      <span suppressHydrationWarning>{t("home.fullScreen")}</span>
                     </a>
                   </div>
                 )}

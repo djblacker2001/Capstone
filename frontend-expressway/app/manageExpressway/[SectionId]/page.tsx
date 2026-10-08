@@ -186,30 +186,26 @@ export default function UpdateSectionPage() {
             const mainValues = await mainForm.validateFields();
             setSubmitting(true);
             const formData = new FormData();
-
             Object.keys(mainValues).forEach((key) => {
-                if (key !== 'ProvinceIds' && mainValues[key] !== undefined && mainValues[key] !== null) {
+                if (
+                    key !== 'ProvinceIds' &&
+                    key !== 'provinceIds' &&
+                    mainValues[key] !== undefined &&
+                    mainValues[key] !== null
+                ) {
                     formData.append(key, mainValues[key]);
                 }
             });
 
             if (Array.isArray(mainValues.ProvinceIds)) {
-                mainValues.ProvinceIds.forEach((id: number) => {
-                    formData.append('ProvinceIds', String(id));
-                });
+                formData.append('provinceIds', JSON.stringify(mainValues.ProvinceIds));
             }
 
-            if (speedSignFile) {
-                formData.append('SpeedSign', speedSignFile);
-            }
-            if (mapDataFile) {
-                formData.append('MapData', mapDataFile);
-            }
-            if (imageFile) {
-                formData.append('Image', imageFile);
-            }
+            if (speedSignFile) formData.append('SpeedSign', speedSignFile);
+            if (mapDataFile) formData.append('MapData', mapDataFile);
+            if (imageFile) formData.append('Image', imageFile);
 
-            await axiosClient.put(`/sections/${sectionId}`, formData, {
+            await axiosClient.patch(`/sections/${sectionId}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
 
@@ -325,9 +321,9 @@ export default function UpdateSectionPage() {
             align: 'center',
             render: (_: any, record: any, index: number) => (
                 <Space size="small">
-                    <Button type="primary" ghost size="small" icon={<EditOutlined />} onClick={() => handleStartEditSubItem(record, index)}></Button>
+                    <Button type="primary" ghost size="small" icon={<EditOutlined />} onClick={() => handleStartEditSubItem(record, index)}>Cập nhật</Button>
                     <Popconfirm title="Xóa hạ tầng này?" onConfirm={() => handleDeleteSubItemFromState(index)} okText="Xóa" cancelText="Hủy" okButtonProps={{ danger: true }}>
-                        <Button danger size="small" icon={<DeleteOutlined />} />
+                        <Button danger size="small" icon={<DeleteOutlined />} >Xóa</Button>
                     </Popconfirm>
                 </Space>
             ),
@@ -597,7 +593,7 @@ export default function UpdateSectionPage() {
                                                     ]} />
                                                 </Form.Item>
                                             </Col>
-                                            <Col xs={24} md={24}>
+                                            <Col xs={24} md={10}>
                                                 <Form.Item label="Tiện ích trạm">
                                                     <Space size="large">
                                                         <Form.Item name="HasPetrol" valuePropName="checked" noStyle>
@@ -612,6 +608,16 @@ export default function UpdateSectionPage() {
                                                     </Space>
                                                 </Form.Item>
                                             </Col>
+                                            <Col xs={24} md={3}>
+                                                <Form.Item name="Longitude" label="Kinh độ">
+                                                    <InputNumber style={{ width: '100%' }} />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={3}>
+                                                <Form.Item name="Latitude" label="Vĩ độ">
+                                                    <InputNumber style={{ width: '100%' }} />
+                                                </Form.Item>
+                                            </Col>
                                         </Row>
                                     )}
 
@@ -619,7 +625,14 @@ export default function UpdateSectionPage() {
                                         <Row gutter={16}>
                                             <Col xs={24} md={12}><Form.Item name="NameBridge" label="Tên cầu" rules={[{ required: true }]}><Input /></Form.Item></Col>
                                             <Col xs={24} md={6}><Form.Item name="Length" label="Chiều dài (m)"><InputNumber style={{ width: '100%' }} /></Form.Item></Col>
-                                            <Col xs={24} md={6}><Form.Item name="Type" label="Loại cầu"><Input placeholder="VD: River bridge" /></Form.Item></Col>
+                                            <Col xs={24} md={6}>
+                                                <Form.Item name="Type" label="Loại cầu" initialValue="River bridge">
+                                                    <Select options={[
+                                                        { value: 'River bridge', label: 'Cầu vượt sông (River bridge)' },
+                                                        { value: 'Overpass', label: 'Cầu vượt (Overpass)' },
+                                                    ]} />
+                                                </Form.Item>
+                                            </Col>
                                             <Col xs={24} md={12}><Form.Item name="Crossing" label="Bắc qua"><Input placeholder="VD: Châu Giang River" /></Form.Item></Col>
                                         </Row>
                                     )}

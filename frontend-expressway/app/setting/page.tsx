@@ -9,7 +9,7 @@ import Header from "../components/Header/Header";
 import { useTranslation } from 'react-i18next';
 
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export default function SettingPage() {
     
@@ -177,7 +177,7 @@ export default function SettingPage() {
     const tabItems = [
         {
             key: '1',
-            label: 'Personal Information',
+            label: t("header.personalinformation"),
             children: (
                 <Form form={formInfo} layout="vertical" onFinish={onUpdateInfo}>
                     <div style={{ textAlign: 'center', marginBottom: 25 }}>
@@ -193,17 +193,17 @@ export default function SettingPage() {
                                 showUploadList={false}
                                 accept="image/*"
                             >
-                                <Button icon={<UploadOutlined />}>Choose new image</Button>
+                                <Button icon={<UploadOutlined />}>{t("setting.chooseImg")}</Button>
                             </Upload>
                         </div>
                     </div>
 
                     <Form.Item
-                        label="Username"
+                        label={t("profile.username")}
                         name="username"
                         rules={[{ required: true, message: 'Tên đăng nhập không được để trống!' }]}
                     >
-                        <Input prefix={<UserOutlined />} placeholder="Nhập username" />
+                        <Input prefix={<UserOutlined />} />
                     </Form.Item>
 
                     <Form.Item
@@ -214,60 +214,60 @@ export default function SettingPage() {
                             { type: 'email', message: 'Email không đúng định dạng!' }
                         ]}
                     >
-                        <Input prefix={<MailOutlined />} placeholder="Nhập email" />
+                        <Input prefix={<MailOutlined />} />
                     </Form.Item>
 
                     <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={loadingInfo} block size="large" style={{ marginTop: 10 }}>
-                        Save
+                        {t("setting.save")}
                     </Button>
                 </Form>
             )
         },
         {
             key: '2',
-            label: 'Change Password',
+            label: t("setting.changePass"),
             children: (
                 <Form form={formPassword} layout="vertical" onFinish={onChangePassword}>
                     <Form.Item
-                        label="Mật khẩu hiện tại"
+                        label= {t("setting.currentPass")}
                         name="oldPassword"
-                        rules={[{ required: true, message: 'Vui lòng nhập mật khẩu cũ!' }]}
+                        rules={[{ required: true, message: `${t("setting.please")} ${t("setting.enter")} ${t("setting.currentPass")}!` }]}
                     >
-                        <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu cũ" />
+                        <Input.Password prefix={<LockOutlined />} />
                     </Form.Item>
 
                     <Form.Item
-                        label="Mật khẩu mới"
+                        label= {t("setting.newPass")}
                         name="newPassword"
                         rules={[
-                            { required: true, message: 'Vui lòng nhập mật khẩu mới!' },
-                            { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }
+                            { required: true, message: `${t("setting.please")} ${t("setting.enter")} ${t("setting.newPass")}!` },
+                            { min: 6, message: t("setting.pass6") }
                         ]}
                     >
-                        <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu mới" />
+                        <Input.Password prefix={<LockOutlined />} />
                     </Form.Item>
 
                     <Form.Item
-                        label="Xác nhận mật khẩu mới"
+                        label={t("setting.confirmPass")}
                         name="confirmPassword"
                         dependencies={['newPassword']}
                         rules={[
-                            { required: true, message: 'Vui lòng xác nhận mật khẩu!' },
+                            { required: true, message: `${t("setting.please")} ${t("setting.confirmPass")}!` },
                             ({ getFieldValue }) => ({
                                 validator(_, value) {
                                     if (!value || getFieldValue('newPassword') === value) {
                                         return Promise.resolve();
                                     }
-                                    return Promise.reject(new Error('Mật khẩu xác nhận không khớp!'));
+                                    return Promise.reject(new Error(t("setting.matchPass")));
                                 },
                             }),
                         ]}
                     >
-                        <Input.Password prefix={<LockOutlined />} placeholder="Xác nhận lại mật khẩu mới" />
+                        <Input.Password prefix={<LockOutlined />} />
                     </Form.Item>
 
-                    <Button type="primary" danger htmlType="submit" loading={loadingPassword} block size="large" style={{ marginTop: 10 }}>
-                        Đổi mật khẩu
+                    <Button type="primary" htmlType="submit" loading={loadingPassword} block size="large" style={{ marginTop: 10 }}>
+                        {t("setting.changePass")}
                     </Button>
                 </Form>
             )
@@ -284,16 +284,15 @@ export default function SettingPage() {
                 backgroundRepeat: "no-repeat",
                 backgroundAttachment: "fixed",
                 width: "100%",
-                minHeight: "calc(100vh - 64px)",
+                minHeight: "100vh",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center"
             }}>
                 <div className="expr">
                     <div className="form" style={{ maxWidth: 500, margin: '0 auto' }}>
-                        <h2 style={{ textAlign: 'center', marginBottom: 10 }}>Setting Account</h2>
+                        <h2 style={{ textAlign: 'center', marginBottom: 10 }}>{t("setting.settingAccount")}</h2>
                         <Divider style={{ margin: '12px 0' }} />
-
                         <Tabs defaultActiveKey="1" items={tabItems} centered />
                     </div>
                 </div>
