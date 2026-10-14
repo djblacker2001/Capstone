@@ -410,14 +410,14 @@ export default function ExpresswayPage() {
                                             </Space>
                                         </Descriptions.Item>
 
-                                        <Descriptions.Item label="Tổng chiều dài">
+                                        <Descriptions.Item label={t("home.totalLength")}>
                                             <Space>
                                                 <Text strong>{data.Length}</Text>
                                                 <Text type="secondary">Km</Text>
                                             </Space>
                                         </Descriptions.Item>
 
-                                        <Descriptions.Item label="Tốc độ cho phép">
+                                        <Descriptions.Item label={t("section.speed")}>
                                             <Space>
                                                 <div className="whitespace-pre-line">
                                                     {data.SpeedLimit}
@@ -425,25 +425,25 @@ export default function ExpresswayPage() {
                                             </Space>
                                         </Descriptions.Item>
 
-                                        <Descriptions.Item label="Cột mốc tuyến đường">
+                                        <Descriptions.Item label={t("section.routeMarkers")}>
                                             <Space separator={<Text type="secondary">→</Text>}>
                                                 <Text>{data.StartLocation} <Text type="secondary">(Km {data.StartKm})</Text></Text>
                                                 <Text>{data.EndLocation} <Text type="secondary">(Km {data.EndKm})</Text></Text>
                                             </Space>
                                         </Descriptions.Item>
 
-                                        <Descriptions.Item label="Quy mô làn xe">
+                                        <Descriptions.Item label={t("section.laneConfiguration")}>
                                             <Flex vertical gap={0}>
-                                                <Text>{data.TrafficLand} làn xe chính</Text>
+                                                <Text>{data.TrafficLand} {t("section.land")}</Text>
                                                 {data.HasEmergencyLand && (
                                                     <Text type="success" style={{ fontSize: '13px' }}>
-                                                        <SafetyCertificateOutlined /> Có làn dừng khẩn cấp
+                                                        <SafetyCertificateOutlined /> {t("section.emergencyLand")}
                                                     </Text>
                                                 )}
                                             </Flex>
                                         </Descriptions.Item>
 
-                                        <Descriptions.Item label="Trạng thái vận hành">
+                                        <Descriptions.Item label={t("expressway.status")}>
                                             {getStatusBadge(data.Status)}
                                         </Descriptions.Item>
                                     </Descriptions>

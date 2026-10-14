@@ -1,7 +1,7 @@
 'use client';
 
 import { DeleteOutlined, EditOutlined, PictureOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Input, InputNumber, Modal, Popconfirm, Row, Select, Space, Table, Tag, message } from "antd";
+import { Button, Card, Col, Form, Input, InputNumber, Modal, Popconfirm, Row, Select, Space, Table, Tabs, Tag, message } from "antd";
 import { useEffect, useState } from "react";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import MainLayout from "../layout/Layout";
@@ -10,6 +10,8 @@ import Link from "next/link";
 import "./manageExpressway.css"
 import { useRouter } from "next/navigation";
 import ManageHeroImagesModal from "./ManageHeroImagesModal";
+import { EditScoreModal } from "./EditScoreModal";
+import { UpdateExpresswayModal } from "./UpdateExpresswayModal";
 
 export default function ManageExpresswayPage() {
     const [data, setData] = useState<SectionType[]>([]);
@@ -20,39 +22,59 @@ export default function ManageExpresswayPage() {
     const [editingSection, setEditingSection] = useState<SectionType | null>(null);
     const [form] = Form.useForm();
     const router = useRouter();
+    const [score, setScore] = useState<number>(482);
+    const [selectedExpresswayId, setSelectedExpresswayId] = useState<number>(100);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [selectedExpressway, setSelectedExpressway] = useState<any>(null);
+    const [expresswayDetail, setExpresswayDetail] = useState<any>(null);
+
+    useEffect(() => {
+        const savedScore = localStorage.getItem('app_safety_score');
+        if (savedScore !== null) {
+            setScore(Number(savedScore));
+        }
+    }, []);
+
+    const handleUpdateScore = (newScore: number) => {
+        setScore(newScore);
+        localStorage.setItem('app_safety_score', newScore.toString());
+    };
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [statsRes, sectionsStatsRes, sectionsListRes]: [any, any, any] = await Promise.all([
+            const [statsRes, expresswayDetailRes]: [any, any] = await Promise.all([
                 axiosClient.get('/expressways/statistics'),
-                axiosClient.get('/sections/statistics'),
-                axiosClient.get('/sections')
+                axiosClient.get(`/expressways/${selectedExpresswayId}`)
             ]);
+
+            const expData = expresswayDetailRes?.data?.data || expresswayDetailRes?.data || expresswayDetailRes;
+            setExpresswayDetail(expData);
 
             const statsData = statsRes?.data?.data || statsRes?.data || statsRes;
             setStats(statsData);
-
-            const statsList = sectionsStatsRes?.data?.data || sectionsStatsRes?.data || sectionsStatsRes || [];
-            const rawSections = sectionsListRes?.data?.data || sectionsListRes?.data || sectionsListRes || [];
+            const expresswayData = expresswayDetailRes?.data?.data || expresswayDetailRes?.data || expresswayDetailRes;
+            const rawSections = expresswayData?.section || expresswayData?.sections || [];
 
             if (Array.isArray(rawSections)) {
-                const mergedData = rawSections.map((item: any) => {
-                    const statItem = Array.isArray(statsList)
-                        ? statsList.find((s: any) => (s.id || s.SectionId) === (item.SectionId || item.id))
-                        : {};
+                const formattedSections = rawSections.map((item: any) => ({
+                    ...item,
+                    expresswayName: expresswayData?.NameExpressway || 'Chưa xác định',
+                    bridgeCount: item?.bridge?.length || 0,
+                    tunnelCount: item?.tunnel?.length || 0,
+                    interchangeCount: item?.interchange?.length || 0,
+                    restStopCount: item?.restStop?.length || 0,
+                    totalSectionLength: item?.Length || 0,
+                }));
 
-                    return {
-                        ...statItem,
-                        ...item,
-                    };
-                });
-
-                setData(mergedData);
+                setData(formattedSections);
+            } else {
+                setData([]);
             }
         } catch (error) {
             console.error('Lỗi khi tải dữ liệu:', error);
             message.error('Không thể kết nối đến máy chủ dữ liệu!');
+            setData([]);
         } finally {
             setLoading(false);
         }
@@ -60,7 +82,11 @@ export default function ManageExpresswayPage() {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [selectedExpresswayId]);
+
+    useEffect(() => {
+        fetchData();
+    }, [selectedExpresswayId]);
 
     const handleDelete = async (sectionId: number | string) => {
         try {
@@ -79,6 +105,12 @@ export default function ManageExpresswayPage() {
         const term = searchText.toLowerCase();
         return name.toLowerCase().includes(term) || expName.toLowerCase().includes(term);
     });
+
+    const EXPRESSWAY_OPTIONS = [
+        { key: 100, label: 'Cao tốc Bắc - Nam phía Đông' },
+        { key: 200, label: 'Cao tốc Bắc - Nam phía Tây' },
+        { key: 300, label: 'Các tuyến đường độc lập' },
+    ];
 
     const columns = [
         {
@@ -257,7 +289,6 @@ export default function ManageExpresswayPage() {
                     onClose={() => setIsBannerModalOpen(false)}
                 />
 
-
                 <div style={{ padding: '0 24px 24px 24px', maxWidth: '2000px', margin: '0 auto' }}>
                     <Card style={{ marginBottom: '16px', borderRadius: '8px' }}>
                         <Row justify="space-between" align="middle">
@@ -273,6 +304,8 @@ export default function ManageExpresswayPage() {
                             </Col>
                             <Col>
                                 <Space>
+                                    <Button size="large">
+                                        <EditScoreModal currentScore={score} onScoreChange={handleUpdateScore} /></Button>
                                     <Button
                                         size="large"
                                         icon={<PictureOutlined />}
@@ -295,11 +328,42 @@ export default function ManageExpresswayPage() {
                         </Row>
                     </Card>
 
-                    <Card title="DANH SÁCH CÁC PHÂN ĐOẠN CAO TỐC" style={{ borderRadius: '8px' }}>
+                    <Card style={{ marginBottom: '16px', borderRadius: '8px' }}>
+                        <Tabs
+                            activeKey={String(selectedExpresswayId)}
+                            onChange={(key) => setSelectedExpresswayId(Number(key))}
+                            type="card"
+                            items={EXPRESSWAY_OPTIONS.map((item) => ({
+                                key: String(item.key),
+                                label: item.label,
+                            }))}
+                        />
+                    </Card>
+                    <Card title={`DANH SÁCH CÁC PHÂN ĐOẠN CAO TỐC`} style={{ borderRadius: '8px' }}>
+                        <Button
+                            type="primary"
+                            icon={<EditOutlined />}
+                            onClick={() => {
+                                setSelectedExpressway(expresswayDetail);
+                                setIsUpdateModalOpen(true);
+                            }}
+                            style={{marginBottom: '10px'}}
+                        >
+                            Cập nhật hệ thống tuyến đường
+                        </Button>
+
+                        {selectedExpressway && (
+                            <UpdateExpresswayModal
+                                isOpen={isUpdateModalOpen}
+                                onClose={() => setIsUpdateModalOpen(false)}
+                                expresswayData={selectedExpressway}
+                                onSuccess={() => fetchData()}
+                            />
+                        )}
                         <Table
                             columns={columns}
                             dataSource={filteredData}
-                            rowKey="SectionId"
+                            rowKey={(record) => record.SectionId || record.id}
                             loading={loading}
                             pagination={{ pageSize: 7 }}
                             bordered

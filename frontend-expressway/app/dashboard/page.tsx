@@ -59,7 +59,7 @@ export default function DashboardPage() {
                 <Row gutter={[10, 10]} style={{ padding: "30px" }}>
                     <Col xs={24} sm={12} md={4}>
                         <Card
-                            bordered={false}
+                            variant="borderless"
                             className="dashboard-stat-card"
                             style={{
                                 background: 'linear-gradient(135deg, #e6f7ff 0%, #ffffff 100%)',
@@ -85,7 +85,7 @@ export default function DashboardPage() {
 
                     <Col xs={24} sm={12} md={4}>
                         <Card
-                            bordered={false}
+                            variant="borderless"
                             className="dashboard-stat-card"
                             style={{
                                 background: 'linear-gradient(135deg, #f9f0ff 0%, #ffffff 100%)',
@@ -111,7 +111,7 @@ export default function DashboardPage() {
 
                     <Col xs={24} sm={12} md={4}>
                         <Card
-                            bordered={false}
+                            variant="borderless"
                             className="dashboard-stat-card"
                             style={{
                                 background: 'linear-gradient(135deg, #fff7e6 0%, #ffffff 100%)',
@@ -137,7 +137,7 @@ export default function DashboardPage() {
 
                     <Col xs={24} sm={12} md={4}>
                         <Card
-                            bordered={false}
+                            variant="borderless"
                             className="dashboard-stat-card"
                             style={{
                                 background: 'linear-gradient(135deg, #f6ffed 0%, #ffffff 100%)',
@@ -162,7 +162,7 @@ export default function DashboardPage() {
                     </Col>
                     <Col xs={24} sm={12} md={4}>
                         <Card
-                            bordered={false}
+                            variant="borderless"
                             className="dashboard-stat-card"
                             style={{
                                 background: 'linear-gradient(135deg, #fff0f6 0%, #ffffff 100%)',
@@ -187,7 +187,7 @@ export default function DashboardPage() {
                     </Col>
                     <Col xs={24} sm={12} md={4}>
                         <Card
-                            bordered={false}
+                            variant="borderless"
                             className="dashboard-stat-card"
                             style={{
                                 background: 'linear-gradient(135deg, #fff1f0 0%, #ffffff 100%)',

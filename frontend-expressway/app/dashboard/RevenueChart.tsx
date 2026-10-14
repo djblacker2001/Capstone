@@ -11,7 +11,7 @@ export default function RevenueChart() {
     const [data, setData] = useState<ChartDataItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -74,7 +74,7 @@ export default function RevenueChart() {
 
     if (loading) {
         return (
-            <Card bordered={false} style={{ width: '100%', borderRadius: '12px', textAlign: 'center', padding: '40px' }}>
+            <Card variant="borderless" style={{ width: '100%', borderRadius: '12px', textAlign: 'center', padding: '40px' }}>
                 <Spin description="Loading analytics chart data..." />
             </Card>
         );
@@ -104,7 +104,7 @@ export default function RevenueChart() {
             },
         },
         point: {
-            shapeField: 'dot',
+            shapeField: 'circle',
             sizeField: 4,
             style: {
                 stroke: '#003366',
@@ -139,7 +139,7 @@ export default function RevenueChart() {
 
     return (
         <Card
-            bordered={false}
+            variant="borderless"
             style={{
                 width: '100%',
                 borderRadius: '12px',

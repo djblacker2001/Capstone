@@ -170,7 +170,9 @@ const SignPage = () => {
                                                     flexDirection: 'column',
                                                     border: '1px solid #f0f0f0'
                                                 }}
-                                                bodyStyle={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}
+                                                styles={{
+                                                    body: { padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }
+                                                }}
                                                 cover={
                                                     <div style={{
                                                         background: '#f9f9f9',

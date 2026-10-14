@@ -9,6 +9,7 @@ import { Bridge } from "../bridges/bridges.entity";
 import { Tunnel } from "../tunnels/tunnels.entity";
 import { Sign } from "../signs/signs.entity";
 import { I18nContext, I18nService } from 'nestjs-i18n';
+import { CreateExpresswayDto } from "./dto/create-expressways.dto";
 
 @Injectable()
 export class ExpresswaysService {
@@ -112,16 +113,35 @@ export class ExpresswaysService {
     };
   }
 
-  async create(data: any) {
-    const nameExpressway = data.NameExpressway || data.nameExpressway;
+  async create(data: CreateExpresswayDto, file?: Express.Multer.File) {
+    const nameExpressway = data.NameExpressway || (data as any).nameExpressway;
+
+    // 1. Kiểm tra trùng tên cao tốc
     if (nameExpressway) {
       const isExist = await this.expresswayRepository.findOne({
-        where: { NameExpressway: nameExpressway }
+        where: { NameExpressway: nameExpressway },
       });
       if (isExist) {
         throw new BadRequestException(
-          this.i18n.t('expressway.NAME_TAKEN', { lang: this.lang, args: { name: nameExpressway } })
+          this.i18n.t('expressway.NAME_TAKEN', {
+            lang: this.lang,
+            args: { name: nameExpressway },
+          }),
         );
+      }
+    }
+
+    if (file) {
+      if (!file.originalname.endsWith('.json') && file.mimetype !== 'application/json') {
+        throw new BadRequestException('Chỉ chấp nhận file định dạng .json!');
+      }
+
+      try {
+        const jsonContent = file.buffer.toString('utf-8');
+        JSON.parse(jsonContent);
+        data.MapData = jsonContent;
+      } catch (error) {
+        throw new BadRequestException('Nội dung file .json không đúng định dạng JSON hợp lệ!');
       }
     }
 
@@ -149,15 +169,34 @@ export class ExpresswaysService {
     return expressway;
   }
 
-  async update(id: number, data: any) {
+  async update(id: number, data: any, file?: Express.Multer.File) {
     const expressway = await this.expresswayRepository.findOne({ where: { ExpresswayId: id } });
     if (!expressway) {
-      throw new NotFoundException(
-        this.i18n.t('expressway.NOT_FOUND', { lang: this.lang, args: { id } }) || `Expressway with ID ${id} not found!`
-      );
+      throw new NotFoundException(`Expressway with ID ${id} not found!`);
     }
+
     const nameExpressway = data.NameExpressway || data.nameExpressway;
     if (nameExpressway !== undefined) expressway.NameExpressway = nameExpressway;
+    if (data.Symbol !== undefined) expressway.Symbol = data.Symbol;
+    if (data.Description !== undefined) expressway.Description = data.Description;
+
+    // Xử lý File JSON
+    if (file) {
+      try {
+        let jsonContent = file.buffer.toString('utf-8');
+        jsonContent = jsonContent.replace(/^\uFEFF/, '').trim(); // Bỏ ký tự BOM
+
+        if (jsonContent) {
+          JSON.parse(jsonContent); // Validate cú pháp JSON
+          expressway.MapData = jsonContent;
+        }
+      } catch (error) {
+        throw new BadRequestException('Nội dung file .json không đúng định dạng JSON hợp lệ!');
+      }
+    } else if (data.MapData) {
+      expressway.MapData = data.MapData;
+    }
+
     await this.expresswayRepository.save(expressway);
     return this.findOneExpressway(id);
   }

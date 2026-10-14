@@ -8,11 +8,9 @@ import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
 import Header from "../components/Header/Header";
 import { useTranslation } from 'react-i18next';
 
-
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export default function SettingPage() {
-    
     const router = useRouter();
     const [formInfo] = Form.useForm();
     const [formPassword] = Form.useForm();
@@ -23,29 +21,35 @@ export default function SettingPage() {
     const [previewImage, setPreviewImage] = useState('');
     const [loadingInfo, setLoadingInfo] = useState(false);
     const [loadingPassword, setLoadingPassword] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        setIsMounted(true);
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
-            const parsedUser = JSON.parse(savedUser);
-            setUser(parsedUser);
-            formInfo.setFieldsValue({
-                username: parsedUser.Username || parsedUser.username,
-                email: parsedUser.Email || parsedUser.email,
-            });
+            try {
+                const parsedUser = JSON.parse(savedUser);
+                setUser(parsedUser);
+                formInfo.setFieldsValue({
+                    username: parsedUser.Username || parsedUser.username,
+                    email: parsedUser.Email || parsedUser.email,
+                });
 
-            const currentAvatar = parsedUser.Avatar || parsedUser.avatar;
-            if (currentAvatar) {
-                const fullAvatarUrl = currentAvatar.startsWith('http')
-                    ? currentAvatar
-                    : currentAvatar.includes('uploads/avatars')
-                        ? `${baseUrl}/${currentAvatar}`
-                        : `${baseUrl}/uploads/avatars/${currentAvatar}`;
+                const currentAvatar = parsedUser.Avatar || parsedUser.avatar;
+                if (currentAvatar) {
+                    const fullAvatarUrl = currentAvatar.startsWith('http')
+                        ? currentAvatar
+                        : currentAvatar.includes('uploads/avatars')
+                            ? `${baseUrl}/${currentAvatar}`
+                            : `${baseUrl}/uploads/avatars/${currentAvatar}`;
 
-                setPreviewImage(fullAvatarUrl);
+                    setPreviewImage(fullAvatarUrl);
+                }
+            } catch (error) {
+                console.error("Lỗi parse user data từ localStorage:", error);
             }
         }
-    }, [formInfo]);
+    }, [formInfo]); // Bạn có thể để [] nếu formInfo ổn định
 
     const handleBeforeUpload = (file: any) => {
         const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
@@ -172,7 +176,7 @@ export default function SettingPage() {
         }
     };
 
-    if (!user) return <div style={{ textAlign: 'center', marginTop: 100 }}>Loading...</div>;
+    if (!isMounted || !user) return <div style={{ textAlign: 'center', marginTop: 100 }}>Loading...</div>;
 
     const tabItems = [
         {
@@ -229,7 +233,7 @@ export default function SettingPage() {
             children: (
                 <Form form={formPassword} layout="vertical" onFinish={onChangePassword}>
                     <Form.Item
-                        label= {t("setting.currentPass")}
+                        label={t("setting.currentPass")}
                         name="oldPassword"
                         rules={[{ required: true, message: `${t("setting.please")} ${t("setting.enter")} ${t("setting.currentPass")}!` }]}
                     >
@@ -237,7 +241,7 @@ export default function SettingPage() {
                     </Form.Item>
 
                     <Form.Item
-                        label= {t("setting.newPass")}
+                        label={t("setting.newPass")}
                         name="newPassword"
                         rules={[
                             { required: true, message: `${t("setting.please")} ${t("setting.enter")} ${t("setting.newPass")}!` },

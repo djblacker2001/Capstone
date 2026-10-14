@@ -69,7 +69,7 @@ export default function ViolationChart() {
 
     if (loading) {
         return (
-            <Card bordered={false} style={{ width: '100%', borderRadius: '12px', textAlign: 'center', padding: '40px' }}>
+            <Card variant="borderless" style={{ width: '100%', borderRadius: '12px', textAlign: 'center', padding: '40px' }}>
                 <Spin description="Loading violation analysis..." />
             </Card>
         );
@@ -82,7 +82,7 @@ export default function ViolationChart() {
         yField: 'violationCount',
         label: {
             text: (d: ChartDataItem) => `${d.violationCount}`,
-            position: 'element-top',
+            position: 'top',
             style: {
                 fill: '#000000',
                 opacity: 0.7,
@@ -117,7 +117,7 @@ export default function ViolationChart() {
 
     return (
         <Card
-            bordered={false}
+            variant="borderless"
             style={{
                 width: '100%',
                 borderRadius: '12px',

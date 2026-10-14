@@ -41,6 +41,7 @@ export default function Home() {
   const [activeRouteId, setActiveRouteId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [score, setScore] = useState<number>();
   const { t } = useTranslation();
 
   const sectionColumns = useMemo(() => [
@@ -141,11 +142,19 @@ export default function Home() {
       console.error("Lỗi khi tải danh sách cao tốc:", error);
     }
   };
+  
+  const fetchScore = async () => {
+    const savedScore = localStorage.getItem('app_safety_score');
+    if (savedScore !== null) {
+      setScore(Number(savedScore));
+    }
+  };
 
   useEffect(() => {
     fetchAllData();
     fetchExpressways();
     fetchHeroImages();
+    fetchScore();
   }, []);
 
   const selectedExpressway = routesData.find(item => item.ExpresswayId === activeRouteId);
@@ -261,7 +270,7 @@ export default function Home() {
                         <span suppressHydrationWarning>{t("home.infrastructure")}</span>
                       </p>
                       <h2 style={{ fontSize: '26px', margin: '8px 0 0 0', fontWeight: '700', color: '#00a859' }}>
-                        482 <span suppressHydrationWarning style={{ fontSize: '14px', fontWeight: 'normal' }}>{t("home.score")}</span>
+                        {score} <span suppressHydrationWarning style={{ fontSize: '14px', fontWeight: 'normal' }}>{t("home.score")}</span>
                       </h2>
                     </div>
                     <div style={{ background: '#00a859', padding: '10px', borderRadius: '10px', color: '#fff', fontSize: '20px', display: 'flex' }}>

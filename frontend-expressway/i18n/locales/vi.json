@@ -116,6 +116,7 @@
         "height": "Chiều cao",
         "minmax": "Tối thiểu - Tối đa",
         "lightSystem": "Hệ thống chiếu sáng",
+        "land": "Làn xe chạy",
         "emergencyLand": "Làn dừng khẩn cấp",
         "yes": "Có",
         "no": "Không",
@@ -187,6 +188,17 @@
         "enter": "nhập",
         "pass6": "Mật khẩu phải có ít nhất 6 ký tự",
         "matchPass": "Mật khẩu xác nhận không khớp",
+        "": ""
+    },
+    "user":{
+        "username": "Tên đăng nhập",
+        "password": "Mật khẩu",
+        "register": "Đăng ký",
+        "hasAccount": "Đã có tài khoản",
+        "forgotPass": "Quên mật khẩu",
+        "forgotText": "Nhập địa chỉ email của bạn để nhận liên kết đặt lại mật khẩu.",
+        "forgotSubmit": "Gửi yêu cầu",
+        "enterEmail": "Nhập email của bạn",
         "": ""
     }
 }

@@ -103,7 +103,7 @@ export default function VehicleTrafficChart() {
 
     return (
         <Card
-            bordered={false}
+            variant="borderless"
             style={{
                 width: '100%',
                 borderRadius: '12px',

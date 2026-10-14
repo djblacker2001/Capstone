@@ -160,7 +160,6 @@ export default function ExpresswayPage() {
                 return { color: '#ff4d4f', text: t("expressway.incident") };
             case 'Maintenance':
                 return { color: '#722ed1', text: t("expressway.maintenance") };
-
             default:
                 return { text: status || 'Chưa xác định', color: 'default' };
         }

@@ -5,17 +5,21 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import './login.css';
 import Link from 'next/link';
+import { useTranslation } from "react-i18next";
+
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 const LoginPage = () => {
     const router = useRouter();
     const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
+    const { t } = useTranslation();
 
     const onFinish = async (values: { username: string; password: string }) => {
         setLoading(true);
         try {
             setError('');
-            const res = await fetch('http://localhost:8080/auth/login', {
+            const res = await fetch(`${baseUrl}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -81,10 +85,10 @@ const LoginPage = () => {
                         <img src="/expresswayicon3.png" alt="logo3" style={{ width: '200px' }} />
                     </div>
 
-                    <h1><b>Log in</b></h1>
+                    <h1><b>{t("header.login")}</b></h1>
 
                     <Form.Item
-                        label="Username"
+                        label={t("user.username")}
                         name="username"
                         rules={[{ required: true, message: 'Please enter username' }]}
                     >
@@ -92,7 +96,7 @@ const LoginPage = () => {
                     </Form.Item>
 
                     <Form.Item
-                        label="Password"
+                        label={t("user.password")}
                         name="password"
                         rules={[{ required: true, message: 'Please enter password' }]}
                     >
@@ -103,7 +107,7 @@ const LoginPage = () => {
 
                     <div className='login'>
                         <Button type="primary" htmlType="submit" block className='button1' loading={loading}>
-                            Login
+                            {t("header.login")}
                         </Button>
 
                         <Button
@@ -112,13 +116,13 @@ const LoginPage = () => {
                             className='button2'
                             onClick={() => router.push('/register')}
                         >
-                            Register
+                            {t("user.register")}
                         </Button>
                     </div>
 
                     <div className="footer-links" style={{ textAlign: 'center', marginTop: '15px' }}>
                         <Link href="/forgot-password" style={{ color: '#1890ff', fontSize: '14px' }}>
-                            Forgot password?
+                            {t("user.forgotPass")} ?
                         </Link>
                     </div>
                 </Form>

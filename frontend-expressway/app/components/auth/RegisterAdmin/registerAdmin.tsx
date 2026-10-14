@@ -4,10 +4,14 @@ import { Form, Input, Button, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import './registerAdmin.css';
+import { useTranslation } from "react-i18next";
+
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export default function RegisterAdminPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const { t } = useTranslation();
 
     const onFinish = async (values: any) => {
         setLoading(true);
@@ -18,7 +22,7 @@ export default function RegisterAdminPage() {
                 return;
             }
 
-            const res = await fetch('http://localhost:8080/auth/register', {
+            const res = await fetch(`${baseUrl}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -52,14 +56,14 @@ export default function RegisterAdminPage() {
                     <div className='logo'>
                         <img src="/expresswayicon3.png" alt="logo3" />
                     </div>
-                    <h1><b>Admin Register</b></h1>
+                    <h1><b>{t("user.register")} Admin</b></h1>
 
-                    <Form.Item label="Administrator Username" name="Username" rules={[{ required: true, message: 'Please enter admin username' }]}>
+                    <Form.Item label={t("user.username")} name="Username" rules={[{ required: true, message: 'Please enter admin username' }]}>
                         <Input placeholder="admin_sys..." size="large" />
                     </Form.Item>
 
                     <Form.Item
-                        label="Internal Email"
+                        label="Email"
                         name="Email"
                         rules={[
                             { required: true, message: 'Please enter your administrator email' },
@@ -69,20 +73,20 @@ export default function RegisterAdminPage() {
                         <Input placeholder="admin.verify@company.com" size="large" />
                     </Form.Item>
 
-                    <Form.Item label="Password" name="Password" rules={[{ required: true, message: 'Please enter the password!' }]}>
+                    <Form.Item label={t("user.password")} name="Password" rules={[{ required: true, message: 'Please enter the password!' }]}>
                         <Input.Password size="large" />
                     </Form.Item>
 
-                    <Form.Item label="Confirm Password" name="confirm" rules={[{ required: true, message: 'Please confirm your password!' }]}>
+                    <Form.Item label={t("setting.confirmPass")} name="confirm" rules={[{ required: true, message: 'Please confirm your password!' }]}>
                         <Input.Password size="large" />
                     </Form.Item>
 
                     <div className='login'>
                         <Button type="primary" htmlType="submit" className='button1' loading={loading}>
-                            Create Admin
+                            {t("user.register")} Admin
                         </Button>
                         <Button type="default" className='button2' onClick={() => router.push('/login')}>
-                            Return to Login
+                            {t("user.hasAccount")} ?
                         </Button>
                     </div>
                 </Form>

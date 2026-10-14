@@ -1,10 +1,15 @@
 'use client';
 import { useState } from 'react';
 import { message, Input, Button } from 'antd';
+import "./forgotPassword.css"
+import Header from '../components/Header/Header';
+import { useTranslation } from "react-i18next";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
+  const { t } = useTranslation();
 
   const handleSendRequest = async () => {
     const res = await fetch(`${baseUrl}/auth/forgot-password`, {
@@ -21,13 +26,16 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: '100px auto', textAlign: 'center' }}>
-      <h2>Forgot Password?</h2>
-      <p>Enter your email address to receive a password reset link.</p>
-      <Input placeholder="Enter your email" onChange={(e) => setEmail(e.target.value)} />
-      <Button type="primary" onClick={handleSendRequest} style={{ marginTop: 20 }}>
-        Submit a request
-      </Button>
-    </div>
+    <>
+      <Header/>
+      <div style={{ maxWidth: 400, margin: '100px auto', textAlign: 'center' }}>
+        <h2>{t("user.forgotPass")}</h2>
+        <p>{t("user.forgotText")}</p>
+        <Input placeholder={t("user.enterEmail")} onChange={(e) => setEmail(e.target.value)} />
+        <Button type="primary" onClick={handleSendRequest} style={{ marginTop: 20 }}>
+          {t("user.forgotSubmit")}
+        </Button>
+      </div>
+    </>
   );
 }

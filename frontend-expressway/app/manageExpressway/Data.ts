@@ -1,4 +1,5 @@
 interface SectionType {
+    id: number;
     SectionId: number;
     ExpresswayId?: number;
     NameSection: string;
@@ -39,4 +40,11 @@ interface ExpresswayStatistics {
     totalBridges: number;
     totalTunnels: number;
     totalSigns: number;
+}
+
+interface UpdateExpresswayModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    expresswayData: any;
+    onSuccess: () => void;
 }

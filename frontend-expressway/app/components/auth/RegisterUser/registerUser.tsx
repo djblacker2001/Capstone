@@ -4,12 +4,14 @@ import { Form, Input, Button, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import './registerUser.css';
+import { useTranslation } from "react-i18next";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export default function RegisterUserPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const { t } = useTranslation();
 
     const onFinish = async (values: any) => {
         setLoading(true);
@@ -54,9 +56,9 @@ export default function RegisterUserPage() {
                     <div className='logo'>
                         <img src="/expresswayicon3.png" alt="logo3" />
                     </div>
-                    <h1><b>Register</b></h1>
+                    <h1><b>{t("user.register")}</b></h1>
 
-                    <Form.Item label="Username" name="Username" rules={[{ required: true, message: 'Please enter username' }]}>
+                    <Form.Item label={t("user.username")} name="Username" rules={[{ required: true, message: 'Please enter username' }]}>
                         <Input placeholder="user123..." size="large" />
                     </Form.Item>
 
@@ -71,20 +73,20 @@ export default function RegisterUserPage() {
                         <Input placeholder="example@gmail.com" size="large" />
                     </Form.Item>
 
-                    <Form.Item label="Password" name="Password" rules={[{ required: true, message: 'Please enter the password!' }]}>
+                    <Form.Item label={t("user.password")} name="Password" rules={[{ required: true, message: 'Please enter the password!' }]}>
                         <Input.Password size="large" />
                     </Form.Item>
 
-                    <Form.Item label="Confirm Password" name="confirm" rules={[{ required: true, message: 'Please confirm your password!' }]}>
+                    <Form.Item label={t("setting.confirmPass")} name="confirm" rules={[{ required: true, message: 'Please confirm your password!' }]}>
                         <Input.Password size="large" />
                     </Form.Item>
 
                     <div className='login'>
                         <Button type="primary" htmlType="submit" className='button1' loading={loading}>
-                            Register
+                            {t("user.register")}
                         </Button>
                         <Button type="default" className='button2' onClick={() => router.push('/login')}>
-                            Has Account? Login
+                            {t("user.hasAccount")} ?
                         </Button>
                     </div>
                 </Form>

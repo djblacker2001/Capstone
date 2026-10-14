@@ -1,18 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateExpresswayDto {
-  @ApiProperty()
-  ExpresswayId!: number;
+  @ApiProperty({required: false})
+  NameExpressway?: string;
 
-  @ApiProperty()
-  NameExpressway!: string;
-
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ required: false })
   Symbol?: string;
 
-  @ApiProperty({ nullable: true })
-  StartPoint?: string;
+  @ApiProperty({ required: false })
+  Description?: string;
 
-  @ApiProperty({ nullable: true })
-  EndPoint?: string;
+  @ApiProperty({ type: 'string', format: 'binary', required: false})
+  MapData?: any;
 }
