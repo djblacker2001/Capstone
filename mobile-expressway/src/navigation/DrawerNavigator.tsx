@@ -2,7 +2,7 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeScreen from '../screens/HomeScreen';
-import { CustomSidebar } from '../components/Header/CustomSidebar';
+import { CustomSidebar } from '../screens/CustomSidebar';
 
 const Drawer = createDrawerNavigator();
 

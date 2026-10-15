@@ -15,11 +15,10 @@ export default function HomeScreen() {
             <Header
                 userName="admin1"
                 avatarUrl="https://via.placeholder.com/150"
-                onOpenDrawer={handleOpenDrawer} // Gọi hàm vừa tạo
+                onOpenDrawer={handleOpenDrawer}
             />
 
             <View style={styles.content}>
-                {/* Nội dung bản đồ / chính ở đây */}
             </View>
         </View>
     );

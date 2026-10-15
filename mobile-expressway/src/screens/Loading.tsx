@@ -11,33 +11,23 @@ export default function Loading({ onFinish, navigation }: LoadingProps) {
     const fadeAnim = useState(new Animated.Value(0))[0];
 
     useEffect(() => {
-        // Hiệu ứng mờ/hiện Logo
         Animated.timing(fadeAnim, {
             toValue: 1,
             duration: 800,
             useNativeDriver: true,
         }).start();
-
-        // Giả lập tiến trình kiểm tra & khởi tạo ứng dụng
         const initApp = async () => {
             try {
-                // Step 1: Kiểm tra kết nối & GPS
                 setStatusText('Kiểm tra tín hiệu GPS & Kết nối...');
                 await new Promise((res) => setTimeout(res, 800));
-
-                // Step 2: Nạp dữ liệu cấu hình
                 setStatusText('Tải dữ liệu hạ tầng cao tốc...');
                 await new Promise((res) => setTimeout(res, 800));
-
-                // Step 3: Hoàn tất
                 setStatusText('Sẵn sàng!');
                 await new Promise((res) => setTimeout(res, 400));
-
-                // Điều hướng sang Trang chủ
                 if (onFinish) {
                     onFinish();
                 } else if (navigation) {
-                    navigation.replace('Home'); // Hoặc 'HomeScreen' tùy tên Route trong App.tsx
+                    navigation.replace('Home');
                 }
             } catch (error) {
                 setStatusText('Có lỗi xảy ra khi khởi động!');

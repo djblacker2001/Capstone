@@ -17,7 +17,7 @@ username: hoangvu
 email: hoang.vu.cit23@eiu.edu.vn
 pass: hoang123456
 
-NEXT_PUBLIC_API_URL=http://localhost:8080
+NEXT_PUBLIC_API_URL = 'http://localhost:8080'
 
 Nhiệm vụ Capstone 3
 1. Phát triển Ứng dụng Di động
@@ -33,3 +33,5 @@ Tính toán lộ trình và chỉ đường từng chặng trực tiếp trên M
 4. Deploy Hệ thống
 Đưa toàn bộ hệ thống lên môi trường Cloud.
 Cấu hình để Mobile App và Web Admin có thể truy cập, gọi API ổn định qua môi trường Internet thực tế.
+
+5. Đo quãng đường cảnh báo tốc độ.
