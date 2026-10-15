@@ -1,17 +1,4 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  ParseIntPipe, 
-  Put, 
-  Delete, 
-  Query, 
-  UseGuards, 
-  UseInterceptors, 
-  UploadedFiles 
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, Put, Delete, Query, UseGuards, UseInterceptors, UploadedFiles} from '@nestjs/common';
 import { ExpresswaysService } from './expressways.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -24,7 +11,6 @@ import { diskStorage } from 'multer';
 import { join } from 'path';
 import * as fs from 'fs';
 
-// Cấu hình Multer Storage cho Expressways
 const expresswayMulterStorage = diskStorage({
   destination: (req, file, cb) => {
     console.log('>>> [MULTER RUNNING - EXPRESSWAY] Đang xử lý file:', file.fieldname, file.originalname);
@@ -54,7 +40,6 @@ const expresswayMulterStorage = diskStorage({
   },
 });
 
-// Helper lấy đường dẫn tương đối 'uploads/maps/...'
 const getRelativeUploadPath = (file?: Express.Multer.File) => {
   if (!file) return undefined;
   const normalizedPath = file.path.replace(/\\/g, '/');

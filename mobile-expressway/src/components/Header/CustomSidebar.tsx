@@ -65,7 +65,6 @@ export const CustomSidebar = (props: any) => {
                 </View>
             </DrawerContentScrollView>
 
-            {/* Nút Đăng xuất ở chân Sidebar */}
             <View style={styles.footer}>
                 <TouchableOpacity style={styles.logoutBtn}>
                     <MaterialIcons name="logout" size={20} color="#FF4D4F" />
