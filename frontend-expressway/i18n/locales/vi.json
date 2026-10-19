@@ -199,6 +199,8 @@
         "forgotText": "Nhập địa chỉ email của bạn để nhận liên kết đặt lại mật khẩu.",
         "forgotSubmit": "Gửi yêu cầu",
         "enterEmail": "Nhập email của bạn",
+        "enterUsername": "Vui lòng nhập tên đăng nhập",
+        "enterPass": "Vui lòng nhập mật khẩu",
         "": ""
     }
 }

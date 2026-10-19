@@ -16,22 +16,22 @@ import { AuthModule } from './auth/auth.module';
 import { ProvincesModule } from './provinces/provinces.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import path, { join } from 'path';
-import { HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
+import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n'; 
 import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'mssql',
-      host: 'localhost',
-      port: 1433,
-      username: 'sa',
-      password: '123456',
-      database: 'Project',
+      host: process.env.DB_HOST || 'localhost', 
+      port: Number(process.env.DB_PORT) || 1433,
+      username: process.env.DB_USERNAME || 'sa',
+      password: process.env.DB_PASSWORD || '123456',
+      database: process.env.DB_NAME || 'Project',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       options: {
         encrypt: true,
-        trustServerCertificate: true, 
+        trustServerCertificate: true,
       },
     }),
 
@@ -60,7 +60,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
       },
       resolvers: [
         new QueryResolver(['lang', 'l']),
-        new HeaderResolver(['x-custom-lang', 'accept-language']),
+        new AcceptLanguageResolver(),
       ],
     }),
   ],

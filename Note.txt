@@ -15,7 +15,7 @@ pass: hoang
 
 username: hoangvu
 email: hoang.vu.cit23@eiu.edu.vn
-pass: hoang123456
+pass: 123456789
 
 NEXT_PUBLIC_API_URL = 'http://localhost:8080'
 

@@ -29,21 +29,33 @@ export class AuthService implements OnModuleInit {
       port: 465,
       secure: true,
       auth: {
-        user: 'hoangvu222001@gmail.com',
-        pass: 'nfusjpuhfkhurlsf',
+        user: process.env.EMAIL_USER || 'hoangvu222001@gmail.com',
+        pass: process.env.EMAIL_PASS || 'qgkkcdqyxvajxceg',
       },
       tls: {
         rejectUnauthorized: false,
-      }
+      },
     });
 
-    this.transporter.verify((error) => { });
+    this.transporter.verify((error) => {
+      if (error) {
+        console.error('❌ SMTP Connection Error:', error.message);
+      } else {
+        console.log('✅ SMTP Server is ready to send emails');
+      }
+    });
   }
 
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findByUsername(username);
     if (!user) {
       return null;
+    }
+    if (!user.IsActive) {
+      throw new BadRequestException(
+        this.i18n.t('auth.ACCOUNT_NOT_ACTIVE', { lang: this.lang }) ||
+        'Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email!'
+      );
     }
     let isMatch = false;
     const isHashed = user.Password.startsWith('$2b$') || user.Password.startsWith('$2a$');
@@ -61,7 +73,7 @@ export class AuthService implements OnModuleInit {
     if (isMatch) {
       const plainUser = Object.assign({}, user);
       const { Password, ...result } = plainUser;
-      
+
       return result;
     }
     return null;
@@ -97,7 +109,7 @@ export class AuthService implements OnModuleInit {
       Email: inputEmail,
       Password: hashedPassword,
       RoleId: roleId,
-      IsActive: isAdminRequest ? false : true,
+      IsActive: false,
       IsLocked: false,
       ActiveCode: activeCode,
       CreatedAt: new Date(),
@@ -135,8 +147,6 @@ export class AuthService implements OnModuleInit {
     user.IsActive = true;
     user.ActiveCode = null;
     await this.usersService.save(user);
-
-    // CHỈNH SỬA: Chỉ check mã RoleId của admin, còn lại mặc định là user
     const userRoleName = user.RoleId === 1 ? 'admin' : 'user';
 
     const payload = { sub: user.UserId, username: user.Username, role: userRoleName };
@@ -330,9 +340,9 @@ export class AuthService implements OnModuleInit {
           
           <div style="text-align: center; margin: 35px 0;">
             <a href="${approvalLink}" 
-               target="_blank" 
-               style="background-color: #d32f2f; color: #ffffff; text-decoration: none; padding: 14px 35px; font-weight: bold; font-size: 16px; border-radius: 5px; display: inline-block; box-shadow: 0 4px 6px rgba(211, 47, 47, 0.25); transition: background-color 0.2s;">
-               Xác Nhận & Kích Hoạt Quyền Admin
+                target="_blank" 
+                style="background-color: #d32f2f; color: #ffffff; text-decoration: none; padding: 14px 35px; font-weight: bold; font-size: 16px; border-radius: 5px; display: inline-block; box-shadow: 0 4px 6px rgba(211, 47, 47, 0.25); transition: background-color 0.2s;">
+                Xác Nhận & Kích Hoạt Quyền Admin
             </a>
           </div>
         </div>

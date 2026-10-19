@@ -190,6 +190,8 @@
     "forgotText": "Enter your email address to receive a password reset link.",
     "forgotSubmit": "Submit a request",
     "enterEmail": "Enter your email",
+    "enterUsername": "Please enter username",
+    "enterPass": "Please enter password",
     "": ""
   }
 }

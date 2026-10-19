@@ -90,7 +90,7 @@ const LoginPage = () => {
                     <Form.Item
                         label={t("user.username")}
                         name="username"
-                        rules={[{ required: true, message: 'Please enter username' }]}
+                        rules={[{ required: true, message: t("user.enterUsername") }]}
                     >
                         <Input placeholder="Enter Username" size="large" />
                     </Form.Item>
@@ -98,7 +98,7 @@ const LoginPage = () => {
                     <Form.Item
                         label={t("user.password")}
                         name="password"
-                        rules={[{ required: true, message: 'Please enter password' }]}
+                        rules={[{ required: true, message: t("user.enterPass") }]}
                     >
                         <Input.Password placeholder="Enter password" size="large" />
                     </Form.Item>
