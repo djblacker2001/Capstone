@@ -17,7 +17,21 @@ username: hoangvu
 email: hoang.vu.cit23@eiu.edu.vn
 pass: 123456789
 
-NEXT_PUBLIC_API_URL = 'http://localhost:8080'
+.env backend
+EMAIL_USER='hoangvu222001@gmail.com'
+EMAIL_PASS='qgkkcdqyxvajxceg'
+
+BACKEND_URL='http://192.168.100.28:8080'
+FRONTEND_URL='http://192.168.100.28:3000'
+
+DB_HOST='192.168.100.28'
+DB_PORT='1433'
+DB_USERNAME='sa'
+DB_PASSWORD='123456'
+DB_NAME='Project'
+
+.env frontend
+NEXT_PUBLIC_API_URL = 'http://192.168.100.28:8080'
 
 Nhiệm vụ Capstone 3
 1. Phát triển Ứng dụng Di động
