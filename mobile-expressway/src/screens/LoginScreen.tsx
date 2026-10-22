@@ -56,15 +56,11 @@ export default function LoginScreen() {
                 setError('Tài khoản chưa được kích hoạt qua email.');
                 return;
             }
-
-            // Lưu Token & User info vào Storage trên Mobile
             await AsyncStorage.setItem('accessToken', accessToken);
             await AsyncStorage.setItem('token', accessToken);
             await AsyncStorage.setItem('user', JSON.stringify(user));
 
             Alert.alert('Thành công', 'Đăng nhập thành công!');
-
-            // Điều hướng vào ứng dụng (Chuyển sang Drawer Navigator)
             navigation.reset({
                 index: 0,
                 routes: [{ name: 'HomeDrawer' }],
