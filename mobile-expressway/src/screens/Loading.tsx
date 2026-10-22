@@ -27,7 +27,7 @@ export default function Loading({ onFinish, navigation }: LoadingProps) {
                 if (onFinish) {
                     onFinish();
                 } else if (navigation) {
-                    navigation.replace('Home');
+                    navigation.replace('HomeDrawer');
                 }
             } catch (error) {
                 setStatusText('Có lỗi xảy ra khi khởi động!');

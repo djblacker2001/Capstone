@@ -1,8 +1,11 @@
-// src/navigation/DrawerNavigator.tsx
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import CustomSidebar from '../components/CustomSidebar';
 import HomeScreen from '../screens/HomeScreen';
-import { CustomSidebar } from '../screens/CustomSidebar';
+import NavigationScreen from '../screens/NavigationScreen';
+import MapScreen from '../screens/MapScreen';
+import DetailSectionScreen from '../screens/DetailSectionScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -11,13 +14,16 @@ export default function DrawerNavigator() {
         <Drawer.Navigator
             drawerContent={(props) => <CustomSidebar {...props} />}
             screenOptions={{
-                headerShown: false, // Ẩn header mặc định
+                headerShown: false,
                 drawerStyle: {
-                    width: 280,
+                    width: '78%',
                 },
-            }}
-        >
-            <Drawer.Screen name="MainHome" component={HomeScreen} />
+            }}>
+            <Drawer.Screen name="HomeScreen" component={HomeScreen} />
+            <Drawer.Screen name="MapScreen" component={MapScreen} />
+            <Drawer.Screen name="NavigationScreen" component={NavigationScreen} />
+            <Drawer.Screen name="DetailSectionScreen" component={DetailSectionScreen} />
+            <Drawer.Screen name="ProfileScreen" component={ProfileScreen} />
         </Drawer.Navigator>
     );
 }

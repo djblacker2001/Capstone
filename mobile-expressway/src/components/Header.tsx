@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, StatusBar, Platform, } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, StatusBar, Platform } from 'react-native';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import { useNavigation, DrawerActions } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface HeaderProps {
     onOpenDrawer?: () => void;
@@ -13,13 +15,35 @@ export const Header: React.FC<HeaderProps> = ({
     userName = 'admin1',
     avatarUrl,
 }) => {
+    const navigation = useNavigation<any>();
+
+    const handlePressMenu = () => {
+        if (onOpenDrawer) {
+            onOpenDrawer();
+            return;
+        }
+
+        if (typeof navigation.openDrawer === 'function') {
+            navigation.openDrawer();
+            return;
+        }
+
+        const parentNavigation = navigation.getParent();
+        if (parentNavigation && typeof parentNavigation.openDrawer === 'function') {
+            parentNavigation.openDrawer();
+            return;
+        }
+
+        navigation.dispatch(DrawerActions.openDrawer());
+    };
+
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView style={styles.safeArea} edges={['top']}>
             <View style={styles.container}>
                 <View style={styles.leftContainer}>
                     <TouchableOpacity
                         style={styles.menuButton}
-                        onPress={onOpenDrawer}
+                        onPress={handlePressMenu}
                         activeOpacity={0.7}
                     >
                         <MaterialIcons name="menu" size={24} color="#FFFFFF" />
@@ -51,7 +75,6 @@ export const Header: React.FC<HeaderProps> = ({
 const styles = StyleSheet.create({
     safeArea: {
         backgroundColor: '#008744',
-        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     container: {
         height: 60,

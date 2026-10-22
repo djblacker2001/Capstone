@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ImageBackgr
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8080';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
 
 export default function LoginScreen() {
     const navigation = useNavigation<any>();
@@ -79,7 +79,7 @@ export default function LoginScreen() {
 
     return (
         <ImageBackground
-            source={require('../../assets/backgroundlogin.png')} // Hoặc uri ảnh online nếu chưa có file local
+            source={{ uri: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1000&auto=format&fit=crop' }}
             style={styles.backgroundImage}
             resizeMode="cover"
         >
@@ -92,12 +92,10 @@ export default function LoginScreen() {
                         contentContainerStyle={styles.scrollContainer}
                         showsVerticalScrollIndicator={false}
                     >
-                        {/* Form Card */}
                         <View style={styles.card}>
-                            {/* Logo */}
                             <View style={styles.logoContainer}>
                                 <Image
-                                    source={require('../../assets/expresswayicon3.png')} // Đặt ảnh logo vào thư mục assets của Mobile
+                                    source={{ uri: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1000&auto=format&fit=crop' }}
                                     style={styles.logo}
                                     resizeMode="contain"
                                 />

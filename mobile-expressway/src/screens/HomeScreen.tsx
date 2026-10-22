@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StatusBar } from 'react-native';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
-import { Header } from '../components/Header/Header';
+import { Header } from '../components/Header';
+import { Footer } from '../components/Footer';
 
 export default function HomeScreen() {
-    const navigation = useNavigation();
+    const navigation = useNavigation<any>();
 
     const handleOpenDrawer = () => {
         navigation.dispatch(DrawerActions.openDrawer());
@@ -12,14 +13,17 @@ export default function HomeScreen() {
 
     return (
         <View style={styles.container}>
+            <StatusBar barStyle="light-content" backgroundColor="#008744" />
+
             <Header
                 userName="admin1"
-                avatarUrl="https://via.placeholder.com/150"
+                avatarUrl="https://i.pravatar.cc/150?img=12"
                 onOpenDrawer={handleOpenDrawer}
             />
 
             <View style={styles.content}>
             </View>
+            <Footer />
         </View>
     );
 }
@@ -31,5 +35,6 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
+        padding: 16,
     },
 });
