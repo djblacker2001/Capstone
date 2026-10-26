@@ -1,22 +1,31 @@
 import React from 'react';
-import {View,Text,StyleSheet,Image,TouchableOpacity,ScrollView,} from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
+import i18n, { changeAppLanguage } from '../i18n/i18n';
 
 export default function CustomSidebar(props: DrawerContentComponentProps) {
+    const { t } = useTranslation();
+    const handleToggleLanguage = () => {
+        const nextLang = i18n.language === 'vi' ? 'en' : 'vi';
+        changeAppLanguage(nextLang);
+    };
+
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.headerContainer}>
-                <View style={styles.logoRow}>
-                    <Ionicons name="car-sport" size={28} color="#E0A96D" />
-                    <Text style={styles.logoText}>EXPRESSWAY</Text>
-                </View>
+        <View style={styles.container}>
+            <View style={styles.headerWrapper}>
+                <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
+                    <View style={styles.logoRow}>
+                        <Ionicons name="car-sport" size={28} color="#E0A96D" />
+                        <Text style={styles.logoText}>{t('sidebar.expressway')}</Text>
+                    </View>
+                </SafeAreaView>
             </View>
 
-            {/* 2. Banner Image */}
             <Image
                 source={{
                     uri: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=600&auto=format&fit=crop',
@@ -25,41 +34,41 @@ export default function CustomSidebar(props: DrawerContentComponentProps) {
                 resizeMode="cover"
             />
 
-            {/* 3. Danh sách Menu Items */}
             <ScrollView contentContainerStyle={styles.menuContainer}>
                 <TouchableOpacity
                     style={styles.menuItem}
-                    onPress={() => props.navigation.navigate('HomeScreen')}>
+                    onPress={() => props.navigation.navigate('HomeScreen')}
+                >
                     <Ionicons name="home-outline" size={22} color="#1A365D" />
-                    <Text style={styles.menuText}>Trang chủ</Text>
+                    <Text style={styles.menuText}>{t('sidebar.homepage')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                     style={styles.menuItem}
-                    onPress={() => props.navigation.navigate('NavigationScreen')}>
+                    onPress={handleToggleLanguage}
+                >
                     <Ionicons name="language-outline" size={22} color="#1A365D" />
-                    <Text style={styles.menuText}>Ngôn ngữ (Language)</Text>
+                    <Text style={styles.menuText}>
+                        {t('sidebar.language')} ({i18n.language === 'vi' ? 'VI 🇻🇳' : 'EN 🇬🇧'})
+                    </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.menuItem} onPress={() => { }}>
                     <Ionicons name="chatbox-ellipses-outline" size={22} color="#1A365D" />
-                    <Text style={styles.menuText}>Liên hệ</Text>
+                    <Text style={styles.menuText}>{t('sidebar.contact')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.menuItem} onPress={() => { }}>
                     <Ionicons name="information-circle-outline" size={22} color="#1A365D" />
-                    <Text style={styles.menuText}>Thông tin hệ thống</Text>
+                    <Text style={styles.menuText}>{t('sidebar.system_info')}</Text>
                 </TouchableOpacity>
             </ScrollView>
 
-            <View style={styles.footerContainer}>
+            <SafeAreaView edges={['bottom']} style={styles.footerContainer}>
                 <TouchableOpacity
                     style={[styles.menuItem, styles.logoutButton]}
                     onPress={async () => {
-                        // 1. Xóa token và thông tin người dùng
                         await AsyncStorage.multiRemove(['accessToken', 'token', 'user']);
-
-                        // 2. Reset navigation về Login
                         props.navigation.dispatch(
                             CommonActions.reset({
                                 index: 0,
@@ -68,10 +77,10 @@ export default function CustomSidebar(props: DrawerContentComponentProps) {
                         );
                     }}>
                     <Ionicons name="log-out-outline" size={22} color="#E53E3E" />
-                    <Text style={[styles.menuText, { color: '#E53E3E' }]}>Đăng xuất</Text>
+                    <Text style={[styles.menuText, { color: '#E53E3E' }]}>{t('sidebar.logout')}</Text>
                 </TouchableOpacity>
-            </View>
-        </SafeAreaView>
+            </SafeAreaView>
+        </View>
     );
 }
 
@@ -80,8 +89,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#EBF3FA',
     },
-    headerContainer: {
-        backgroundColor: '#0F3B66',
+    headerWrapper: {
+        backgroundColor: '#008744',
+    },
+    headerSafeArea: {
         paddingVertical: 18,
         paddingHorizontal: 16,
         justifyContent: 'center',
@@ -119,9 +130,9 @@ const styles = StyleSheet.create({
     footerContainer: {
         borderTopWidth: 1,
         borderTopColor: '#CBD5E0',
-        paddingBottom: 10,
+        backgroundColor: '#EBF3FA',
     },
     logoutButton: {
-        marginTop: 6,
+        paddingVertical: 12,
     },
 });

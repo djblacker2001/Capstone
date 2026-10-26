@@ -3,45 +3,47 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 export const Footer: React.FC = () => {
     const navigation = useNavigation<any>();
     const route = useRoute();
+    const { t } = useTranslation();
 
     const currentRoute = route.name;
 
     const navItems = [
         {
             id: 'HomeScreen',
-            label: 'Trang chủ',
+            label: t('sidebar.homepage'),
             type: 'ionicons',
             iconActive: 'home',
             iconInactive: 'home-outline',
         },
         {
             id: 'MapScreen',
-            label: 'Bản đồ',
+            label: t('footer.map'),
             type: 'ionicons',
             iconActive: 'map',
             iconInactive: 'map-outline',
         },
         {
-            id: 'NavigationScreen',
-            label: 'Tuyến đường',
+            id: 'DetailSectionScreen',
+            label: t('footer.expressway'),
             type: 'mci',
             iconActive: 'routes',
             iconInactive: 'routes-clock',
         },
         {
-            id: 'DetailSectionScreen',
-            label: 'Biển báo',
+            id: 'SignScreen',
+            label: t('footer.sign'),
             type: 'mci',
             iconActive: 'sign-caution',
             iconInactive: 'sign-caution',
         },
         {
-            id: 'ProfileScreen', // 👈 Mục Thông tin cá nhân mới thêm
-            label: 'Cá nhân',
+            id: 'ProfileScreen',
+            label: t('footer.personalInformation'),
             type: 'fontawesome',
             iconActive: 'user-alt',
             iconInactive: 'user',

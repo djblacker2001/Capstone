@@ -1,275 +1,142 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ImageBackground, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, } from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Alert,
+    ActivityIndicator,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 
 export default function LoginScreen() {
     const navigation = useNavigation<any>();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleLogin = async () => {
-        if (!username.trim() || !password.trim()) {
-            setError('Vui lòng nhập đầy đủ tài khoản và mật khẩu');
+        if (!username.trim() || !password) {
+            Alert.alert('Thông báo', 'Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!');
             return;
         }
 
         setLoading(true);
-        setError('');
-
         try {
-            const res = await fetch(`${BASE_URL}/auth/login`, {
+            const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';
+
+            const response = await fetch(`${baseUrl}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'accept-language': 'vi', // 👈 Tùy chọn ngôn ngữ phản hồi từ backend
                 },
                 body: JSON.stringify({
-                    Username: username,
-                    Password: password,
+                    Username: username.trim(), // 👈 Chuẩn PascalCase theo Swagger
+                    Password: password,        // 👈 Chuẩn PascalCase theo Swagger
                 }),
             });
 
-            const result = await res.json();
+            const data = await response.json();
 
-            if (!res.ok || !result.success) {
-                setError(result.message || 'Sai tên đăng nhập hoặc mật khẩu');
-                return;
+            if (!response.ok) {
+                throw new Error(data.message || 'Đăng nhập không thành công');
             }
 
-            const { accessToken, user } = result.data || {};
-
-            if (!user) {
-                setError('Sai tên đăng nhập hoặc mật khẩu');
-                return;
+            // Lưu Token và Thông tin User
+            const token = data.accessToken || data.token || data.access_token;
+            if (token) {
+                await AsyncStorage.setItem('accessToken', token);
             }
 
-            if (user.IsLocked) {
-                setError('Tài khoản hiện đang bị khóa.');
-                return;
-            }
+            const userData = data.user || data.data || { username };
+            await AsyncStorage.setItem('user', JSON.stringify(userData));
 
-            if (!user.IsActive) {
-                setError('Tài khoản chưa được kích hoạt qua email.');
-                return;
-            }
-            await AsyncStorage.setItem('accessToken', accessToken);
-            await AsyncStorage.setItem('token', accessToken);
-            await AsyncStorage.setItem('user', JSON.stringify(user));
-
-            Alert.alert('Thành công', 'Đăng nhập thành công!');
-            navigation.reset({
-                index: 0,
-                routes: [{ name: 'HomeDrawer' }],
-            });
-        } catch (err) {
-            console.error(err);
-            setError('Không thể kết nối đến máy chủ!');
+            // Chuyển hướng tới HomeScreen (trong Drawer)
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'HomeScreen' }],
+                })
+            );
+        } catch (error: any) {
+            Alert.alert('Lỗi đăng nhập', error.message || 'Không thể kết nối đến server');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <ImageBackground
-            source={{ uri: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1000&auto=format&fit=crop' }}
-            style={styles.backgroundImage}
-            resizeMode="cover"
-        >
-            <View style={styles.overlay}>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    style={{ flex: 1, justifyContent: 'center' }}
-                >
-                    <ScrollView
-                        contentContainerStyle={styles.scrollContainer}
-                        showsVerticalScrollIndicator={false}
-                    >
-                        <View style={styles.card}>
-                            <View style={styles.logoContainer}>
-                                <Image
-                                    source={{ uri: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1000&auto=format&fit=crop' }}
-                                    style={styles.logo}
-                                    resizeMode="contain"
-                                />
-                            </View>
+        <View style={styles.container}>
+            <Text style={styles.title}>ĐĂNG NHẬP HỆ THỐNG</Text>
 
-                            <Text style={styles.title}>ĐĂNG NHẬP</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Tên đăng nhập"
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+            />
 
-                            {/* Username Input */}
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Tài khoản</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Nhập tên đăng nhập"
-                                    placeholderTextColor="#999"
-                                    value={username}
-                                    onChangeText={setUsername}
-                                    autoCapitalize="none"
-                                />
-                            </View>
+            <TextInput
+                style={styles.input}
+                placeholder="Mật khẩu"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+            />
 
-                            {/* Password Input */}
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Mật khẩu</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Nhập mật khẩu"
-                                    placeholderTextColor="#999"
-                                    secureTextEntry
-                                    value={password}
-                                    onChangeText={setPassword}
-                                />
-                            </View>
-
-                            {/* Error Message */}
-                            {!!error && <Text style={styles.errorText}>{error}</Text>}
-
-                            {/* Buttons */}
-                            <View style={styles.buttonContainer}>
-                                <TouchableOpacity
-                                    style={[styles.button, styles.buttonLogin]}
-                                    onPress={handleLogin}
-                                    disabled={loading}
-                                    activeOpacity={0.8}
-                                >
-                                    {loading ? (
-                                        <ActivityIndicator color="#FFFFFF" />
-                                    ) : (
-                                        <Text style={styles.buttonLoginText}>Đăng nhập</Text>
-                                    )}
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={[styles.button, styles.buttonRegister]}
-                                    onPress={() => navigation.navigate('Register')}
-                                    activeOpacity={0.8}
-                                >
-                                    <Text style={styles.buttonRegisterText}>Đăng ký</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            {/* Forgot Password Link */}
-                            <TouchableOpacity
-                                style={styles.forgotPassContainer}
-                                onPress={() => navigation.navigate('ForgotPassword')}
-                            >
-                                <Text style={styles.forgotPassText}>Quên mật khẩu?</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </ScrollView>
-                </KeyboardAvoidingView>
-            </View>
-        </ImageBackground>
+            <TouchableOpacity
+                style={styles.button}
+                onPress={handleLogin}
+                disabled={loading}
+            >
+                {loading ? (
+                    <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                    <Text style={styles.buttonText}>Đăng nhập</Text>
+                )}
+            </TouchableOpacity>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    backgroundImage: {
+    container: {
         flex: 1,
-        width: '100%',
-        height: '100%',
-    },
-    overlay: {
-        flex: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.4)', // Phủ lớp mờ giống class .expr
-        paddingHorizontal: 20,
-    },
-    scrollContainer: {
-        flexGrow: 1,
         justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 40,
-    },
-    card: {
+        paddingHorizontal: 24,
         backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        width: '100%',
-        maxWidth: 400,
-        padding: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.15,
-        shadowRadius: 20,
-        elevation: 8, // Hiệu ứng đổ bóng Android
-    },
-    logoContainer: {
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    logo: {
-        width: 180,
-        height: 60,
     },
     title: {
-        textAlign: 'center',
-        color: '#0A9646',
         fontSize: 22,
         fontWeight: 'bold',
-        marginBottom: 24,
-        letterSpacing: 1,
-    },
-    inputGroup: {
-        marginBottom: 16,
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#333333',
-        marginBottom: 6,
+        color: '#008744',
+        textAlign: 'center',
+        marginBottom: 28,
     },
     input: {
+        height: 50,
         borderWidth: 1,
-        borderColor: '#D9D9D9',
+        borderColor: '#CBD5E0',
         borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
+        paddingHorizontal: 14,
+        marginBottom: 16,
         fontSize: 15,
-        color: '#333333',
-        backgroundColor: '#FFFFFF',
-    },
-    errorText: {
-        color: '#FF4D4F',
-        fontSize: 13,
-        marginBottom: 12,
-    },
-    buttonContainer: {
-        gap: 12,
-        marginTop: 8,
     },
     button: {
-        height: 44,
+        height: 50,
+        backgroundColor: '#008744',
         borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
+        marginTop: 8,
     },
-    buttonLogin: {
-        backgroundColor: '#0A9646',
-    },
-    buttonLoginText: {
+    buttonText: {
         color: '#FFFFFF',
         fontSize: 16,
-        fontWeight: '600',
-    },
-    buttonRegister: {
-        borderWidth: 1,
-        borderColor: '#0A9646',
-        backgroundColor: '#FFFFFF',
-    },
-    buttonRegisterText: {
-        color: '#0A9646',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    forgotPassContainer: {
-        alignItems: 'center',
-        marginTop: 20,
-    },
-    forgotPassText: {
-        color: '#1890FF',
-        fontSize: 14,
+        fontWeight: 'bold',
     },
 });

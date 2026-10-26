@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, StatusBar, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface HeaderProps {
     onOpenDrawer?: () => void;
@@ -12,10 +13,27 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
     onOpenDrawer,
-    userName = 'admin1',
-    avatarUrl,
+    userName: propUserName,
+    avatarUrl: propAvatarUrl,
 }) => {
     const navigation = useNavigation<any>();
+    const [user, setUser] = useState<{ username?: string; avatar?: string; name?: string } | null>(null);
+    useEffect(() => {
+        const loadUserInfo = async () => {
+            try {
+                const storedUser = await AsyncStorage.getItem('user');
+                if (storedUser) {
+                    setUser(JSON.parse(storedUser));
+                }
+            } catch (error) {
+                console.error('Lỗi đọc thông tin user từ storage:', error);
+            }
+        };
+        loadUserInfo();
+    }, []);
+
+    const displayName = propUserName || user?.name || user?.username || 'admin1';
+    const displayAvatar = propAvatarUrl || user?.avatar;
 
     const handlePressMenu = () => {
         if (onOpenDrawer) {
@@ -50,20 +68,25 @@ export const Header: React.FC<HeaderProps> = ({
                     </TouchableOpacity>
 
                     <View style={styles.logoContainer}>
-                        <FontAwesome5 name="road" size={24} color="#000000" />
+                        <Image
+                            source={require('../../assets/expresswayicon.png')}
+                            style={styles.logoIcon}
+                            resizeMode="contain"
+                        />
                     </View>
                 </View>
+
                 <View style={styles.rightContainer}>
                     <View style={styles.userContainer}>
-                        {avatarUrl ? (
-                            <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+                        {displayAvatar ? (
+                            <Image source={{ uri: displayAvatar }} style={styles.avatar} />
                         ) : (
                             <View style={styles.defaultAvatar}>
                                 <FontAwesome5 name="user" size={14} color="#555555" />
                             </View>
                         )}
                         <Text style={styles.userName} numberOfLines={1}>
-                            {userName}
+                            {displayName}
                         </Text>
                     </View>
                 </View>
@@ -102,6 +125,10 @@ const styles = StyleSheet.create({
         height: 36,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    logoIcon: {
+        width: 28,
+        height: 28,
     },
     rightContainer: {
         flexDirection: 'row',
