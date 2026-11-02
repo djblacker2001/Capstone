@@ -5,7 +5,7 @@ import { Card, Row, Col, Typography, Badge, Descriptions, Space, Tabs, Table, Ta
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import "./style.css";
-import { CompassOutlined, SafetyCertificateOutlined, BranchesOutlined, CoffeeOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { CompassOutlined, SafetyCertificateOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import MainLayout from '@/app/layout/Layout';
 import ProtectedRoute from '@/app/components/ProtectedRoute/ProtectedRoute';
 import { useTranslation } from 'react-i18next';

@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TextInput, FlatList, Image, ActivityIndicator, TouchableOpacity, ScrollView, Dimensions, } from 'react-native';
+import { View, Text, StyleSheet, TextInput, FlatList, Image, ActivityIndicator, TouchableOpacity, ScrollView, Dimensions, useWindowDimensions, } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { Header } from '../components/Header';
-import { Footer } from '../components/Footer';
+import Footer from '../components/Footer';
 import axiosClient from '../api/axiosClient';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
-
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 48) / 2;
 
 const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
 
@@ -25,6 +22,12 @@ interface Sign {
 
 export default function SignScreen() {
     const navigation = useNavigation<any>();
+    const { width } = useWindowDimensions();
+    const isTablet = width >= 768;
+    const numColumns = isTablet ? 4 : 2;
+    const gap = 12;
+    const paddingHorizontal = 16;
+    const cardWidth = (width - paddingHorizontal * 2 - gap * (numColumns - 1)) / numColumns;
 
     const handleOpenDrawer = () => {
         navigation.dispatch(DrawerActions.openDrawer());
@@ -91,23 +94,22 @@ export default function SignScreen() {
     const getTagColor = (typeId?: number) => {
         switch (typeId) {
             case 1:
-                return { bg: '#FEE2E2', text: '#DC2626' }; // Red
+                return { bg: '#FEE2E2', text: '#DC2626' };
             case 2:
-                return { bg: '#FFEDD5', text: '#EA580C' }; // Orange
+                return { bg: '#FFEDD5', text: '#EA580C' };
             case 3:
-                return { bg: '#DBEAFE', text: '#2563EB' }; // Blue
+                return { bg: '#DBEAFE', text: '#2563EB' };
             case 4:
-                return { bg: '#CFFAFE', text: '#0891B2' }; // Cyan
+                return { bg: '#CFFAFE', text: '#0891B2' };
             case 5:
-                return { bg: '#DCFCE7', text: '#16A34A' }; // Green
+                return { bg: '#DCFCE7', text: '#16A34A' };
             case 6:
-                return { bg: '#F3E8FF', text: '#9333EA' }; // Purple
+                return { bg: '#F3E8FF', text: '#9333EA' };
             default:
                 return { bg: '#F3F4F6', text: '#4B5563' };
         }
     };
 
-    // Lọc và sắp xếp danh sách biển báo
     const filteredAndSortedSigns = useMemo(() => {
         return signs
             .filter((sign) => {
@@ -133,7 +135,7 @@ export default function SignScreen() {
         const typeName = getSignTypeName(item);
         const tagStyle = getTagColor(item.signType?.SignTypeId);
         return (
-            <View style={styles.card}>
+            <View style={[styles.card, { width: cardWidth }]}>
                 <View style={styles.imageWrapper}>
                     <Image
                         source={{ uri: imageUrl }}
@@ -168,8 +170,6 @@ export default function SignScreen() {
     return (
         <View style={styles.container}>
             <Header
-                userName="admin1"
-                avatarUrl="https://i.pravatar.cc/150?img=12"
                 onOpenDrawer={handleOpenDrawer}
             />
             <View style={styles.content}>
@@ -217,11 +217,12 @@ export default function SignScreen() {
                     </View>
                 ) : filteredAndSortedSigns.length > 0 ? (
                     <FlatList
+                    key={`sign-list-${numColumns}`}
                         data={filteredAndSortedSigns}
                         keyExtractor={(item) => item.SignId.toString()}
                         renderItem={renderSignItem}
-                        numColumns={2}
-                        columnWrapperStyle={styles.rowWrapper}
+                        numColumns={numColumns}
+                        columnWrapperStyle={numColumns > 1 ? { gap } : undefined}
                         contentContainerStyle={styles.listContainer}
                         showsVerticalScrollIndicator={false}
                     />
@@ -308,12 +309,7 @@ const styles = StyleSheet.create({
     listContainer: {
         paddingBottom: 16,
     },
-    rowWrapper: {
-        justifyContent: 'space-between',
-        marginBottom: 12,
-    },
     card: {
-        width: CARD_WIDTH,
         backgroundColor: '#FFFFFF',
         borderRadius: 12,
         borderWidth: 1,
@@ -324,6 +320,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.04,
         shadowRadius: 4,
         elevation: 2,
+        marginBottom: 4
     },
     imageWrapper: {
         height: 120,

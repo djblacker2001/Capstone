@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { DrawerActions, useNavigation } from "@react-navigation/native";
 import { Header } from "../components/Header";
-import { Footer } from "../components/Footer";
+import Footer from "../components/Footer";
 
 export default function MapScreen() {
     const navigation = useNavigation<any>();
@@ -12,11 +12,7 @@ export default function MapScreen() {
     };
     return (
         <View style={styles.container}>
-            <Header
-                userName="admin1"
-                avatarUrl="https://i.pravatar.cc/150?img=12"
-                onOpenDrawer={handleOpenDrawer}
-            />
+            <Header onOpenDrawer={handleOpenDrawer}/>
             <View style={styles.content}>
                 <Text style={styles.text}>Bản đồ Cao tốc</Text>
             </View>

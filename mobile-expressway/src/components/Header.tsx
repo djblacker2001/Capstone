@@ -5,6 +5,7 @@ import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';
 interface HeaderProps {
     onOpenDrawer?: () => void;
     userName?: string;
@@ -17,7 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
     avatarUrl: propAvatarUrl,
 }) => {
     const navigation = useNavigation<any>();
-    const [user, setUser] = useState<{ username?: string; avatar?: string; name?: string } | null>(null);
+    const [user, setUser] = useState<any>(null);
     useEffect(() => {
         const loadUserInfo = async () => {
             try {
@@ -32,8 +33,21 @@ export const Header: React.FC<HeaderProps> = ({
         loadUserInfo();
     }, []);
 
-    const displayName = propUserName || user?.name || user?.username || 'admin1';
-    const displayAvatar = propAvatarUrl || user?.avatar;
+    const apiUserName = user?.Username || user?.username || user?.name;
+    const displayName = propUserName || apiUserName || 'Guest';
+    const rawAvatar = propAvatarUrl || user?.Avatar || user?.avatar;
+
+    const displayAvatar = rawAvatar
+        ? rawAvatar.startsWith('http')
+            ? rawAvatar
+            : rawAvatar.includes('uploads/avatars')
+                ? `${baseUrl}/${rawAvatar.replace(/^\/+/, '')}`
+                : `${baseUrl}/uploads/avatars/${rawAvatar}`
+        : null;
+
+    const handlePressProfile = () => {
+        navigation.navigate('ProfileScreen');
+    };
 
     const handlePressMenu = () => {
         if (onOpenDrawer) {
@@ -77,7 +91,11 @@ export const Header: React.FC<HeaderProps> = ({
                 </View>
 
                 <View style={styles.rightContainer}>
-                    <View style={styles.userContainer}>
+                    <TouchableOpacity
+                        style={styles.userContainer}
+                        onPress={handlePressProfile}
+                        activeOpacity={0.7}
+                    >
                         {displayAvatar ? (
                             <Image source={{ uri: displayAvatar }} style={styles.avatar} />
                         ) : (
@@ -88,7 +106,7 @@ export const Header: React.FC<HeaderProps> = ({
                         <Text style={styles.userName} numberOfLines={1}>
                             {displayName}
                         </Text>
-                    </View>
+                    </TouchableOpacity>
                 </View>
             </View>
         </SafeAreaView>

@@ -5,7 +5,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
-export const Footer: React.FC = () => {
+export default function Footer() {
     const navigation = useNavigation<any>();
     const route = useRoute();
     const { t } = useTranslation();
@@ -28,7 +28,7 @@ export const Footer: React.FC = () => {
             iconInactive: 'map-outline',
         },
         {
-            id: 'DetailSectionScreen',
+            id: 'SectionScreen',
             label: t('footer.expressway'),
             type: 'mci',
             iconActive: 'routes',

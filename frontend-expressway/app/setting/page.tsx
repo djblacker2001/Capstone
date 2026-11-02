@@ -49,7 +49,7 @@ export default function SettingPage() {
                 console.error("Lỗi parse user data từ localStorage:", error);
             }
         }
-    }, [formInfo]); // Bạn có thể để [] nếu formInfo ổn định
+    }, [formInfo]);
 
     const handleBeforeUpload = (file: any) => {
         const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
