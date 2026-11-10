@@ -106,7 +106,6 @@ export default function MapHome({
           attributionControl: false
         }).setView([16.047079, 108.20623], 6);
 
-        // 🟢 Sử dụng Stadia Maps Alidade Smooth cho mobile mượt mà, không chặn CORS
         L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
           maxZoom: 19,
           attribution: '&copy; Stadia Maps &copy; OpenStreetMap'

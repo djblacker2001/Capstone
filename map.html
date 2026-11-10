@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        html,
+        body,
+        #map {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background: #e5e3df;
+        }
+
+        .user-marker {
+            width: 18px;
+            height: 18px;
+            background: #008744;
+            border: 3px solid #FFFFFF;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 168, 89, 0.8);
+        }
+
+        .icon-box {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            font-size: 14px;
+            color: white;
+        }
+
+        .ic-box {
+            background: #1890ff;
+        }
+
+        .rs-box {
+            background: #52c41a;
+        }
+
+        .facility-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 4px;
+            margin-right: 4px;
+            margin-top: 4px;
+            color: white;
+        }
+
+        .bg-petrol {
+            background-color: #ff9c6e;
+        }
+
+        .bg-food {
+            background-color: #69c0ff;
+        }
+
+        .bg-toilet {
+            background-color: #5cdbd3;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script>
+        try {
+            if (window.navigator && window.navigator.geolocation) {
+                window.navigator.geolocation.getCurrentPosition = function () { };
+                window.navigator.geolocation.watchPosition = function () { };
+            }
+
+            var map = L.map('map', { zoomControl: false, attributionControl: false }).setView([16.047, 108.206], 6);
+            window.map = map;
+
+            L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', { maxZoom: 19, subdomains: ['a', 'b', 'c'] }).addTo(map);
+
+            var userMarker = null;
+            var featureLayerGroup = L.layerGroup().addTo(map);
+
+            window.updateUserLocation = function (lat, lng) {
+                try {
+                    if (!userMarker) {
+                        var customIcon = L.divIcon({ className: 'user-marker', iconSize: [18, 18], iconAnchor: [9, 9] });
+                        userMarker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+                        map.setView([lat, lng], 13);
+                    } else {
+                        userMarker.setLatLng([lat, lng]);
+                    }
+                } catch (e) { console.error(e); }
+            };
+
+            function getRouteColor(statusStr) {
+                var s = (statusStr || '').toLowerCase().trim();
+                if (s === 'complete' || s === 'completed') return '#237804'; // Xanh lá
+                if (s === 'under construction' || s === 'construction') return '#1890ff'; // Xanh dương
+                if (s === 'extend under construction' || s === 'extend') return '#86c5ff'; // Xanh nhạt
+                if (s === 'not yet construction' || s === 'not_started' || s === 'planning') return '#faad14'; // Vàng
+                if (s === 'incident') return '#ff4d4f'; // Đỏ
+                if (s === 'maintenance') return '#722ed1'; // Tím
+                return '#1890ff'; // Mặc định
+            }
+
+            window.updateMapFeatures = function (data) {
+                try {
+                    featureLayerGroup.clearLayers();
+                    if (!data) return;
+
+                    // 🟢 0A. Vẽ 1 tuyến GeoJSON (Khi chọn 1 Phân đoạn cụ thể)
+                    if (data.geoJsonData) {
+                        var geoLayer = L.geoJSON(data.geoJsonData, {
+                            style: function (feature) {
+                                var routeStatus = data.status || (feature && feature.properties ? (feature.properties.status || feature.properties.Status) : '');
+                                return {
+                                    color: getRouteColor(routeStatus),
+                                    weight: 6,
+                                    opacity: 0.85
+                                };
+                            }
+                        }).addTo(featureLayerGroup);
+
+                        try {
+                            var bounds = geoLayer.getBounds();
+                            if (bounds.isValid()) {
+                                map.fitBounds(bounds, { padding: [30, 30] });
+                            }
+                        } catch (e) { }
+                    }
+
+                    // 🟢 0B. Vẽ nhiều tuyến GeoJSON (Khi chọn "Tất cả phân đoạn" - ALL)
+                    if (data.geoJsonDataList && Array.isArray(data.geoJsonDataList)) {
+                        var multiBounds = L.latLngBounds([]);
+                        data.geoJsonDataList.forEach(function (item) {
+                            if (item && item.data) {
+                                var layer = L.geoJSON(item.data, {
+                                    style: function (feature) {
+                                        var routeStatus = item.status || (feature && feature.properties ? (feature.properties.status || feature.properties.Status) : '');
+                                        return {
+                                            color: getRouteColor(routeStatus),
+                                            weight: 6,
+                                            opacity: 0.85
+                                        };
+                                    }
+                                }).addTo(featureLayerGroup);
+
+                                try {
+                                    var b = layer.getBounds();
+                                    if (b.isValid()) multiBounds.extend(b);
+                                } catch (e) { }
+                            }
+                        });
+
+                        try {
+                            if (multiBounds.isValid()) {
+                                map.fitBounds(multiBounds, { padding: [30, 30] });
+                            }
+                        } catch (e) { }
+                    }
+
+                    // 🟢 1. Render Nút Giao
+                    (data.interchanges || []).forEach(function (ic) {
+                        if (ic && ic.Latitude && ic.Longitude) {
+                            var icon = L.divIcon({ html: '<div class="icon-box ic-box">🔀</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
+                            var popupHtml = '<div style="min-width:140px;"><b>🔀 Nút Giao:</b> ' + (ic.NameInterchange || '') +
+                                '<br/><b>Vị trí:</b> Km ' + (ic.Location || '') +
+                                (ic.Connection ? '<br/><b>Kết nối:</b> ' + ic.Connection : '') + '</div>';
+                            L.marker([ic.Latitude, ic.Longitude], { icon: icon }).bindPopup(popupHtml).addTo(featureLayerGroup);
+                        }
+                    });
+
+                    // 🟢 2. Render Trạm Dừng Chân
+                    (data.restStops || []).forEach(function (rs) {
+                        if (rs && rs.Latitude && rs.Longitude) {
+                            var icon = L.divIcon({ html: '<div class="icon-box rs-box">☕</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
+                            var tagsHtml = '';
+                            if (rs.HasPetrol) tagsHtml += '<span class="facility-tag bg-petrol">⛽ Cây xăng</span>';
+                            if (rs.HasFood) tagsHtml += '<span class="facility-tag bg-food">🍲 Đồ ăn</span>';
+                            if (rs.HasToilet) tagsHtml += '<span class="facility-tag bg-toilet">🚾 WC</span>';
+
+                            var popupHtml = '<div style="min-width:150px;"><b>☕ Trạm Dừng:</b> ' + (rs.NameRestStop || '') +
+                                '<br/><b>Vị trí:</b> Km ' + (rs.Location || '') +
+                                '<div style="margin-top:4px;">' + tagsHtml + '</div></div>';
+                            L.marker([rs.Latitude, rs.Longitude], { icon: icon }).bindPopup(popupHtml).addTo(featureLayerGroup);
+                        }
+                    });
+
+                    // 🟢 3. Render Biển Báo Tốc Độ
+                    (data.sections || []).forEach(function (sec) {
+                        if (sec && sec.lat && sec.lng) {
+                            var imgUrl = '';
+                            if (sec.SpeedSign) {
+                                if (sec.SpeedSign.indexOf('http') === 0) {
+                                    imgUrl = sec.SpeedSign;
+                                } else {
+                                    var bUrl = (data.baseUrl || '').replace(/\/+$/, '');
+                                    var sPath = sec.SpeedSign.replace(/^\/+/, '');
+                                    imgUrl = bUrl + '/' + sPath;
+                                }
+                            }
+
+                            var iconHtml = '';
+                            if (imgUrl) {
+                                iconHtml = '<div style="width:36px;height:36px;border-radius:50%;overflow:hidden;border:2px solid #ff4d4f;box-shadow:0 2px 6px rgba(0,0,0,0.3);background:white;">' +
+                                    '<img src="' + imgUrl + '" style="width:100%;height:100%;object-fit:cover;" />' +
+                                    '</div>';
+                            } else {
+                                iconHtml = '<div style="width:32px;height:32px;border-radius:50%;background:#ff4d4f;color:white;display:flex;align-items:center;justify-content:center;border:2px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);font-weight:bold;font-size:12px;">🛑</div>';
+                            }
+
+                            var customIcon = L.divIcon({ html: iconHtml, iconSize: [36, 36], iconAnchor: [18, 18], popupAnchor: [0, -18] });
+
+                            var popupHtml = '<div style="text-align:center;min-width:180px;max-width:240px;padding:4px;">' +
+                                '<span style="background:#ff4d4f;color:white;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:bold;">Biển Báo Tốc Độ</span>' +
+                                '<h4 style="margin:6px 0 4px 0;font-size:13px;color:#1E293B;">' + (sec.NameSection || 'Phân đoạn') + '</h4>';
+
+                            if (imgUrl) {
+                                popupHtml += '<div style="margin:6px 0;border-radius:6px;overflow:hidden;border:1px solid #E2E8F0;background:#F8FAFC;">' +
+                                    '<img src="' + imgUrl + '" style="width:100%;max-height:120px;object-fit:contain;display:block;" />' +
+                                    '</div>';
+                            }
+
+                            if (sec.SpeedLimit) {
+                                popupHtml += '<div style="font-size:11px;color:#475569;background:#F1F5F9;padding:6px;border-radius:6px;text-align:left;">' +
+                                    '<b>Giới hạn:</b> ' + sec.SpeedLimit +
+                                    '</div>';
+                            }
+                            popupHtml += '</div>';
+
+                            L.marker([sec.lat, sec.lng], { icon: customIcon, zIndexOffset: 500 })
+                                .bindPopup(popupHtml)
+                                .addTo(featureLayerGroup);
+                        }
+                    });
+                } catch (err) {
+                    console.error("Lỗi updateMapFeatures:", err);
+                }
+            };
+        } catch (globalErr) {
+            console.error("Lỗi khởi tạo Leaflet:", globalErr);
+        }
+    </script>
+</body>
+
+</html>

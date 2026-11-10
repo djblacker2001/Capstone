@@ -18,6 +18,12 @@ export class Tunnel {
   @Column({ name: 'Height', type: 'float' })
   Height!: number;
 
+  @Column({ name: 'Longitude', type: 'float', nullable: true})
+  Longitude?: number;
+
+  @Column({ name: 'Latitude', type: 'float', nullable: true})
+  Latitude?: number;
+
   @Column({ name: 'MaxSpeed', type: 'int', nullable: true })
   MaxSpeed!: number;
 

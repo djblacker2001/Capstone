@@ -60,7 +60,7 @@ export default function Loading({ onFinish, navigation }: LoadingProps) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#003366',
+        backgroundColor: '#008744',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 60,

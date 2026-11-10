@@ -91,6 +91,9 @@ export default function UpdateSectionPage() {
                     Status: data.Status,
                     SpeedLimit: data.SpeedLimit,
                     ProvinceIds: selectedProvinceIds,
+                    MaxSpeed: data.MaxSpeed,
+                    MinSpeed: data.MinSpeed,
+
                 });
 
                 setImageUrl(data.Image || '');
@@ -193,7 +196,11 @@ export default function UpdateSectionPage() {
                     mainValues[key] !== undefined &&
                     mainValues[key] !== null
                 ) {
-                    formData.append(key, mainValues[key]);
+                    if (key === 'MaxSpeed' || key === 'MinSpeed' || key === 'Length' || key === 'TrafficLand') {
+                        formData.append(key, String(Number(mainValues[key])));
+                    } else {
+                        formData.append(key, mainValues[key]);
+                    }
                 }
             });
 
@@ -448,22 +455,38 @@ export default function UpdateSectionPage() {
                             <Row gutter={16}>
                                 <Col xs={24} md={12}>
                                     <Row gutter={16}>
-                                        <Col xs={24} md={12}>
-                                            <Form.Item name="TrafficLand" label="Số làn xe chạy"><InputNumber style={{ width: '100%' }} /></Form.Item>
+                                        <Col xs={12} md={6}>
+                                            <Form.Item name="MinSpeed" label="Tốc độ tối thiểu (km/h)">
+                                                <InputNumber style={{ width: '100%' }} min={0} placeholder="VD: 60" />
+                                            </Form.Item>
                                         </Col>
-                                        <Col xs={24} md={12}>
+                                        <Col xs={12} md={6}>
+                                            <Form.Item name="MaxSpeed" label="Tốc độ tối đa (km/h)">
+                                                <InputNumber style={{ width: '100%' }} min={0} placeholder="VD: 120" />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col xs={12} md={6}>
+                                            <Form.Item name="TrafficLand" label="Số làn xe chạy">
+                                                <InputNumber style={{ width: '100%' }} min={1} />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col xs={12} md={6}>
                                             <Form.Item
                                                 name="HasEmergencyLand"
-                                                label="Làn dừng khẩn cấp"
+                                                label="Làn khẩn cấp"
                                                 style={{ width: '100%' }}
                                             >
-                                                <Select placeholder="Chọn trạng thái">
+                                                <Select placeholder="Chọn">
                                                     <Select.Option value={true}>Có</Select.Option>
                                                     <Select.Option value={false}>Không</Select.Option>
                                                 </Select>
                                             </Form.Item>
                                         </Col>
-                                        <Col xs={24}><Form.Item name="SpeedLimit" label="Mô tả / Giới hạn tốc độ"><Input.TextArea rows={4} /></Form.Item></Col>
+                                        <Col xs={24}>
+                                            <Form.Item name="SpeedLimit" label="Mô tả / Chi tiết giới hạn tốc độ">
+                                                <Input.TextArea rows={3} placeholder="VD: Làn 1: 80 - 100km/h; Làn 2: 60 - 80km/h" />
+                                            </Form.Item>
+                                        </Col>
                                     </Row>
                                 </Col>
 
@@ -644,6 +667,16 @@ export default function UpdateSectionPage() {
                                             <Col xs={24} md={6}><Form.Item name="Height" label="Chiều cao (m)"><InputNumber style={{ width: '100%' }} /></Form.Item></Col>
                                             <Col xs={24} md={6}><Form.Item name="MinSpeed" label="Tốc độ tối thiểu"><InputNumber style={{ width: '100%' }} /></Form.Item></Col>
                                             <Col xs={24} md={6}><Form.Item name="MaxSpeed" label="Tốc độ tối đa"><InputNumber style={{ width: '100%' }} /></Form.Item></Col>
+                                            <Col xs={24} md={6}>
+                                                <Form.Item name="Longitude" label="Kinh độ">
+                                                    <InputNumber style={{ width: '100%' }} />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={6}>
+                                                <Form.Item name="Latitude" label="Vĩ độ">
+                                                    <InputNumber style={{ width: '100%' }} />
+                                                </Form.Item>
+                                            </Col>
                                         </Row>
                                     )}
 

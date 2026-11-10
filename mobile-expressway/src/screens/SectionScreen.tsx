@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Image, ActivityIndicator, Modal, ScrollView, Alert, useWindowDimensions, LayoutAnimation, Platform, UIManager, Animated, Easing } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { DrawerActions, useNavigation } from '@react-navigation/native';
-import { Header } from "../components/Header";
+import { DrawerActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import Header from "../components/Header";
 import Footer from "../components/Footer";
 import axiosClient from '../api/axiosClient';
+import { useAuth } from '../components/AuthContext';
 
 const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -64,7 +65,7 @@ interface Section {
 }
 
 export default function SectionScreen() {
-
+    const { isLoggedIn, loading } = useAuth();
     const { width } = useWindowDimensions();
     const isTablet = width >= 768;
     const numColumns = isTablet ? 2 : 1;
@@ -80,30 +81,25 @@ export default function SectionScreen() {
     };
 
     const animationController = useRef(new Animated.Value(0)).current;
-
-    // 🟢 3. Hàm toggle mượt mà với Animated.timing
     const toggleFilter = () => {
         if (showFilter) {
-            // Đóng bộ lọc
             Animated.timing(animationController, {
                 toValue: 0,
-                duration: 250, // Thời gian trượt lên (ms)
+                duration: 250,
                 easing: Easing.bezier(0.4, 0, 0.2, 1),
-                useNativeDriver: false, // Bắt buộc false vì animate height/margin
+                useNativeDriver: false,
             }).start(() => setShowFilter(false));
         } else {
-            // Mở bộ lọc
             setShowFilter(true);
             Animated.timing(animationController, {
                 toValue: 1,
-                duration: 300, // Thời gian xổ xuống (ms)
+                duration: 300,
                 easing: Easing.bezier(0.4, 0, 0.2, 1),
                 useNativeDriver: false,
             }).start();
         }
     };
 
-    // Interpolate tạo chiều cao & độ mờ mượt mà
     const filterOpacity = animationController.interpolate({
         inputRange: [0, 1],
         outputRange: [0, 1],
@@ -117,7 +113,7 @@ export default function SectionScreen() {
     const { t } = useTranslation();
     const navigation = useNavigation<any>();
     const [sections, setSections] = useState<Section[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loadingg, setLoading] = useState<boolean>(true);
     const [showFilter, setShowFilter] = useState<boolean>(false);
     const [filterName, setFilterName] = useState<string>('');
     const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
@@ -151,6 +147,26 @@ export default function SectionScreen() {
             setLoading(false);
         }
     };
+
+    useFocusEffect(
+        useCallback(() => {
+            if (!loading && !isLoggedIn) {
+                navigation.navigate('Login');
+            }
+        }, [isLoggedIn, loading, navigation])
+    );
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#008744" />
+            </View>
+        );
+    }
+
+    if (!isLoggedIn) {
+        return null;
+    }
 
     useEffect(() => {
         fetchAllSections();

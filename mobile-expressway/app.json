@@ -11,25 +11,48 @@
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
-        }
+        },
+        "NSLocationWhenInUseUsageDescription": "Ứng dụng cần định vị vị trí của bạn để hiển thị trên bản đồ.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Ứng dụng cần truy cập vị trí ngay cả khi chạy ngầm để phát cảnh báo giọng nói.",
+        "NSLocationAlwaysUsageDescription": "Ứng dụng cần định vị liên tục để nhắc nhở tốc độ khi tắt màn hình.",
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ]
       }
     },
     "android": {
       "usesCleartextTraffic": true,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.hoangvu222001.mobileexpressway"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-status-bar",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Ứng dụng cần truy cập vị trí ngay cả khi chạy ngầm để phát cảnh báo giọng nói.",
+          "locationAlwaysPermission": "Ứng dụng cần định vị liên tục để nhắc nhở tốc độ khi tắt màn hình.",
+          "locationWhenInUsePermission": "Ứng dụng cần định vị vị trí của bạn để hiển thị trên bản đồ.",
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ]
     ]
   }
 }

@@ -1,48 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    Image,
-    TouchableOpacity,
-    ActivityIndicator,
-    Modal,
-    StatusBar,
-    Platform,
-} from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, Modal, StatusBar, Platform, useWindowDimensions } from 'react-native';
 import { Ionicons, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { Header } from '../components/Header';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
+import Header from '../components/Header';
 import Footer from '../components/Footer';
 import MapComponent from '../components/MapComponent';
 import axiosClient from '../api/axiosClient';
-import {
-    SectionDetail,
-    InterchangeItem,
-    RestStopItem,
-    BridgeItem,
-    TunnelItem,
-    ProvinceItem,
-} from '../types/section';
+import { SectionDetail, InterchangeItem, RestStopItem, BridgeItem, TunnelItem, ProvinceItem, } from '../types/section';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../components/AuthContext';
 
 const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';
 
 export default function DetailSectionScreen() {
+    const { isLoggedIn, loading } = useAuth();
     const insets = useSafeAreaInsets();
     const { t } = useTranslation();
     const route = useRoute<any>();
     const navigation = useNavigation<any>();
-
     const currentId = route.params?.id;
-
     const [data, setData] = useState<SectionDetail | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loadingg, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'1' | '2' | '3' | '4'>('1');
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+    const { width } = useWindowDimensions();
+    const isMobile = width < 768;
+
+    useFocusEffect(
+        useCallback(() => {
+            if (!loading && !isLoggedIn) {
+                navigation.navigate('Login');
+            }
+        }, [isLoggedIn, loading, navigation])
+    );
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#008744" />
+            </View>
+        );
+    }
+
+    if (!isLoggedIn) {
+        return null;
+    }
 
     useEffect(() => {
         const fetchSectionDetail = async () => {
@@ -106,7 +110,7 @@ export default function DetailSectionScreen() {
                 <Header />
                 <View style={styles.centerContainer}>
                     <ActivityIndicator size="large" color="#008744" />
-                    <Text style={styles.loadingText}>Đang tải chi tiết tuyến đường...</Text>
+                    <Text style={styles.loadingText}>Loading...</Text>
                 </View>
                 <Footer />
             </View>
@@ -137,9 +141,7 @@ export default function DetailSectionScreen() {
     return (
         <View style={styles.container}>
             <Header />
-
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                {/* Nút Quay Lại & Tiêu Đề */}
                 <View style={styles.topBar}>
                     <TouchableOpacity
                         style={styles.backBtn}
@@ -152,51 +154,55 @@ export default function DetailSectionScreen() {
                     </Text>
                 </View>
 
-                {/* Khối Hình Ảnh & Bản Đồ */}
                 <View style={styles.mediaContainer}>
-                    {data.Image && (
-                        <View style={styles.mediaCard}>
-                            <Text style={styles.mediaTitle}>Hình ảnh tuyến đường</Text>
-                            <View style={styles.imageWrapper}>
-                                <Image
-                                    source={{ uri: getImageUrl(data.Image) }}
-                                    style={styles.mediaImage}
-                                    resizeMode="contain"
-                                />
+                    {/* 🟢 HÀNG 1: 2 HÌNH ẢNH (Tự động rớt dòng nếu width < 768) */}
+                    <View style={[styles.imagesRowContainer, isMobile && styles.columnLayout]}>
+                        {data?.Image && (
+                            <View style={styles.mediaCardHalf}>
+                                <Text style={styles.mediaTitle}>Hình ảnh tuyến đường</Text>
+                                <View style={styles.imageWrapperRow}>
+                                    <Image
+                                        source={{ uri: getImageUrl(data.Image) }}
+                                        style={styles.mediaImage}
+                                        resizeMode="contain"
+                                    />
+                                </View>
                             </View>
-                        </View>
-                    )}
+                        )}
 
-                    {data.SpeedSign && (
-                        <View style={styles.mediaCard}>
-                            <Text style={styles.mediaTitle}>Biển báo tốc độ quy định</Text>
-                            <View style={styles.imageWrapper}>
-                                <Image
-                                    source={{ uri: getImageUrl(data.SpeedSign) }}
-                                    style={styles.mediaImage}
-                                    resizeMode="contain"
-                                />
+                        {data?.SpeedSign && (
+                            <View style={styles.mediaCardHalf}>
+                                <Text style={styles.mediaTitle}>Biển báo tốc độ quy định</Text>
+                                <View style={styles.imageWrapperRow}>
+                                    <Image
+                                        source={{ uri: getImageUrl(data.SpeedSign) }}
+                                        style={styles.mediaImage}
+                                        resizeMode="contain"
+                                    />
+                                </View>
                             </View>
-                        </View>
-                    )}
+                        )}
+                    </View>
 
-                    <View style={styles.mediaCard}>
+                    {/* 🟢 HÀNG 2: BẢN ĐỒ NẰM DƯỚI DÃN FULL 100% CHIỀU RỘNG */}
+                    <View style={styles.mediaCardFull}>
                         <View style={styles.mapHeaderRow}>
                             <Text style={styles.mediaTitle}>Bản đồ phân đoạn tuyến đường</Text>
                             <TouchableOpacity
                                 style={styles.fullscreenBtn}
                                 onPress={() => setIsFullscreen(true)}
                             >
-                                <Ionicons name="expand-outline" size={16} color="#008744" />
+                                <Ionicons name="expand-outline" size={14} color="#008744" />
                                 <Text style={styles.fullscreenBtnText}>{t('home.fullScreen', 'Xem toàn màn hình')}</Text>
                             </TouchableOpacity>
                         </View>
 
-                        <MapComponent geojsonData={data.MapData} height={240} />
+                        <View style={styles.mapWrapperFull}>
+                            {data && <MapComponent geojsonData={data.MapData} height="100%" />}
+                        </View>
                     </View>
                 </View>
 
-                {/* Thông tin Chi Tiết */}
                 <View style={styles.infoCard}>
                     <View style={styles.cardHeader}>
                         <Ionicons name="compass" size={22} color="#008744" />
@@ -265,7 +271,6 @@ export default function DetailSectionScreen() {
                     </View>
                 </View>
 
-                {/* Tabs Sub-Items */}
                 <View style={styles.tabBar}>
                     <TouchableOpacity
                         style={[styles.tabItem, activeTab === '1' && styles.tabItemActive]}
@@ -308,7 +313,6 @@ export default function DetailSectionScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Nội dung Tab */}
                 <View style={styles.tabContentContainer}>
                     {activeTab === '1' && (
                         <View>
@@ -406,15 +410,11 @@ export default function DetailSectionScreen() {
                     )}
                 </View>
             </ScrollView>
-
             <Footer />
 
-            {/* 🟢 MODAL XEM BẢN ĐỒ FULLSCREEN CÓ SAFE AREA FIX NOTCH */}
             <Modal visible={isFullscreen} animationType="slide" hardwareAccelerated statusBarTranslucent>
                 <View style={styles.fullScreenModalContainer}>
-                    <StatusBar barStyle="light-content"/>
-
-                    {/* Thanh Header Đóng Bản Đồ tự động đẩy xuống dưới Tai Thỏ */}
+                    <StatusBar barStyle="light-content" />
                     <View style={[styles.modalHeader, { paddingTop: Math.max(insets.top, Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 44) }]}>
                         <TouchableOpacity
                             style={styles.closeModalBtn}
@@ -425,8 +425,6 @@ export default function DetailSectionScreen() {
                             <Text style={styles.closeModalText}>Đóng bản đồ</Text>
                         </TouchableOpacity>
                     </View>
-
-                    {/* Khung chứa bản đồ */}
                     <View style={{ flex: 1 }}>
                         {data && <MapComponent geojsonData={data.MapData} height="100%" />}
                     </View>
@@ -447,12 +445,30 @@ const styles = StyleSheet.create({
     topBar: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 12 },
     backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0' },
     screenTitle: { fontSize: 18, fontWeight: 'bold', color: '#0F172A', flex: 1 },
-    mediaContainer: { gap: 12, marginBottom: 14 },
-    mediaCard: { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#E2E8F0' },
+    imagesRowContainer: {
+        width: '100%',
+        flexDirection: 'row',
+        gap: 12,
+        alignItems: 'stretch',
+    },
+    columnLayout: {
+        flexDirection: 'column',
+    },
+    mediaCardHalf: {
+        flex: 1,
+        width: '100%',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        minHeight: 200,
+    },
     mediaTitle: { fontSize: 13, fontWeight: '600', color: '#475569' },
     mapHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
     fullscreenBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#F0FDF4', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
     fullscreenBtnText: { fontSize: 11, fontWeight: '600', color: '#008744' },
+    mediaContainer: { gap: 12, marginBottom: 14 },
     fullScreenModalContainer: {
         flex: 1,
         backgroundColor: '#1E293B',
@@ -480,7 +496,39 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 14,
     },
-    imageWrapper: { height: 150, backgroundColor: '#004F9F', borderRadius: 8, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', marginTop: 8 },
+    imageWrapper: {
+        height: 150,
+        backgroundColor: '#004F9F',
+        borderRadius: 8,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 8
+    },
+    mediaCardFull: {
+        width: '100%',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        height: 280,
+    },
+    imageWrapperRow: {
+        flex: 1,
+        height: 150,
+        backgroundColor: '#c9c9c9',
+        borderRadius: 8,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    mapWrapperFull: {
+        flex: 1,
+        width: '100%',
+        borderRadius: 8,
+        overflow: 'hidden',
+    },
     mediaImage: { width: '100%', height: '100%' },
     infoCard: { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 14, marginBottom: 14, borderWidth: 1, borderColor: '#E2E8F0' },
     cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#F1F5F9', marginBottom: 10 },
@@ -514,4 +562,9 @@ const styles = StyleSheet.create({
     serviceTag: { fontSize: 11, color: '#334155', backgroundColor: '#F1F5F9', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
     lengthText: { fontSize: 12, fontWeight: 'bold', color: '#2563EB' },
     emptyTabText: { textAlign: 'center', color: '#94A3B8', marginVertical: 20, fontSize: 13 },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 });

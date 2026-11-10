@@ -6,21 +6,24 @@ import RegisterScreen from '../screens/RegisterScreen';
 import DrawerNavigator from './DrawerNavigator';
 import DetailSectionScreen from '../screens/DetailSectionScreen';
 import SettingScreen from '../screens/SettingScreen';
+import { AuthProvider } from '../components/AuthContext';
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   return (
-    <Stack.Navigator 
-      initialRouteName="Loading" 
-      screenOptions={{ headerShown: false }}
-    >
-      <Stack.Screen name="DetailSectionScreen" component={DetailSectionScreen} />
-      <Stack.Screen name="SettingScreen" component={SettingScreen} />
-      <Stack.Screen name="Loading" component={LoadingScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="HomeDrawer" component={DrawerNavigator} />
-    </Stack.Navigator>
+    <AuthProvider>
+      <Stack.Navigator 
+        initialRouteName="Loading" 
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="Loading" component={LoadingScreen} />
+        <Stack.Screen name="HomeDrawer" component={DrawerNavigator} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="DetailSectionScreen" component={DetailSectionScreen} />
+        <Stack.Screen name="SettingScreen" component={SettingScreen} />
+      </Stack.Navigator>
+    </AuthProvider>
   );
 }

@@ -17,5 +17,17 @@ export class CreateTunnelDto {
     Height!: number;
 
     @ApiProperty()
+    Longitude?: number;
+
+    @ApiProperty()
+    Latitude?: number;
+
+    @ApiProperty()
+    MaxSpeed?: number;
+
+    @ApiProperty()
+    MinSpeed?: number;
+
+    @ApiProperty()
     HasLighting!: boolean;
 }

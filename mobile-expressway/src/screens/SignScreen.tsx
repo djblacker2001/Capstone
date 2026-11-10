@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TextInput, FlatList, Image, ActivityIndicator, TouchableOpacity, ScrollView, Dimensions, useWindowDimensions, } from 'react-native';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { View, Text, StyleSheet, TextInput, FlatList, Image, ActivityIndicator, TouchableOpacity, ScrollView, useWindowDimensions, } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { Header } from '../components/Header';
+import Header from '../components/Header';
 import Footer from '../components/Footer';
 import axiosClient from '../api/axiosClient';
-import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { DrawerActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useAuth } from '../components/AuthContext';
 
 const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
 
@@ -21,6 +22,7 @@ interface Sign {
 }
 
 export default function SignScreen() {
+    const { isLoggedIn, loading } = useAuth();
     const navigation = useNavigation<any>();
     const { width } = useWindowDimensions();
     const isTablet = width >= 768;
@@ -33,9 +35,29 @@ export default function SignScreen() {
         navigation.dispatch(DrawerActions.openDrawer());
     };
 
+    useFocusEffect(
+        useCallback(() => {
+            if (!loading && !isLoggedIn) {
+                navigation.navigate('Login');
+            }
+        }, [isLoggedIn, loading, navigation])
+    );
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#008744" />
+            </View>
+        );
+    }
+
+    if (!isLoggedIn) {
+        return null;
+    }
+
     const { t } = useTranslation();
     const [signs, setSigns] = useState<Sign[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loadingg, setLoading] = useState<boolean>(true);
     const [searchText, setSearchText] = useState<string>('');
     const [selectedTypeId, setSelectedTypeId] = useState<string>('All');
     const [failedImages, setFailedImages] = useState<Record<number, boolean>>({});
@@ -217,7 +239,7 @@ export default function SignScreen() {
                     </View>
                 ) : filteredAndSortedSigns.length > 0 ? (
                     <FlatList
-                    key={`sign-list-${numColumns}`}
+                        key={`sign-list-${numColumns}`}
                         data={filteredAndSortedSigns}
                         keyExtractor={(item) => item.SignId.toString()}
                         renderItem={renderSignItem}

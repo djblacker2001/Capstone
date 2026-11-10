@@ -1,23 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    TextInput,
-    TouchableOpacity,
-    ActivityIndicator,
-    Alert,
-    Image,
-    Platform,
-    KeyboardAvoidingView,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, Platform, KeyboardAvoidingView, } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 
-import { Header } from '../components/Header';
+import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';

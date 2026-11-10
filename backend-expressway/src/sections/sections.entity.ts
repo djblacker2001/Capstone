@@ -41,6 +41,12 @@ export class Section {
   @Column({ name: 'SpeedLimit', type: 'nvarchar', length: 'MAX', nullable: true })
   SpeedLimit?: string;
 
+  @Column({ name: 'MaxSpeed', type: 'int', nullable: true })
+  MaxSpeed!: number;
+
+  @Column({ name: 'MinSpeed', type: 'int', nullable: true })
+  MinSpeed!: number;
+
   @Column({ name: 'TrafficLand', type: 'int' })
   TrafficLand?: number;
 

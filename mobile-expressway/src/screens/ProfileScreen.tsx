@@ -5,7 +5,7 @@ import { useNavigation, useFocusEffect, CommonActions } from '@react-navigation/
 import { FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import axiosClient from '../api/axiosClient';
 
-import { Header } from '../components/Header';
+import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';

@@ -313,23 +313,32 @@ export default function CreateExpresswayPage() {
                                     </Col>
                                     <Col xs={24} md={12}>
                                         <Row gutter={16}>
-                                            <Col xs={24} md={12}>
+                                            <Col xs={12} md={6}>
+                                                <Form.Item name="MinSpeed" label="Tốc độ tối thiểu (km/h)">
+                                                    <InputNumber style={{ width: '100%' }} min={0} placeholder="VD: 60" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={12} md={6}>
+                                                <Form.Item name="MaxSpeed" label="Tốc độ tối đa (km/h)">
+                                                    <InputNumber style={{ width: '100%' }} min={0} placeholder="VD: 120" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={6}>
                                                 <Form.Item name="TrafficLand" label="Số làn xe chạy"><InputNumber style={{ width: '100%' }} /></Form.Item>
                                             </Col>
-                                            <Col xs={24} md={12}>
+                                            <Col xs={24} md={6}>
                                                 <Form.Item
                                                     name="HasEmergencyLand"
                                                     label="Làn dừng khẩn cấp"
                                                     style={{ width: '100%' }}
                                                 >
                                                     <Select placeholder="Chọn trạng thái">
-                                                        <Select.Option value={true}>Có</Select.Option>
-                                                        <Select.Option value={false}>Không</Select.Option>
+                                                        <Select value={true}>Có</Select>
+                                                        <Select value={false}>Không</Select>
                                                     </Select>
                                                 </Form.Item>
                                             </Col>
                                             <Col xs={24}><Form.Item name="SpeedLimit" label="Mô tả / Giới hạn tốc độ"><Input.TextArea rows={4} /></Form.Item></Col>
-
                                         </Row>
                                     </Col>
                                     <Col xs={24} md={12}>

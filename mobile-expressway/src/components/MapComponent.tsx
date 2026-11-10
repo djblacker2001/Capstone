@@ -90,12 +90,12 @@ export default function MapComponent({ geojsonData, height = 240 }: MapComponent
                 }).setView([20.8348, 105.884], 10);
                 
                 // Đổi sang CartoDB Tile Layer (chạy cực mượt trên mobile thật, không bị OSM block)
-                var tileLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution: '&copy; OpenStreetMap',
-  // Thêm tùy chọn này để không bị mất header khi gửi request trên thiết bị thật
-  referrerPolicy: 'no-referrer-when-downgrade'
-}).addTo(map);
+                var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                  attribution: '&copy; OpenStreetMap',
+                  // Thêm tùy chọn này để không bị mất header khi gửi request trên thiết bị thật
+                  referrerPolicy: 'no-referrer-when-downgrade'
+                }).addTo(map);
 
                 var geoData = ${geojsonString};
                 if (geoData) {
@@ -146,7 +146,7 @@ export default function MapComponent({ geojsonData, height = 240 }: MapComponent
           originWhitelist={['*']}
           source={{
             html: renderLeafletHTML(parsedGeoJson),
-            baseUrl: 'https://localhost' // Dòng này giúp vượt qua cơ chế chặn của OSM trên máy thật
+            baseUrl: 'https://localhost'
           }}
           style={styles.webViewStyle}
           userAgent="Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"

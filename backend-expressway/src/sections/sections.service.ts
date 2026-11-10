@@ -157,6 +157,12 @@ export class SectionsService {
         const trafficLand = parseValidNumber(data.TrafficLand);
         if (trafficLand !== undefined) updatePayload.TrafficLand = trafficLand;
 
+        const maxSpeed = parseValidNumber(data.MaxSpeed);
+        if (maxSpeed !== undefined) updatePayload.MaxSpeed = maxSpeed;
+
+        const minSpeed = parseValidNumber(data.MinSpeed);
+        if (minSpeed !== undefined) updatePayload.MinSpeed = minSpeed;
+
         // 3. Cập nhật Boolean
         if (isValidValue(data.HasEmergencyLand)) {
             updatePayload.HasEmergencyLand = String(data.HasEmergencyLand) === 'true' || data.HasEmergencyLand === true;

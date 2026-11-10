@@ -1,40 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
-import { useNavigation, DrawerActions } from '@react-navigation/native';
+import { useNavigation, DrawerActions, useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';
+
 interface HeaderProps {
     onOpenDrawer?: () => void;
     userName?: string;
     avatarUrl?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({
+export default function Header({
     onOpenDrawer,
     userName: propUserName,
     avatarUrl: propAvatarUrl,
-}) => {
+}: HeaderProps) {
     const navigation = useNavigation<any>();
+    const isFocused = useIsFocused();
     const [user, setUser] = useState<any>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
     useEffect(() => {
         const loadUserInfo = async () => {
             try {
+                const token = await AsyncStorage.getItem('accessToken') || await AsyncStorage.getItem('token');
                 const storedUser = await AsyncStorage.getItem('user');
-                if (storedUser) {
+
+                if (token && storedUser) {
                     setUser(JSON.parse(storedUser));
+                    setIsLoggedIn(true);
+                } else {
+                    setUser(null);
+                    setIsLoggedIn(false);
                 }
             } catch (error) {
                 console.error('Lỗi đọc thông tin user từ storage:', error);
+                setIsLoggedIn(false);
             }
         };
-        loadUserInfo();
-    }, []);
+
+        if (isFocused) {
+            loadUserInfo();
+        }
+    }, [isFocused]);
 
     const apiUserName = user?.Username || user?.username || user?.name;
-    const displayName = propUserName || apiUserName || 'Guest';
+    const displayName = propUserName || apiUserName;
     const rawAvatar = propAvatarUrl || user?.Avatar || user?.avatar;
 
     const displayAvatar = rawAvatar
@@ -47,6 +61,10 @@ export const Header: React.FC<HeaderProps> = ({
 
     const handlePressProfile = () => {
         navigation.navigate('ProfileScreen');
+    };
+
+    const handlePressLogin = () => {
+        navigation.navigate('Login');
     };
 
     const handlePressMenu = () => {
@@ -72,6 +90,7 @@ export const Header: React.FC<HeaderProps> = ({
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
             <View style={styles.container}>
+                {/* Góc trái: Menu Button + Logo */}
                 <View style={styles.leftContainer}>
                     <TouchableOpacity
                         style={styles.menuButton}
@@ -90,28 +109,40 @@ export const Header: React.FC<HeaderProps> = ({
                     </View>
                 </View>
 
+                {/* Góc phải: Đổi linh hoạt giữa User Profile và Nút Đăng Nhập */}
                 <View style={styles.rightContainer}>
-                    <TouchableOpacity
-                        style={styles.userContainer}
-                        onPress={handlePressProfile}
-                        activeOpacity={0.7}
-                    >
-                        {displayAvatar ? (
-                            <Image source={{ uri: displayAvatar }} style={styles.avatar} />
-                        ) : (
-                            <View style={styles.defaultAvatar}>
-                                <FontAwesome5 name="user" size={14} color="#555555" />
-                            </View>
-                        )}
-                        <Text style={styles.userName} numberOfLines={1}>
-                            {displayName}
-                        </Text>
-                    </TouchableOpacity>
+                    {isLoggedIn ? (
+                        <TouchableOpacity
+                            style={styles.userContainer}
+                            onPress={handlePressProfile}
+                            activeOpacity={0.7}
+                        >
+                            {displayAvatar ? (
+                                <Image source={{ uri: displayAvatar }} style={styles.avatar} />
+                            ) : (
+                                <View style={styles.defaultAvatar}>
+                                    <FontAwesome5 name="user" size={14} color="#555555" />
+                                </View>
+                            )}
+                            <Text style={styles.userName} numberOfLines={1}>
+                                {displayName || 'User'}
+                            </Text>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity
+                            style={styles.loginButton}
+                            onPress={handlePressLogin}
+                            activeOpacity={0.8}
+                        >
+                            <MaterialIcons name="login" size={18} color="#008744" />
+                            <Text style={styles.loginButtonText}>Đăng nhập</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
         </SafeAreaView>
     );
-};
+}
 
 const styles = StyleSheet.create({
     safeArea: {
@@ -176,5 +207,24 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 15,
         fontWeight: '600',
+    },
+    loginButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        paddingHorizontal: 14,
+        paddingVertical: 7,
+        borderRadius: 20,
+        gap: 6,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.15,
+        shadowRadius: 2,
+    },
+    loginButtonText: {
+        color: '#008744',
+        fontSize: 14,
+        fontWeight: 'bold',
     },
 });

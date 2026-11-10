@@ -1,23 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    Image,
-    Dimensions,
-    ActivityIndicator,
-    TouchableOpacity,
-    RefreshControl,
-    FlatList,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Dimensions, TouchableOpacity, RefreshControl, FlatList, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome5, MaterialIcons, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosClient from '../api/axiosClient';
 
-import { Header } from '../components/Header';
+import Header from '../components/Header';
 import Footer from '../components/Footer';
 import MapHome from '../components/MapHome';
 
@@ -27,8 +16,6 @@ const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';
 export default function HomeScreen() {
     const navigation = useNavigation<any>();
     const { t } = useTranslation();
-
-    // State Dữ liệu
     const [heroImages, setHeroImages] = useState<string[]>([]);
     const [statsData, setStatsData] = useState<any>(null);
     const [incidents, setIncidents] = useState<any[]>([]);
@@ -42,6 +29,8 @@ export default function HomeScreen() {
     const flatListRef = useRef<FlatList>(null);
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
     const selectedExpressway = routesData.find((item) => item.ExpresswayId === activeRouteId);
+    const { width } = useWindowDimensions();
+    const isMobile = width < 768;
 
     const fetchHeroImages = async () => {
         try {
@@ -58,7 +47,6 @@ export default function HomeScreen() {
         }
     };
 
-    // 2. Tải Dữ liệu Thống kê, Sự cố, Bảo trì
     const fetchAllData = async () => {
         try {
             const [resStats, resIncident, resMaintenance] = await Promise.all([
@@ -156,7 +144,6 @@ export default function HomeScreen() {
                 contentContainerStyle={styles.contentContainer}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#00a859']} />}
             >
-                {/* HERO SLIDER CONTAINER (.hero-text-section) */}
                 <View style={styles.heroSection}>
                     <FlatList
                         ref={flatListRef}
@@ -185,10 +172,7 @@ export default function HomeScreen() {
                         )}
                     />
 
-                    {/* Mask Overlay (.hero-overlay) */}
                     <View style={styles.heroOverlay} pointerEvents="none" />
-
-                    {/* Hero Content */}
                     <View style={styles.heroContent}>
                         <Text style={styles.heroTitle}>{t('home.title1')}</Text>
                         <Text style={styles.heroTitleEmerald}>{t('home.title2')}</Text>
@@ -215,7 +199,6 @@ export default function HomeScreen() {
                         </View>
                     </View>
 
-                    {/* Dots Indicator (Giống slick-dots trên web) */}
                     <View style={styles.dotsContainer}>
                         {heroImages.map((_, idx) => (
                             <View
@@ -226,9 +209,7 @@ export default function HomeScreen() {
                     </View>
                 </View>
 
-                {/* THỐNG KÊ CARDS (.stats-cards-section) */}
-                <View style={styles.statsCardsSection}>
-                    {/* Card 1: Tổng chiều dài */}
+                <View style={[styles.statsCardsSection, { flexDirection: isMobile ? 'column' : 'row' }]}>
                     <View style={styles.statCard}>
                         <View style={styles.statInfoContainer}>
                             <Text style={styles.statTitle}>{t('home.totalLength')}</Text>
@@ -241,7 +222,6 @@ export default function HomeScreen() {
                         </View>
                     </View>
 
-                    {/* Card 2: Tiến độ Vận hành */}
                     <View style={styles.statCard}>
                         <View style={styles.statInfoContainer}>
                             <Text style={styles.statTitle}>{t('home.progress')}</Text>
@@ -254,7 +234,6 @@ export default function HomeScreen() {
                         </View>
                     </View>
 
-                    {/* Card 3: Hạ tầng An toàn */}
                     <View style={styles.statCard}>
                         <View style={styles.statInfoContainer}>
                             <Text style={styles.statTitle}>{t('home.infrastructure')}</Text>
@@ -268,8 +247,7 @@ export default function HomeScreen() {
                     </View>
                 </View>
 
-                {/* BẢNG BẢO TRÌ & SỰ CỐ (.tables-status-section) */}
-                <View style={styles.tablesStatusSection}>
+                <View style={[styles.tablesStatusSection, { flexDirection: isMobile ? 'column' : 'row' }]}>
                     {/* 1. Sự cố */}
                     <View style={styles.tableCard}>
                         <View style={styles.tableHeaderRow}>
@@ -320,52 +298,60 @@ export default function HomeScreen() {
                 {/* DANH SÁCH BẢN ĐỒ CAO TỐC (.gis-preview-section) */}
                 <View style={styles.gisPreviewSection}>
                     <Text style={styles.sectionHeaderTitle}>{t('home.mapSystem')}</Text>
-                    <View style={{ marginTop: 16 }}>
-                        {routesData.map((item: any) => {
-                            const isActive = activeRouteId === item.ExpresswayId;
-                            return (
-                                <TouchableOpacity
-                                    key={item.ExpresswayId}
-                                    style={[styles.routeListItem, isActive && styles.routeListItemActive]}
-                                    onPress={() => setActiveRouteId(item.ExpresswayId)}
-                                    activeOpacity={0.8}
-                                >
-                                    <View style={styles.routeHeaderRow}>
-                                        <Text style={[styles.routeItemTitle, isActive && styles.routeItemTitleActive]}>
-                                            {item.NameExpressway}
-                                        </Text>
-                                        {item.Symbol && (
-                                            <View style={[styles.symbolBadge, isActive && styles.symbolBadgeActive]}>
-                                                <Text style={styles.symbolBadgeText}>{item.Symbol}</Text>
-                                            </View>
-                                        )}
-                                    </View>
-                                    <Text style={styles.routeItemDesc} numberOfLines={2}>
-                                        {item.Description ||
-                                            (item.section && item.section.length > 0
-                                                ? `Gồm ${item.section.length} phân đoạn tuyến`
-                                                : 'Tuyến đường cao tốc quốc gia')}
-                                    </Text>
-                                </TouchableOpacity>
-                            );
-                        })}
-                    </View>
-                    <View style={styles.mapHolder}>
-                        <MapHome
-                            isFullscreen={isFullscreen}
-                            setIsFullscreen={setIsFullscreen}
-                            mapDataFromApi={selectedExpressway?.MapData}
-                        />
 
-                        {!isFullscreen && (
-                            <TouchableOpacity
-                                style={styles.fullScreenLink}
-                                onPress={() => setIsFullscreen(true)}
-                                activeOpacity={0.7}
-                            >
-                                <Text style={styles.fullScreenLinkText}>{t('home.fullScreen')}</Text>
-                            </TouchableOpacity>
-                        )}
+                    {/* 🟢 Container nhóm Danh sách tuyến đường (trái) và Bản đồ (phải) vào 1 hàng */}
+                    <View style={[styles.gisRowLayout, isMobile && styles.columnLayout]}>
+
+                        {/* CỘT BÊN TRÁI: Danh sách các tuyến cao tốc */}
+                        <View style={styles.routesListColumn}>
+                            {routesData.map((item: any) => {
+                                const isActive = activeRouteId === item.ExpresswayId;
+                                return (
+                                    <TouchableOpacity
+                                        key={item.ExpresswayId}
+                                        style={[styles.routeListItem, isActive && styles.routeListItemActive]}
+                                        onPress={() => setActiveRouteId(item.ExpresswayId)}
+                                        activeOpacity={0.8}
+                                    >
+                                        <View style={styles.routeHeaderRow}>
+                                            <Text style={[styles.routeItemTitle, isActive && styles.routeItemTitleActive]}>
+                                                {item.NameExpressway}
+                                            </Text>
+                                            {item.Symbol && (
+                                                <View style={[styles.symbolBadge, isActive && styles.symbolBadgeActive]}>
+                                                    <Text style={styles.symbolBadgeText}>{item.Symbol}</Text>
+                                                </View>
+                                            )}
+                                        </View>
+                                        <Text style={styles.routeItemDesc} numberOfLines={2}>
+                                            {item.Description ||
+                                                (item.section && item.section.length > 0
+                                                    ? `Gồm ${item.section.length} phân đoạn tuyến`
+                                                    : 'Tuyến đường cao tốc quốc gia')}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+
+                        {/* CỘT BÊN PHẢI: Khung hiển thị bản đồ GIS */}
+                        <View style={styles.mapHolderColumn}>
+                            <MapHome
+                                isFullscreen={isFullscreen}
+                                setIsFullscreen={setIsFullscreen}
+                                mapDataFromApi={selectedExpressway?.MapData}
+                            />
+
+                            {!isFullscreen && (
+                                <TouchableOpacity
+                                    style={styles.fullScreenLink}
+                                    onPress={() => setIsFullscreen(true)}
+                                    activeOpacity={0.7}
+                                >
+                                    <Text style={styles.fullScreenLinkText}>{t('home.fullScreen')}</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
                     </View>
                 </View>
             </ScrollView>
@@ -497,6 +483,7 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     statCard: {
+        flex: 1,
         backgroundColor: '#FFFFFF',
         borderRadius: 12,
         borderWidth: 1,
@@ -545,6 +532,7 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     tableCard: {
+        flex: 1,
         backgroundColor: '#FFFFFF',
         borderRadius: 12,
         borderWidth: 1,
@@ -602,6 +590,7 @@ const styles = StyleSheet.create({
     gisPreviewSection: {
         paddingHorizontal: 16,
         paddingTop: 24,
+        width: '100%',
     },
     sectionHeaderTitle: {
         fontSize: 18,
@@ -609,6 +598,24 @@ const styles = StyleSheet.create({
         color: '#1E293B',
         textAlign: 'center',
         marginBottom: 16,
+    },
+
+    // 🟢 Container hàng ngang chính
+    gisRowLayout: {
+        width: '100%',
+        flexDirection: 'row',
+        gap: 16,
+        alignItems: 'stretch',
+    },
+    // Chuyển sang hàng dọc khi ở màn hình nhỏ
+    columnLayout: {
+        flexDirection: 'column',
+    },
+
+    // Cột trái: Danh sách các tuyến cao tốc
+    routesListColumn: {
+        flex: 1, // Chiếm 50% hàng
+        justifyContent: 'flex-start',
     },
     routeListItem: {
         backgroundColor: '#F8FAFC',
@@ -660,8 +667,12 @@ const styles = StyleSheet.create({
         color: '#64748B',
         marginTop: 2,
     },
-    mapHolder: {
-        marginBottom: 8,
+
+    // Cột phải: Bản đồ
+    mapHolderColumn: {
+        flex: 1, // Chiếm 50% hàng
+        minHeight: 280,
+        justifyContent: 'space-between',
     },
     fullScreenLink: {
         flexDirection: 'row',

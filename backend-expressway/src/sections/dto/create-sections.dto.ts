@@ -33,6 +33,12 @@ export class CreateSectionDto {
     @ApiProperty({required: false})
     SpeedLimit?: string;
 
+    @ApiProperty()
+    MaxSpeed?: number;
+
+    @ApiProperty()
+    MinSpeed?: number;
+
     @ApiProperty({required: false})
     TrafficLand?: number;
 

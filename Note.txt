@@ -32,6 +32,7 @@ DB_NAME='Project'
 
 .env frontend
 NEXT_PUBLIC_API_URL = 'http://192.168.100.28:8080'
+https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png
 
 Nhiệm vụ Capstone 3
 1. Phát triển Ứng dụng Di động

@@ -14,7 +14,7 @@ export default function Footer() {
 
     const navItems = [
         {
-            id: 'HomeScreen',
+            id: 'HomeDrawer',
             label: t('sidebar.homepage'),
             type: 'ionicons',
             iconActive: 'home',
@@ -88,7 +88,8 @@ export default function Footer() {
         <SafeAreaView edges={['bottom']} style={styles.safeArea}>
             <View style={styles.container}>
                 {navItems.map((item) => {
-                    const isActive = currentRoute === item.id;
+                    // Kiểm tra active cho cả HomeDrawer và HomeScreen
+                    const isActive = currentRoute === item.id || (item.id === 'HomeDrawer' && currentRoute === 'HomeScreen');
                     const activeColor = '#008744';
                     const inactiveColor = '#718096';
                     const iconColor = isActive ? activeColor : inactiveColor;
@@ -116,7 +117,7 @@ export default function Footer() {
             </View>
         </SafeAreaView>
     );
-};
+}
 
 const styles = StyleSheet.create({
     safeArea: {
