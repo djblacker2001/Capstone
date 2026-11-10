@@ -1651,7 +1651,7 @@ const styles = StyleSheet.create({
         marginTop: 6,
         paddingHorizontal: 10,
         paddingVertical: 6,
-        backgroundColor: '#E6F4EA', // Nền xanh lá nhạt cho dịu mắt
+        backgroundColor: '#E6F4EA',
         borderRadius: 6,
         borderWidth: 1,
         borderColor: '#C6E7D2',
@@ -1664,7 +1664,7 @@ const styles = StyleSheet.create({
     closeBadgeBtn: {
         padding: 2,
         borderRadius: 10,
-        backgroundColor: '#CBD5E1', // Tròn màu xám nhạt dễ bấm
+        backgroundColor: '#CBD5E1',
         justifyContent: 'center',
         alignItems: 'center',
     },
