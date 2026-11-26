@@ -477,7 +477,6 @@ export default function MapScreen() {
 
         const interchangeName = selectedInterchange.NameInterchange || 'Nút giao';
 
-        // 🔴 1. Cảnh báo khi còn cách 1 km (từ 0.8 km đến 1.1 km)
         if (distToSelectedInterchangeKm <= 1.1 && distToSelectedInterchangeKm > 0.8 && !hasWarnedInterchange1km) {
             hasWarnedInterchange1km = true;
             Speech.stop();
@@ -487,7 +486,6 @@ export default function MapScreen() {
             });
         }
 
-        // 🔴 2. Cảnh báo gấp khi còn cách 500m (từ 0.3 km đến 0.6 km)
         if (distToSelectedInterchangeKm <= 0.6 && distToSelectedInterchangeKm > 0.3 && !hasWarnedInterchange500m) {
             hasWarnedInterchange500m = true;
             Speech.stop();
@@ -990,7 +988,7 @@ export default function MapScreen() {
             </View>
 
             <Modal visible={sidebarOpen} animationType="fade" transparent={true} onRequestClose={() => setSidebarOpen(false)}>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     onPress={testVoiceAlerts}
                     style={{
                         position: 'absolute',
@@ -1003,7 +1001,7 @@ export default function MapScreen() {
                     }}
                 >
                     <Text style={{ color: '#FFF', fontWeight: 'bold' }}>🔊 Test Giọng Nói</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 <View style={styles.modalOverlay}>
                     <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={() => setSidebarOpen(false)} />
                     <View style={[styles.sidebarContent, { paddingTop: insets.top > 0 ? insets.top : 20 }]}>
@@ -1161,7 +1159,7 @@ export default function MapScreen() {
                     <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={() => setNearestDrawerOpen(false)} />
                     <View style={styles.bottomDrawerContent}>
                         <View style={styles.drawerHeader}>
-                            <Text style={styles.sidebarTitle}>📍 Vị Trí Hạ Tầng Gần Bạn Nhất</Text>
+                            <Text style={styles.sidebarTitle}>Vị Trí Hạ Tầng Gần Bạn Nhất</Text>
                             <TouchableOpacity onPress={() => setNearestDrawerOpen(false)}>
                                 <Ionicons name="close" size={24} color="#64748B" />
                             </TouchableOpacity>
@@ -1225,10 +1223,7 @@ export default function MapScreen() {
                             </TouchableOpacity>
                         </View>
 
-                        {/* 🎯 NÚT GIAO XẢ */}
                         <Text style={styles.filterLabel}>NÚT GIAO XẢ</Text>
-
-                        {/* Ô Tìm kiếm Nút giao */}
                         <View style={styles.searchBox}>
                             <Ionicons name="search-outline" size={18} color="#64748B" />
                             <TextInput
@@ -1244,8 +1239,6 @@ export default function MapScreen() {
                                 </TouchableOpacity>
                             )}
                         </View>
-
-                        {/* Picker Nút giao (Đã làm TO RÕ và liên kết filteredInterchanges) */}
                         <View style={styles.pickerBox}>
                             <Picker
                                 selectedValue={selectedInterchange?.InterchangeId ?? null}
@@ -1265,10 +1258,9 @@ export default function MapScreen() {
                                 }}
                                 dropdownIconColor="#008744"
                                 style={styles.pickerSelect}
-                                itemStyle={styles.pickerItem} // Dành cho iOS
+                                itemStyle={styles.pickerItem}
                             >
                                 <Picker.Item label="-- Chọn nút giao --" value={null} color="#64748B" style={styles.pickerItemText} />
-                                {/* 🟢 Render danh sách đã lọc theo ô Search */}
                                 {filteredInterchanges.map((i) => (
                                     <Picker.Item
                                         key={i.InterchangeId}
@@ -1301,11 +1293,7 @@ export default function MapScreen() {
                             </View>
                         )}
 
-
-                        {/* 🏪 TRẠM DỪNG CHÂN */}
                         <Text style={[styles.filterLabel, { marginTop: 16 }]}>TRẠM DỪNG CHÂN</Text>
-
-                        {/* Ô Tìm kiếm Trạm dừng */}
                         <View style={styles.searchBox}>
                             <Ionicons name="search-outline" size={18} color="#64748B" />
                             <TextInput
@@ -1322,7 +1310,6 @@ export default function MapScreen() {
                             )}
                         </View>
 
-                        {/* Picker Trạm dừng chân (Đã làm TO RÕ và liên kết filteredRestStops) */}
                         <View style={styles.pickerBox}>
                             <Picker
                                 selectedValue={selectedRestStop?.RestStopId ?? null}
@@ -1345,7 +1332,6 @@ export default function MapScreen() {
                                 itemStyle={styles.pickerItem}
                             >
                                 <Picker.Item label="-- Chọn trạm dừng --" value={null} color="#64748B" style={styles.pickerItemText} />
-                                {/* 🟢 Render danh sách đã lọc theo ô Search */}
                                 {filteredRestStops.map((r) => (
                                     <Picker.Item
                                         key={r.RestStopId}
@@ -1378,7 +1364,6 @@ export default function MapScreen() {
                             </View>
                         )}
 
-                        {/* Nút Xóa bộ lọc / Đóng */}
                         <TouchableOpacity
                             style={styles.applyBtn}
                             onPress={() => setIsFilterOpen(false)}
@@ -1441,7 +1426,10 @@ const styles = StyleSheet.create({
     nearestItem: { backgroundColor: '#F8FAFC', padding: 10, borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0' },
     nearestLabel: { fontSize: 10, color: '#64748B', fontWeight: 'bold' },
     nearestTitle: { fontSize: 13, fontWeight: 'bold', color: '#1E293B', marginTop: 2 },
-    nearestDist: { fontSize: 11, color: '#008744', marginTop: 2 },
+    nearestDist: { 
+        fontSize: 11, 
+        color: '#008744', 
+        marginTop: 2 },
     pickerSelect: {
         width: '100%',
         color: '#0F172A',
@@ -1452,7 +1440,6 @@ const styles = StyleSheet.create({
         height: 120,
         color: '#0F172A',
     },
-    // 🟢 Style cho nhóm biển báo tốc độ góc trên bên trái
     topSpeedLimitGroup: {
         position: 'absolute',
         top: 16,
@@ -1461,15 +1448,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 10,
     },
-
-    // 🔴 Biển báo Tốc độ tối đa (Viền đỏ dày, nền trắng, số đen)
     maxSpeedCircle: {
         width: 50,
         height: 50,
         borderRadius: 25,
         backgroundColor: '#FFFFFF',
         borderWidth: 4,
-        borderColor: '#E11D48', // Màu đỏ biển báo P.127
+        borderColor: '#E11D48',
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 5,
@@ -1490,8 +1475,6 @@ const styles = StyleSheet.create({
         color: '#E11D48',
         marginTop: -1,
     },
-
-    // 🔵 Biển báo Tốc độ tối thiểu (Nền xanh dương, chữ trắng chuẩn biển R.306)
     minSpeedCircle: {
         width: 50,
         height: 50,
@@ -1533,7 +1516,6 @@ const styles = StyleSheet.create({
         borderWidth: 4,
     },
 
-    // 3. Panel Sidebar Bộ lọc
     filterFloatingBtn: {
         position: 'absolute',
         bottom: 35,
@@ -1562,23 +1544,19 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: '#FFFFFF',
     },
-
-    // Overlay phủ toàn màn hình, đẩy Sidebar sang lề phải
     modalOverlayRight: {
         flex: 1,
         backgroundColor: 'rgba(15, 23, 42, 0.4)',
         flexDirection: 'row',
-        justifyContent: 'flex-end', // Đẩy panel sát mép phải
+        justifyContent: 'flex-end',
     },
-
-    // Panel Sidebar bên phải: Không bo góc (borderRadius: 0), chiều cao 100%
     rightFullSidebar: {
-        width: 260,               // Độ rộng Sidebar vừa đẹp cho màn hình
-        height: '100%',           // Kéo dài full chiều cao màn hình
+        width: 260,
+        height: '100%',
         backgroundColor: '#FFFFFF',
-        borderRadius: 0,          // Không bo góc theo yêu cầu
+        borderRadius: 0,
         padding: 16,
-        paddingTop: 45,           // Đệm cách mép trên để tránh thanh trạng thái
+        paddingTop: 45,
         shadowColor: '#000',
         shadowOffset: { width: -3, height: 0 },
         shadowOpacity: 0.2,
