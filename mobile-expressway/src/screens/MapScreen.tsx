@@ -62,7 +62,7 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }: any) => {
         const speedKmH = speed && speed > 0 ? Math.round(speed * 3.6) : 0;
         const now = Date.now();
 
-        // 🔴 1. CẢNH BÁO QUÁ TỐC ĐỘ TỐI ĐA
+        // 1. CẢNH BÁO QUÁ TỐC ĐỘ TỐI ĐA
         if (globalMaxSpeed > 0 && speedKmH > globalMaxSpeed) {
             if (now - lastMaxSpeedWarningTime > 8000) {
                 lastMaxSpeedWarningTime = now;
@@ -938,7 +938,7 @@ export default function MapScreen() {
                 />
 
                 <View style={styles.topSpeedLimitGroup}>
-                    {/* Biển Tốc độ tối đa (Khoanh đỏ) */}
+                    {/* Biển Tốc độ tối đa */}
                     <View style={[styles.maxSpeedCircle, currentSpeedLimits.isTunnel && styles.tunnelBorder]}>
                         <Text style={styles.speedLimitValue}>{currentSpeedLimits.max}</Text>
                         <Text style={styles.speedLimitLabel}>
@@ -946,7 +946,7 @@ export default function MapScreen() {
                         </Text>
                     </View>
 
-                    {/* Biển Tốc độ tối thiểu (Khoanh xanh) */}
+                    {/* Biển Tốc độ tối thiểu */}
                     <View style={[styles.minSpeedCircle, currentSpeedLimits.isTunnel && styles.tunnelBorderBlue]}>
                         <Text style={styles.speedLimitValueBlue}>{currentSpeedLimits.min}</Text>
                         <Text style={styles.speedLimitLabelBlue}>
@@ -988,7 +988,7 @@ export default function MapScreen() {
             </View>
 
             <Modal visible={sidebarOpen} animationType="fade" transparent={true} onRequestClose={() => setSidebarOpen(false)}>
-                {/* <TouchableOpacity
+                <TouchableOpacity
                     onPress={testVoiceAlerts}
                     style={{
                         position: 'absolute',
@@ -1001,7 +1001,7 @@ export default function MapScreen() {
                     }}
                 >
                     <Text style={{ color: '#FFF', fontWeight: 'bold' }}>🔊 Test Giọng Nói</Text>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
                 <View style={styles.modalOverlay}>
                     <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={() => setSidebarOpen(false)} />
                     <View style={[styles.sidebarContent, { paddingTop: insets.top > 0 ? insets.top : 20 }]}>
