@@ -19,12 +19,12 @@ import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import Footer from '../components/Footer';
 import { useAuth } from '../components/AuthContext';
 
-const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';
+const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
 
 export default function LoginScreen() {
     const navigation = useNavigation<any>();
     const { width } = useWindowDimensions();
-    const { login } = useAuth(); // Lấy hàm login từ AuthContext
+    const { login } = useAuth();
     const isTablet = width >= 600;
 
     const [username, setUsername] = useState('');

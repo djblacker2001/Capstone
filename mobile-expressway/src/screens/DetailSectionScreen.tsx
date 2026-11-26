@@ -11,7 +11,7 @@ import { SectionDetail, InterchangeItem, RestStopItem, BridgeItem, TunnelItem, P
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../components/AuthContext';
 
-const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';
+const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
 
 export default function DetailSectionScreen() {
     const { isLoggedIn, loading } = useAuth();

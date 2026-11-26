@@ -5,9 +5,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
 
 type WebViewRef = React.ElementRef<typeof WebView>;
-const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';
+const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080/';
 
-// 🟢 User-Agent tự động phù hợp với từng nền tảng iOS / Android
 const DEFAULT_USER_AGENT = Platform.select({
     ios: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
     android: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36',
@@ -28,8 +27,6 @@ export default function MapHome({
     const webViewRef = useRef<WebViewRef | null>(null);
     const [geojsonData, setGeojsonData] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(false);
-
-    // 1. Fetch Dữ liệu GeoJSON phía React Native trước khi truyền vào WebView
     useEffect(() => {
         const loadGeojson = async () => {
             if (!mapDataFromApi) {
@@ -66,20 +63,18 @@ export default function MapHome({
         loadGeojson();
     }, [mapDataFromApi]);
 
-    // 2. Gửi dữ liệu mới sang WebView mỗi khi geojsonData cập nhật
     useEffect(() => {
         if (geojsonData && webViewRef.current) {
             const script = `
         if (window.renderGeoJSON) {
-          window.renderGeoJSON(${JSON.stringify(geojsonData)});
+            window.renderGeoJSON(${JSON.stringify(geojsonData)});
         }
         true;
-      `;
+        `;
             webViewRef.current.injectJavaScript(script);
         }
     }, [geojsonData]);
 
-    // HTML Template Leaflet sử dụng Stadia Maps (Alidade Smooth)
     const leafletHtml = `
     <!DOCTYPE html>
     <html>

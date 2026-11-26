@@ -8,7 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';
+const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
 
 export default function SettingsScreen() {
     const navigation = useNavigation<any>();

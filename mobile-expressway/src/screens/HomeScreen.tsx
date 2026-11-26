@@ -11,7 +11,7 @@ import Footer from '../components/Footer';
 import MapHome from '../components/MapHome';
 
 const { width } = Dimensions.get('window');
-const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';
+const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080/';
 
 export default function HomeScreen() {
     const navigation = useNavigation<any>();

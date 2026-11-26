@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import Footer from '../components/Footer';
 
-const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';
+const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
 
 export default function RegisterScreen() {
     const navigation = useNavigation<any>();

@@ -52,7 +52,8 @@
           "locationWhenInUsePermission": "Ứng dụng cần định vị vị trí của bạn để hiển thị trên bản đồ.",
           "isAndroidBackgroundLocationEnabled": true
         }
-      ]
+      ],
+      "expo-router"
     ]
   }
 }

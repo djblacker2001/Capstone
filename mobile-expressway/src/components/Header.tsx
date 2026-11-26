@@ -5,7 +5,7 @@ import { useNavigation, DrawerActions, useIsFocused } from '@react-navigation/na
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.28:8080';
+const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080/';
 
 interface HeaderProps {
     onOpenDrawer?: () => void;
