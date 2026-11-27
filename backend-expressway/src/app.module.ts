@@ -16,22 +16,40 @@ import { AuthModule } from './auth/auth.module';
 import { ProvincesModule } from './provinces/provinces.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import path, { join } from 'path';
-import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n'; 
+import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mssql',
-      host: process.env.DB_HOST || 'localhost', 
-      port: Number(process.env.DB_PORT) || 1433,
-      username: process.env.DB_USERNAME || 'sa',
-      password: process.env.DB_PASSWORD || '123456',
-      database: process.env.DB_NAME || 'Project',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      options: {
-        encrypt: true,
-        trustServerCertificate: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const host = configService.get<string>('DB_HOST') || '127.0.0.1';
+        const port = Number(configService.get<string>('DB_PORT')) || 1433;
+        const username = configService.get<string>('DB_USERNAME') || 'sa';
+        const password = configService.get<string>('DB_PASSWORD') || 'Hoangzelo2001!';
+        const database = configService.get<string>('DB_NAME') || 'CapstoneDb';
+
+        console.log('MSSQL config:', { host, port, username, database, passLen: password?.length });
+
+        return {
+          type: 'mssql',
+          host,
+          port,
+          username,
+          password,
+          database,
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          options: {
+            encrypt: true,
+            trustServerCertificate: true,
+          },
+        };
       },
     }),
 
@@ -55,7 +73,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
-        path: path.join(process.cwd(), 'i18n'), 
+        path: path.join(process.cwd(), 'i18n'),
         watch: true,
       },
       resolvers: [
@@ -68,5 +86,5 @@ import { DashboardModule } from './dashboard/dashboard.module';
   providers: [AppService],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) {}
+  constructor(private dataSource: DataSource) { }
 }

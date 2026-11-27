@@ -30,7 +30,7 @@ async function bootstrap() {
       name: 'accept-language',
       in: 'header',
       required: false,
-      schema: { default: 'en' },
+      schema: { default: 'en' }, 
       description: 'Feedback language:"vi" for Vietnamese or "en" for English',
     })
     .build();

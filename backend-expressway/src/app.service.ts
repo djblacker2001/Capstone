@@ -49,7 +49,7 @@ export class AppService {
           lang: this.lang, 
           args: { filename } 
         }),
-      };
+      }; 
     } catch (error: any) {
       throw new Error(
         this.i18n.t('upload.DELETE_ERROR', { lang: this.lang, args: { error: error.message } })
