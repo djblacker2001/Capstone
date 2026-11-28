@@ -44,7 +44,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           username,
           password,
           database,
-          autoLoadEntities: true,
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
           options: {
             encrypt: true,
             trustServerCertificate: true,
