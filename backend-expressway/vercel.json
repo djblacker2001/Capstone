@@ -5,7 +5,7 @@
       "src": "src/main.ts",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["i18n/**", "uploads/**"]
+        "includeFiles": ["i18n/**", "backend/i18n/**", "uploads/**"]
       }
     }
   ],
