@@ -1,15 +1,40 @@
-import { Controller, Get, Post, Body, Param, Delete, ParseIntPipe, UseGuards, Put, Patch, UploadedFile, UseInterceptors, Req, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Param,
+  Delete,
+  ParseIntPipe,
+  UseGuards,
+  Put,
+  UploadedFile,
+  UseInterceptors,
+  Req,
+  HttpCode,
+  HttpStatus,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './users.entity';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { memoryStorage } from 'multer';
 import { extname } from 'path';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-users.dto';
 import { JwtService } from '@nestjs/jwt';
+
+function buildAvatarFilename(file: Express.Multer.File): string {
+  const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+  const ext = extname(file.originalname || '');
+  return `${uniqueSuffix}${ext}`;
+}
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -18,7 +43,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
@@ -38,7 +63,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async removeAvatar(@Req() req: any) {
-    const {userId} = req.user;
+    const { userId } = req.user;
     return await this.usersService.removeAvatar(+userId);
   }
 
@@ -62,25 +87,20 @@ export class UsersController {
         avatar: {
           type: 'string',
           format: 'binary',
-          description: 'Upload profile image file'
+          description: 'Upload profile image file',
         },
       },
     },
   })
-  @UseInterceptors(FileInterceptor('avatar', {
-    storage: diskStorage({
-      destination: './uploads/avatars',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = extname(file.originalname);
-        cb(null, `${uniqueSuffix}${ext}`);
-      },
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: memoryStorage(),
     }),
-  }))
+  )
   async updateProfile(
     @Req() req: any,
     @Body() updateUserDto: UpdateUserDto,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
   ) {
     const jwtUserId = req.user.userId;
     if (!jwtUserId) {
@@ -88,17 +108,20 @@ export class UsersController {
     }
 
     if (file) {
-      updateUserDto.Avatar = file.filename;
+      updateUserDto.Avatar = buildAvatarFilename(file);
     }
 
-    const updatedUser = await this.usersService.updateProfile(+jwtUserId, updateUserDto);
+    const updatedUser = await this.usersService.updateProfile(
+      +jwtUserId,
+      updateUserDto,
+    );
     const currentRoleId = updatedUser?.data?.RoleId || req.user.roleId;
     const userRoleName = currentRoleId === 1 ? 'admin' : 'user';
     const payload = {
       userId: jwtUserId,
       username: updatedUser?.data?.Username,
       email: updatedUser?.data?.Email,
-      role: userRoleName
+      role: userRoleName,
     };
 
     const newToken = this.jwtService.sign(payload);
@@ -107,7 +130,7 @@ export class UsersController {
       Username: updatedUser?.data?.Username,
       Email: updatedUser?.data?.Email,
       Avatar: updatedUser?.data?.Avatar,
-      Role: userRoleName, 
+      Role: userRoleName,
       accessToken: newToken,
     };
   }
