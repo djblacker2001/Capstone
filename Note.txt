@@ -50,3 +50,5 @@ Tính toán lộ trình và chỉ đường từng chặng trực tiếp trên M
 Cấu hình để Mobile App và Web Admin có thể truy cập, gọi API ổn định qua môi trường Internet thực tế.
 
 5. Đo quãng đường cảnh báo tốc độ.
+
+hoang.vu.cit23@eiu.edu.vn

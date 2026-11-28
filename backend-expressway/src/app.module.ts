@@ -29,11 +29,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const host = configService.get<string>('DB_HOST') || '127.0.0.1';
+        const host = configService.get<string>('DB_HOST') || 'capstone-expressway-sql-v2.database.windows.net';
         const port = Number(configService.get<string>('DB_PORT')) || 1433;
-        const username = configService.get<string>('DB_USERNAME') || 'sa';
+        const username = configService.get<string>('DB_USERNAME') || 'sqladmin';
         const password = configService.get<string>('DB_PASSWORD') || 'Hoangzelo2001!';
-        const database = configService.get<string>('DB_NAME') || 'CapstoneDb';
+        const database = configService.get<string>('DB_NAME') || 'ExpresswayDb';
 
         console.log('MSSQL config:', { host, port, username, database, passLen: password?.length });
 
