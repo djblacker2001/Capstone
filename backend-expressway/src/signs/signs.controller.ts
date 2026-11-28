@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Query, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Query, UseGuards, UploadedFile, UseInterceptors, } from '@nestjs/common';
 import { SignsService } from './signs.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -7,18 +7,19 @@ import { CreateSignDto } from './dto/create-signs.dto';
 import { UpdateSignDto } from './dto/update-signs.dto';
 import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { memoryStorage } from 'multer';
 
 const multerOptions = {
-  storage: diskStorage({
-    destination: './uploads/signs',
-    filename: (req, file, cb) => {
-      const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
-      cb(null, originalName);
-    },
-  }),
+  storage: memoryStorage(),
 };
+
+function resolveUploadedImage(file?: Express.Multer.File): string | undefined {
+  if (!file) {
+    return undefined;
+  }
+  const decodedName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+  return `uploads/signs/${decodedName}`;
+}
 
 @ApiBearerAuth()
 @Controller('signs')
@@ -50,10 +51,13 @@ export class SignsController {
   @Post()
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file', multerOptions))
-  create(@Body() createSignDto: CreateSignDto, @UploadedFile() file: Express.Multer.File) {
+  create(
+    @Body() createSignDto: CreateSignDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     const dataPayload = {
       ...createSignDto,
-      Image: file ? file.path.replace(/\\/g, '/') : undefined,
+      Image: resolveUploadedImage(file),
     };
     return this.signsService.create(dataPayload);
   }
@@ -68,8 +72,12 @@ export class SignsController {
     @Body() updateSignDto: UpdateSignDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const newImagePath = file ? file.path.replace(/\\/g, '/') : undefined;
-    const updatedSign = await this.signsService.updateImage(id, updateSignDto, newImagePath);
+    const newImagePath = resolveUploadedImage(file);
+    const updatedSign = await this.signsService.updateImage(
+      id,
+      updateSignDto,
+      newImagePath,
+    );
 
     return {
       success: true,
