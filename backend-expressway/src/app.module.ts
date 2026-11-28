@@ -74,7 +74,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       fallbackLanguage: 'en',
       loaderOptions: {
         path: path.join(process.cwd(), 'i18n'),
-        watch: true,
+        watch: false,
       },
       resolvers: [
         new QueryResolver(['lang', 'l']),
