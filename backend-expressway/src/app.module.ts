@@ -74,7 +74,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
-        path: path.join(process.cwd(), 'i18n'),
+        path: path.join(__dirname, '..', 'i18n'),
         watch: false,
       },
       resolvers: [
